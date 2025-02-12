@@ -1,20 +1,28 @@
 # Sistema de Gestión de Librería
 
-Este proyecto implementa un sistema completo de gestión para una librería, con funcionalidades que incluyen administración de libros, gestión de usuarios, compras, noticias, búsqueda, mensajería y recomendaciones.
+## Descripción General
+
+Este proyecto implementa un sistema completo de gestión para una librería, con funcionalidades que incluyen:
+
+- Administración de Libros
+- Gestión de Usuarios
+- Compras y Reservas
+- Noticias
+- Búsqueda
+- Mensajería
+- Recomendaciones
 
 ## Estructura del Proyecto
-
-El proyecto está dividido en dos partes principales:
 
 - `backend/`: API REST desarrollada con Django y Django REST Framework
 - `frontend/`: Interfaz de usuario desarrollada con Next.js
 
-## Requisitos
+## Requisitos del Sistema
 
 ### Backend
 - Python 3.8+
-- Virtualenv o similar
-- Dependencias listadas en `backend/requirements.txt`
+- Virtualenv
+- Dependencias: [backend/requirements.txt](cci:7://file:///f:/Universidad/Lab%20Software/Proyecto-Libreria/backend/requirements.txt:0:0-0:0)
 
 ### Frontend
 - Node.js 18+
@@ -22,61 +30,81 @@ El proyecto está dividido en dos partes principales:
 
 ## Configuración del Entorno de Desarrollo
 
-### Backend
+### Instalación Inicial
 
-1. Crear y activar entorno virtual:
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-```
+1. **Clonar el Repositorio**
+   ```bash
+   git clone https://github.com/tu-usuario/proyecto-libreria.git
+   cd proyecto-libreria
+   ```
 
-2. Instalar dependencias:
-```bash
-pip install -r requirements.txt
-```
+2. **Configurar Backend**
+   ```bash
+   # Crear entorno virtual
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # Unix
+   venv\Scripts\activate     # Windows
 
-3. Aplicar migraciones:
+   # Instalar dependencias
+   pip install -r requirements.txt
+   ```
+
+3. **Configurar Base de Datos**
+   ```bash
+   # Aplicar migraciones
+   python manage.py migrate
+
+   # Crear superusuario
+   python manage.py createsuperuser
+
+   # Cargar Datos de Prueba (Opcional)
+   python manage.py loaddata usuarios_prueba.json
+   python manage.py loaddata libros_prueba.json
+
+   # Iniciar Servidor de Desarrollo
+   python manage.py runserver
+   ```
+
+4. **Configurar Frontend**
+   ```bash
+   cd ../frontend
+
+   # Instalar Dependencias
+   npm install
+
+   # Iniciar Servidor de Desarrollo
+   npm run dev
+   ```
+
+## Comandos Útiles de Django
+
+### Gestión de Base de Datos
+
+#### Migraciones
 ```bash
+# Crear migraciones
+python manage.py makemigrations usuarios
+python manage.py makemigrations libros
+
+# Aplicar migraciones
 python manage.py migrate
 ```
 
-4. Crear superusuario:
+#### Gestión de Datos
 ```bash
+# Cargar fixtures
+python manage.py loaddata usuarios_prueba.json
+
+# Crear backup de datos
+python manage.py dumpdata usuarios > usuarios_backup.json
+```
+
+### Gestión de Usuarios
+```bash
+# Crear superusuario
 python manage.py createsuperuser
+
+# Cambiar contraseña
+python manage.py changepassword <username>
 ```
-
-5. Ejecutar servidor de desarrollo:
-```bash
-python manage.py runserver
-```
-
-### Frontend
-
-1. Instalar dependencias:
-```bash
-cd frontend
-npm install
-```
-
-2. Ejecutar servidor de desarrollo:
-```bash
-npm run dev
-```
-
-## Estructura de Módulos
-
-El sistema está organizado en los siguientes módulos:
-
-- Administración de Libros
-- Compra y Reserva de Libros
-- Gestión de Usuarios
-- Noticias
-- Búsqueda
-- Gestión Financiera
-- Mensajería
-- Recomendaciones
-
-## Documentación
-
-La documentación de la API está disponible en `/api/schema/swagger-ui/` cuando el servidor está en ejecución.

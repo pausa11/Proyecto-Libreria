@@ -16,28 +16,29 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # API Schema documentation
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    # API URLs
+    path('api/libros/', include('apps.libros.urls')),
+    path('api/usuarios/', include('apps.usuarios.urls')),
     
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
-    # API endpoints
-    path('api/libros/', include('apps.libros.urls')),
-    # TODO: Implementar y descomentar las siguientes URLs cuando estén listas
-    # path('api/compras/', include('apps.compras.urls')),
-    # path('api/usuarios/', include('apps.usuarios.urls')),
-    # path('api/noticias/', include('apps.noticias.urls')),
-    # path('api/busqueda/', include('apps.busqueda.urls')),
-    # path('api/finanzas/', include('apps.finanzas.urls')),
-    # path('api/mensajeria/', include('apps.mensajeria.urls')),
-    # path('api/recomendaciones/', include('apps.recomendaciones.urls')),
+    # API Documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

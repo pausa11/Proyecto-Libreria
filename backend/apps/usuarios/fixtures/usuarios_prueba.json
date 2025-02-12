@@ -1,0 +1,54 @@
+[
+    {
+        "model": "usuarios.usuario",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$LDUNzUhV5zJwuCdJlW5sHZ$rgerevuJluSlpp0SSXpOqEoNA5SDBfHKk4M6thwXjls=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "bibliotecario1",
+            "first_name": "Juan",
+            "last_name": "Pérez",
+            "email": "juan.perez@libreria.com",
+            "is_staff": true,
+            "is_active": true,
+            "date_joined": "2025-02-11T17:58:19-05:00",
+            "tipo_usuario": "BIBLIOTECARIO",
+            "numero_identificacion": "23456789",
+            "telefono": "+573002345678",
+            "direccion": "Avenida Biblioteca #456",
+            "fecha_nacimiento": "1985-05-15",
+            "fecha_registro": "2025-02-11T17:58:19-05:00",
+            "ultima_actualizacion": "2025-02-11T17:58:19-05:00",
+            "activo": true,
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "usuarios.usuario",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$JzlQBIqkUijxcgkXatZi9p$+CMEfdpKtruwI/nfp+zaxMRFCXChHyMGBrcCP4OT8/k=",
+            "last_login": null,
+            "is_superuser": false,
+            "username": "lector1",
+            "first_name": "María",
+            "last_name": "González",
+            "email": "maria.gonzalez@email.com",
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-02-11T17:58:19-05:00",
+            "tipo_usuario": "LECTOR",
+            "numero_identificacion": "34567890",
+            "telefono": "+573003456789",
+            "direccion": "Carrera Lectores #789",
+            "fecha_nacimiento": "1995-08-20",
+            "fecha_registro": "2025-02-11T17:58:19-05:00",
+            "ultima_actualizacion": "2025-02-11T17:58:19-05:00",
+            "activo": true,
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]
