@@ -1,0 +1,13 @@
+Django>=4.2.0,<5.0.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.3.0
+python-dotenv>=1.0.0
+Pillow>=10.0.0  # Para manejo de imágenes
+django-filter>=23.0  # Para filtros avanzados en DRF
+drf-spectacular>=0.26.0  # Para documentación de API
+channels>=4.0.0  # Para mensajería en tiempo real
+psycopg2-binary>=2.9.0  # Para PostgreSQL en producción
+pytest>=7.0.0  # Para testing
+pytest-django>=4.5.0
+python-jose>=3.3.0  # Para manejo de JWT
+djangorestframework-simplejwt>=5.3.0  # Para autenticación JWT

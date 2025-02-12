@@ -1,0 +1,94 @@
+[
+    {
+        "model": "libros.categoria",
+        "pk": 1,
+        "fields": {
+            "nombre": "Ficción",
+            "descripcion": "Libros de ficción, incluyendo novelas y cuentos"
+        }
+    },
+    {
+        "model": "libros.categoria",
+        "pk": 2,
+        "fields": {
+            "nombre": "No Ficción",
+            "descripcion": "Libros basados en hechos reales, biografías y documentales"
+        }
+    },
+    {
+        "model": "libros.categoria",
+        "pk": 3,
+        "fields": {
+            "nombre": "Académico",
+            "descripcion": "Libros de texto y material educativo"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 1,
+        "fields": {
+            "titulo": "Cien años de soledad",
+            "autor": "Gabriel García Márquez",
+            "isbn": "9780307474728",
+            "precio": "25.99",
+            "stock": 15,
+            "categoria": 1,
+            "editorial": "Vintage Español",
+            "año_publicacion": 1967,
+            "descripcion": "Una saga familiar que narra la historia de los Buendía en Macondo",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 2,
+        "fields": {
+            "titulo": "El principito",
+            "autor": "Antoine de Saint-Exupéry",
+            "isbn": "9780156012195",
+            "precio": "15.99",
+            "stock": 20,
+            "categoria": 1,
+            "editorial": "Harvest Books",
+            "año_publicacion": 1943,
+            "descripcion": "Una historia sobre la amistad, el amor y el sentido de la vida",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 3,
+        "fields": {
+            "titulo": "Breve historia del tiempo",
+            "autor": "Stephen Hawking",
+            "isbn": "9780553380163",
+            "precio": "30.99",
+            "stock": 8,
+            "categoria": 2,
+            "editorial": "Bantam",
+            "año_publicacion": 1988,
+            "descripcion": "Una exploración de los misterios del universo",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 4,
+        "fields": {
+            "titulo": "Cálculo: Una variable",
+            "autor": "James Stewart",
+            "isbn": "9786074818101",
+            "precio": "45.99",
+            "stock": 25,
+            "categoria": 3,
+            "editorial": "Cengage Learning",
+            "año_publicacion": 2012,
+            "descripcion": "Libro de texto fundamental para el estudio del cálculo",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    }
+]
