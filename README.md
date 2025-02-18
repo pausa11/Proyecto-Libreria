@@ -60,7 +60,7 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
 
    # Cargar Datos de Prueba (Opcional)
    python manage.py loaddata usuarios_prueba.json
-   python manage.py loaddata libros_prueba.json
+   python manage.py loaddata usuarios_prueba.json
 
    # Iniciar Servidor de Desarrollo
    python manage.py runserver

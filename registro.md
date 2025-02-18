@@ -140,3 +140,50 @@
 - Implementar filtros adicionales en la API
 - Desarrollar pruebas unitarias
 - Configurar sistema de usuarios y permisos
+
+
+## [2025-02-11] Implementación del Sistema de Usuarios y Permisos
+
+### feat(usuarios): Mejora del Sistema de Autenticación y Usuarios
+
+- **Implementación de Fixture de Usuarios**
+  - Creación de usuarios de prueba con diferentes roles
+    - Bibliotecario
+    - Lector
+  - Configuración de contraseñas hasheadas seguramente
+  - Definición de perfiles con información detallada
+
+- **Mejoras en Autenticación**
+  - Refinamiento de endpoints de usuarios
+  - Implementación de serializers personalizados
+  - Configuración de permisos por tipo de usuario
+  - **Implementación de Superusuario**
+    - Creación de superusuario administrativo
+    - Configuración de permisos totales
+    - Acceso completo al sistema de administración
+
+- **Configuración de Permisos**
+  - Definición de roles: ADMIN, BIBLIOTECARIO, LECTOR
+  - Implementación de lógica de permisos en ViewSet
+  - Integración con sistema JWT
+
+### Estado Actual del Sistema
+
+- **Módulos Implementados ✅**
+  - Libros
+  - Autenticación Avanzada
+  - Sistema de Usuarios Personalizado
+  - Gestión de Permisos
+
+- **Módulos Pendientes 🚧**
+  - Compras
+  - Noticias
+  - Búsqueda
+  - Finanzas
+  - Mensajería
+  - Recomendaciones
+
+### Próximos Pasos
+- Desarrollar sistema de compras
+- Implementar módulo de búsqueda
+- Crear sistema de recomendaciones
