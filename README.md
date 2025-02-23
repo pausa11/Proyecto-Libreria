@@ -60,7 +60,7 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
 
    # Cargar Datos de Prueba (Opcional)
    python manage.py loaddata usuarios_prueba.json
-   python manage.py loaddata usuarios_prueba.json
+   python manage.py loaddata libros_prueba.json
 
    # Iniciar Servidor de Desarrollo
    python manage.py runserver
@@ -108,3 +108,20 @@ python manage.py createsuperuser
 # Cambiar contraseña
 python manage.py changepassword <username>
 ```
+
+## Pruebas del Backend
+
+### Verificación de Endpoints
+
+1. **Documentación de la API**
+   - Swagger UI: [https://proyecto-libreria-k9xr.onrender.com/api/schema/swagger-ui/](https://proyecto-libreria-k9xr.onrender.com/api/schema/swagger-ui/)
+   - ReDoc: [https://proyecto-libreria-k9xr.onrender.com/api/schema/redoc/](https://proyecto-libreria-k9xr.onrender.com/api/schema/redoc/)
+
+2. **Endpoints Principales**
+   ```bash
+   # Endpoints de Libros
+   curl -X GET https://proyecto-libreria-k9xr.onrender.com/api/libros/
+   
+   # Endpoints de Usuarios
+   curl -X GET https://proyecto-libreria-k9xr.onrender.com/api/usuarios/
+   ```

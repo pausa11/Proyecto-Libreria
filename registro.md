@@ -187,3 +187,40 @@
 - Desarrollar sistema de compras
 - Implementar módulo de búsqueda
 - Crear sistema de recomendaciones
+
+## [2025-02-18] Configuración y Despliegue en Render
+
+### feat(deploy): Configuración inicial del despliegue
+
+- **feat(settings):** Configuración de variables de entorno y CORS
+  - **commit:** Implementación de django-environ
+    - Configuración de variables de entorno con django-environ
+    - Actualización de ALLOWED_HOSTS para Render
+    - Configuración de CORS para futuros frontends
+
+- **feat(deployment):** Configuración de Render
+  - **commit:** Configuración de despliegue en Render
+    - Creación de render.yaml
+    - Configuración de gunicorn
+    - Ajuste de PYTHONPATH y wsgi
+    - Implementación de variables de entorno en Render
+
+### Estado Actual del Sistema
+
+- **Funcionalidades Desplegadas ✅**
+  - Backend en Render
+  - Sistema de variables de entorno
+  - Configuración CORS
+  - Documentación API (Swagger/ReDoc)
+
+- **Endpoints Disponibles**
+  - `/api/schema/swagger-ui/` - Documentación Swagger
+  - `/api/schema/redoc/` - Documentación ReDoc
+  - `/api/token/` - Obtención de JWT
+  - `/api/token/refresh/` - Refrescar JWT
+
+### Próximos Pasos
+- Implementar frontend en GitHub Pages
+- Configurar CI/CD
+- Implementar pruebas automatizadas
+- Configurar monitoreo en producción
