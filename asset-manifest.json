@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/proyecto-libreria/static/css/main.4b0acb14.css",
-    "main.js": "/proyecto-libreria/static/js/main.fef55dec.js",
-    "static/js/453.47bebaf0.chunk.js": "/proyecto-libreria/static/js/453.47bebaf0.chunk.js",
-    "static/media/logo.svg": "/proyecto-libreria/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
-    "index.html": "/proyecto-libreria/index.html",
-    "main.4b0acb14.css.map": "/proyecto-libreria/static/css/main.4b0acb14.css.map",
-    "main.fef55dec.js.map": "/proyecto-libreria/static/js/main.fef55dec.js.map",
-    "453.47bebaf0.chunk.js.map": "/proyecto-libreria/static/js/453.47bebaf0.chunk.js.map"
+    "main.css": "/Proyecto-Libreria/static/css/main.4b0acb14.css",
+    "main.js": "/Proyecto-Libreria/static/js/main.910a89e4.js",
+    "static/js/453.47bebaf0.chunk.js": "/Proyecto-Libreria/static/js/453.47bebaf0.chunk.js",
+    "static/media/logo.svg": "/Proyecto-Libreria/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/Proyecto-Libreria/index.html",
+    "main.4b0acb14.css.map": "/Proyecto-Libreria/static/css/main.4b0acb14.css.map",
+    "main.910a89e4.js.map": "/Proyecto-Libreria/static/js/main.910a89e4.js.map",
+    "453.47bebaf0.chunk.js.map": "/Proyecto-Libreria/static/js/453.47bebaf0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4b0acb14.css",
-    "static/js/main.fef55dec.js"
+    "static/js/main.910a89e4.js"
   ]
 }
