@@ -1,15 +1,15 @@
-Django>=4.2.0,<5.0.0
-djangorestframework>=3.14.0
-django-cors-headers>=4.3.0
+Django>=4.2.0,<4.3.0
+djangorestframework>=3.14.0,<3.15.0
+django-cors-headers>=4.1.0,<4.2.0
 python-dotenv>=1.0.0
 Pillow>=10.0.0  # Para manejo de imágenes
-django-filter>=23.0  # Para filtros avanzados en DRF
-drf-spectacular>=0.26.0  # Para documentación de API
-channels>=4.0.0  # Para mensajería en tiempo real
-psycopg2-binary>=2.9.0  # Para PostgreSQL en producción
+django-filter>=23.2,<23.3  # Para filtros avanzados en DRF
+drf-spectacular>=0.26.2,<0.27.0  # Para documentación de API
+channels>=4.0.0,<4.1.0  # Para mensajería en tiempo real
+psycopg2-binary>=2.9.6,<2.10.0  # Para PostgreSQL en producción
 pytest>=7.0.0  # Para testing
 pytest-django>=4.5.0
 python-jose>=3.3.0  # Para manejo de JWT
-djangorestframework-simplejwt>=5.3.0  # Para autenticación JWT
-django-environ
+djangorestframework-simplejwt>=5.2.2,<5.3.0  # Para autenticación JWT
+django-environ>=0.10.0,<0.11.0
 gunicorn==21.2.0
