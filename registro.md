@@ -225,8 +225,6 @@
 - Implementar pruebas automatizadas
 - Configurar monitoreo en producción
 
-# Registro de Cambios del Proyecto
-
 ## [2025-03-07] Implementación del Sistema de Búsqueda
 
 ### feat(busqueda): Configuración inicial del módulo de búsqueda
@@ -256,18 +254,49 @@
   - Conexión con la configuración principal de URLs
   - Estructura preparada para expansión a otros tipos de búsqueda
 
+### feat(busqueda): Mejora del sistema de búsqueda con filtros avanzados
+
+- **commit:** Implementación de búsqueda flexible y filtros avanzados
+  - Modificación del endpoint de búsqueda para soportar filtros independientes
+  - Implementación de búsqueda por texto opcional
+  - Añadido sistema de filtros por categoría, precio y stock
+
+#### Detalles de la implementación:
+
+- **Búsqueda Flexible:**
+  - Parámetro de búsqueda por texto (`q`) ahora es opcional
+  - Soporte para búsqueda por título, autor e ISBN
+  - Validación mejorada para requerir al menos un criterio de búsqueda
+
+- **Filtros Avanzados:**
+  - Filtrado por categoría usando búsqueda insensible a mayúsculas
+  - Rango de precios con valores mínimos y máximos
+  - Filtrado por stock mínimo disponible
+  - Todos los filtros son opcionales y pueden combinarse
+
+- **Mejoras en la Documentación:**
+  - Actualización de la documentación Swagger con parámetros opcionales
+  - Descripciones detalladas de cada parámetro de búsqueda
+  - Ejemplos de uso de los diferentes filtros
+
 ### Estado Actual del Sistema
 
 - **Módulos Implementados ✅**
-  - **Búsqueda (básica)**
+  - **Búsqueda (avanzada)**
+    - Búsqueda por texto flexible
+    - Filtros por categoría, precio y stock
+    - Almacenamiento de historial de consultas
+    - Documentación completa en Swagger
 
 - **Funcionalidades de Búsqueda Disponibles:**
-  - Endpoint de búsqueda básica
-  - Almacenamiento de historial de consultas
-  - Estructura para implementación de filtros
+  - Búsqueda por texto (título, autor, ISBN)
+  - Filtrado por categoría
+  - Filtrado por rango de precios
+  - Filtrado por stock mínimo
+  - Combinación de múltiples filtros
+  - Historial de búsquedas
 
 - **Módulos Pendientes 🚧**
-  - Filtros avanzados de búsqueda
   - Integración con recomendaciones
   - Compras
   - Noticias
@@ -275,9 +304,8 @@
   - Mensajería
 
 ### Próximos Pasos
-- Expandir funcionalidades de búsqueda:
-  - Implementar búsqueda por título, autor, ISBN, categoría
-  - Añadir filtrado por rango de precios
-  - Integrar búsqueda por disponibilidad
-- Conectar sistema de búsqueda con módulo de recomendaciones
-- Optimizar rendimiento de búsqueda con índices
+- Implementar búsqueda por sinónimos y palabras relacionadas
+- Añadir ordenamiento de resultados
+- Integrar sistema de sugerencias de búsqueda
+- Optimizar rendimiento con índices de búsqueda
+- Conectar con sistema de recomendaciones
