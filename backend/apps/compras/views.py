@@ -1,4 +1,4 @@
-'''from django.shortcuts import render
+from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Carrito
 from .serializers import CarritoSerializer
@@ -15,4 +15,4 @@ class CarritoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     filterset_fields = ['fecha']
     search_fields = ['fecha']
-    ordering_fields = ['fecha']'''
+    ordering_fields = ['fecha']

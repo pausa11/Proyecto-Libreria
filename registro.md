@@ -309,3 +309,90 @@
 - Integrar sistema de sugerencias de búsqueda
 - Optimizar rendimiento con índices de búsqueda
 - Conectar con sistema de recomendaciones
+
+# Registro de Cambios del Proyecto
+
+## [2025-03-10] Implementación y Mejora de las Aplicaciones de Compras y Finanzas
+
+### feat(compras): Implementación del módulo de compras
+
+#### Implementación del modelo Carrito y sus funcionalidades
+- **Creación del modelo Carrito** con campos básicos:
+  - `libros` (ManyToManyField a Libro)
+  - `fecha` (DateTimeField con auto_now_add)
+- **Métodos añadidos al modelo Carrito:**
+  - `total` (calcula el total del carrito con o sin descuento)
+  - `total_libros` (cuenta el número de libros en el carrito)
+  - `agregar_libro` (agrega un libro al carrito)
+  - `quitar_libro` (quita un libro del carrito)
+  - `nombre_libros` (devuelve una lista de los nombres de los libros en el carrito)
+  - `limpiar_carrito` (vacía el carrito)
+  - `pagar` (método placeholder para futuras implementaciones)
+
+#### Configuración del admin para Carrito
+- **Registro del modelo Carrito en el admin de Django**
+- **Acciones personalizadas en el admin:**
+  - `vaciar_carrito` (vacía los carritos seleccionados)
+  - `agregar_libro` (permite agregar un libro seleccionado a los carritos)
+
+#### Implementación de serializers y views para Carrito
+- **Serializer para Carrito**:
+  - `CarritoSerializer` con todos los campos y `fecha` como read-only
+- **ViewSet para Carrito**:
+  - `CarritoViewSet` con permisos `IsAuthenticatedOrReadOnly`
+  - Filtros y búsqueda configurados por `fecha`
+
+---
+
+### feat(finanzas): Implementación del módulo de finanzas
+
+#### Implementación de los modelos Tarjeta y Saldo
+- **Creación del modelo Tarjeta** con campos básicos:
+  - `numero` (CharField)
+  - `fecha_expiracion` (DateField)
+  - `cvv` (CharField)
+  - `titular` (CharField)
+- **Métodos añadidos al modelo Tarjeta:**
+  - `mostrar_información` (devuelve una cadena con el número y titular de la tarjeta)
+
+- **Creación del modelo Saldo** con campos básicos:
+  - `saldo` (DecimalField)
+- **Métodos añadidos al modelo Saldo:**
+  - `modificar_saldo` (modifica el saldo)
+  - `mostrar_saldo` (devuelve el saldo actual)
+
+#### Configuración del admin para Tarjeta y Saldo
+- **Registro de los modelos Tarjeta y Saldo en el admin de Django**
+- **Configuración del admin para Tarjeta**:
+  - `list_display` (muestra número y titular)
+  - `search_fields` (permite buscar por número y titular)
+  - `ordering` (ordena por número)
+- **Configuración del admin para Saldo**:
+  - `list_display` (muestra el saldo)
+
+---
+
+### Estado Actual del Proyecto
+
+- **Módulos Implementados ✅**
+  - **Compras**
+    - Modelo Carrito completo
+    - API REST funcional
+    - Endpoints documentados
+    - Integración con admin
+  - **Finanzas**
+    - Modelos Tarjeta y Saldo completos
+    - Integración con admin
+
+- **Módulos Pendientes 🚧**
+  - Noticias
+  - Búsqueda
+  - Mensajería
+  - Recomendaciones
+
+### Próximos Pasos
+
+- Implementar módulo de noticias
+- Desarrollar sistema de mensajería
+- Integrar recomendaciones
+- Mejorar el sistema de búsqueda

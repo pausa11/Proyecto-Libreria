@@ -1,5 +1,6 @@
 from django.db import models
-'''from apps.libros.models import Libro
+from apps.libros.models import Libro
+from apps.usuarios.models import Usuario
 
 # Create your models here.
 class Carrito(models.Model):
@@ -21,8 +22,11 @@ class Carrito(models.Model):
     def quitar_libro(self, libro):
         self.libros.remove(libro)
     
+    def nombre_libros(self):
+        return ', '.join([libro.titulo for libro in self.libros.all()])
+    
     def limpiar_carrito(self):
         self.libros.clear()
     
     def pagar(self):
-        pass'''
+        pass

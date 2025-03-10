@@ -6,12 +6,14 @@ class Tarjeta(models.Model):
     cvv = models.CharField(max_length=3)
     titular = models.CharField(max_length=100)
     
-    def __str__(self):
-        return self.numero
+    def mostrar_información(self):
+        return f'{self.numero} - {self.titular}'
     
 class Saldo(models.Model):
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
 
     def modificar_saldo(self, cantidad):
-        self.saldo += cantidad
-        self.save()
+        self.saldo = cantidad
+    
+    def mostrar_saldo(self):
+        return self.saldo
