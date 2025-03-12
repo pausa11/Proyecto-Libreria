@@ -18,14 +18,20 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Inicializa django-environ
-env = environ.Env(
-    # Establece valores predeterminados y lanza excepciones si faltan variables de entorno
-    DEBUG=(bool, False)
-)
+# Configuración de environ
+env = environ.Env(DEBUG=(bool, False))
 
-# Lee el archivo .env (especificando la ruta explícitamente)
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Buscar el archivo .env en varias ubicaciones posibles
+env_locations = [
+    os.path.join(BASE_DIR, '.env'),  # Desarrollo local
+    '/etc/secrets/.env',             # Render Secret Files
+]
+
+# Usar el primer archivo .env que encuentre
+for env_file in env_locations:
+    if os.path.exists(env_file):
+        environ.Env.read_env(env_file)
+        break
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
