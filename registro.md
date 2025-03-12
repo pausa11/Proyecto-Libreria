@@ -396,3 +396,90 @@
 - Desarrollar sistema de mensajería
 - Integrar recomendaciones
 - Mejorar el sistema de búsqueda
+
+## [2025-03-12] Implementación del Módulo de Noticias y Sistema de Suscripciones
+
+### feat(noticias): Implementación completa del módulo de noticias
+
+#### Modelos y Estructura Base
+- **Implementación de modelos principales:**
+  - Modelo `Noticia` con campos para título, contenido, estado, tags, etc.
+  - Modelo `Suscripcion` para gestionar suscripciones de usuarios
+  - Integración con modelos existentes (Libro, Categoria, Usuario)
+
+#### Sistema de Administración
+- **Configuración del panel administrativo:**
+  - Interfaz personalizada para gestión de noticias
+  - Panel de control para suscripciones
+  - Filtros y búsqueda avanzada
+  - Asignación automática de autores
+
+#### API REST y Endpoints
+- **Implementación de ViewSets y Serializers:**
+  - `NoticiaViewSet` con permisos diferenciados
+  - `SuscripcionViewSet` con endpoint personalizado
+  - Documentación Swagger/OpenAPI
+  - Filtros y ordenamiento
+
+#### Sistema de Notificaciones
+- **Implementación del sistema de emails:**
+  - Plantillas HTML personalizadas
+  - Notificaciones automáticas para nuevos libros
+  - Emails de confirmación de suscripción
+  - Sistema de tags y categorización
+
+#### Integración con Libros
+- **Automatización y relaciones:**
+  - Creación automática de noticias al añadir libros
+  - Sistema de tags basado en categorías
+  - Relaciones entre libros y noticias
+  - Filtrado por categorías suscritas
+
+#### Optimizaciones y Mejoras
+- **Mejoras en el sistema:**
+  - Optimización de señales para evitar emails duplicados
+  - Corrección de importaciones (`LibroSerializer`)
+  - Mejora en la documentación de la API
+  - Implementación de pruebas unitarias
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de Noticias**
+  - CRUD completo de noticias
+  - Sistema de estados (borrador/publicado)
+  - Asignación automática de autores
+  - Tags y categorización
+
+- **Sistema de Suscripciones**
+  - Suscripción por categorías
+  - Notificaciones personalizadas
+  - Gestión de preferencias
+  - Emails de confirmación
+
+- **Notificaciones Automáticas**
+  - Emails HTML personalizados
+  - Notificaciones de nuevos libros
+  - Sistema de plantillas
+  - Control de duplicados
+
+#### Endpoints Disponibles
+- `/api/noticias/noticias/` (GET, POST)
+- `/api/noticias/noticias/{id}/` (GET, PUT, PATCH, DELETE)
+- `/api/noticias/suscripciones/` (GET, POST)
+- `/api/noticias/suscripciones/{id}/` (GET, PUT, PATCH, DELETE)
+- `/api/noticias/suscripciones/mis-noticias/` (GET)
+
+### Próximos Pasos 🚧
+1. Configurar URLs reales en emails
+2. Implementar sistema de cola para emails
+3. Añadir más pruebas de integración
+4. Implementar control de frecuencia de emails
+5. Mejorar la descripción en noticias automáticas
+6. Configurar enlaces de desuscripción
+
+### Notas Técnicas
+- Backend de email configurado para desarrollo (consola)
+- Integración completa con el sistema de autenticación
+- Documentación API disponible en Swagger
+- Pruebas unitarias implementadas para funcionalidades principales

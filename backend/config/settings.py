@@ -205,3 +205,9 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
+
+# Email Configuration for Development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@libreria.com'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
