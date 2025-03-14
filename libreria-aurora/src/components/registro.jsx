@@ -16,13 +16,12 @@ function Registro() {
             <NavBar />
             
             <AuthFrame>
-                <p className="text-[3vw] font-[500]">Registro</p>
-                <InputAuora type="text" placeholder="Nombre" value="" onChange={() => {}} />
-                <InputAuora type="text" placeholder="Apellido" value="" onChange={() => {}} />
+                <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
                 <InputAuora type="text" placeholder="Correo electronico" value="" onChange={() => {}} />
+                <InputAuora type="text" placeholder=" Crea tu usuario" value="" onChange={() => {}} />
                 <InputAuora type="password" placeholder="Contraseña" value="" onChange={() => {}} />
                 <InputAuora type="password" placeholder="Confirmar contraseña" value="" onChange={() => {}} />
-                <ButtonA text="Registrarse" onClick={() => {}} width="50%" color="#2B388C"/>
+                <ButtonA text="Registrarse" onClick={() => {}} width="60%" color="#2B388C"/>
                 <p className="text-[1vw] font-[500]">¿Ya tienes una cuenta? <span style={{color:'#2B388C',cursor:'pointer'}} onClick={() => navigate('/login')}>Inicia sesion</span></p>
             </AuthFrame>
 

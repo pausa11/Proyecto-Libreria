@@ -15,7 +15,7 @@ function Input({ type, placeholder, value, onChange }) {
     }
 
     return (
-        <div className="w-[50%] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[1vw] p-[1vw] text-[1vw] font-[200]">
+        <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
             <div>
                 {handleIcon(type)}
             </div>
@@ -24,7 +24,7 @@ function Input({ type, placeholder, value, onChange }) {
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
-                className="w-[100%] h-[100%] outline-none bg-transparent"
+                className="w-[100%] h-[5vh] outline-none bg-transparent tect-[#787767]"
             />
         </div>
     );
