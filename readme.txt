@@ -108,7 +108,15 @@ Cada módulo deberá implementar los requerimientos funcionales (RF) correspondi
 ### D. Módulo de Noticias y Mensajería
 - **RF29 a RF31 y RF35:**
   - Subscripción a novedades y catálogo de nuevos libros.
-  - Sistema de mensajería instantánea para interacción entre usuarios y administradores (se puede usar Django Channels o soluciones externas para mensajería en tiempo real).
+  - Sistema de mensajería para interacción entre usuarios y administradores:
+    - Foros personales por usuario
+    - Sistema de mensajes con estados (abierto/respondido/cerrado)
+    - Respuestas anidadas a mensajes
+    - Notificaciones automáticas para nuevos mensajes y respuestas
+    - Panel de administración para gestión de foros y mensajes
+    - API REST completa con documentación Swagger
+    - Integración con el sistema de autenticación y permisos
+    - Señales automáticas para creación de foros y notificaciones
 
 ### E. Módulo de Búsqueda
 - **RF32:**

@@ -194,9 +194,36 @@ REST_FRAMEWORK = {
 
 # Spectacular API settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Librería API',
+    'TITLE': 'API de Librería',
     'DESCRIPTION': 'API para el sistema de gestión de librería',
     'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'ENUM_NAME_OVERRIDES': {
+        'EstadoMensaje': {
+            'enum_names': {
+                'ABIERTO': 'EstadoMensajeAbierto',
+                'RESPONDIDO': 'EstadoMensajeRespondido',
+                'CERRADO': 'EstadoMensajeCerrado',
+            }
+        },
+        'EstadoNoticia': {
+            'enum_names': {
+                'BORRADOR': 'EstadoNoticiaBorrador',
+                'PUBLICADO': 'EstadoNoticiaPublicado',
+                'ARCHIVADO': 'EstadoNoticiaArchivado',
+            }
+        }
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SCHEMA_COERCE_PATH_PK_SUFFIX': True,
+    'TAGS': [
+        {'name': 'Foros Personales', 'description': 'Gestión de foros personales de usuarios'},
+        {'name': 'Mensajes', 'description': 'Gestión de mensajes y respuestas'},
+        {'name': 'Notificaciones', 'description': 'Gestión de notificaciones de mensajes'},
+    ],
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
+    'SCHEMA_COMPONENT_SPLIT_REQUEST': True
 }
 
 # CORS settings

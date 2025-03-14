@@ -483,3 +483,89 @@
 - Integración completa con el sistema de autenticación
 - Documentación API disponible en Swagger
 - Pruebas unitarias implementadas para funcionalidades principales
+
+## [2025-03-14] Implementación del Módulo de Mensajería
+
+### feat(mensajeria): Implementación completa del sistema de mensajería
+
+#### Modelos y Estructura Base
+- **Implementación de modelos principales:**
+  - Modelo `ForoPersonal` para gestión de foros individuales
+  - Modelo `Mensaje` con sistema de estados y respuestas
+  - Modelo `NotificacionMensaje` para notificaciones automáticas
+  - Integración con el modelo de Usuario existente
+
+#### Sistema de Administración
+- **Configuración del panel administrativo:**
+  - Interfaz personalizada para gestión de foros
+  - Panel de control para mensajes y respuestas
+  - Gestión de notificaciones
+  - Filtros y búsqueda avanzada
+
+#### API REST y Endpoints
+- **Implementación de ViewSets y Serializers:**
+  - `ForoPersonalViewSet` con permisos diferenciados
+  - `MensajeViewSet` con acciones personalizadas
+  - `NotificacionMensajeViewSet` para gestión de notificaciones
+  - Documentación Swagger/OpenAPI completa
+  - Filtros y ordenamiento configurados
+
+#### Sistema de Señales Automáticas
+- **Implementación de señales para automatización:**
+  - Creación automática de foro personal al registrar usuario
+  - Notificaciones automáticas para:
+    - Nuevos mensajes en foro
+    - Respuestas a mensajes
+  - Actualización automática de estados de mensajes
+
+#### Integración con Usuarios
+- **Sistema de permisos y roles:**
+  - Permisos diferenciados por tipo de usuario
+  - Acceso restringido a foros personales
+  - Sistema de notificaciones personalizado
+  - Gestión de estados de mensajes
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de Foros**
+  - Foros personales por usuario
+  - Sistema de estados (activo/inactivo)
+  - Creación automática al registro
+
+- **Sistema de Mensajes**
+  - CRUD completo de mensajes
+  - Sistema de estados (abierto/respondido/cerrado)
+  - Respuestas anidadas
+  - Marcado de mensajes originales
+
+- **Notificaciones Automáticas**
+  - Notificaciones por nuevos mensajes
+  - Notificaciones por respuestas
+  - Sistema de marcado de leídos
+  - Gestión de estados de notificación
+
+#### Endpoints Disponibles
+- `/api/mensajeria/foros/` (GET, POST)
+- `/api/mensajeria/foros/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/mensajes/` (GET, POST)
+- `/api/mensajeria/mensajes/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/mensajes/{id}/responder/` (POST)
+- `/api/mensajeria/mensajes/{id}/cerrar/` (POST)
+- `/api/mensajeria/notificaciones/` (GET, POST)
+- `/api/mensajeria/notificaciones/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/notificaciones/{id}/marcar_leido/` (POST)
+
+### Próximos Pasos 🚧
+1. Resolver advertencias de tipos en Swagger
+2. Implementar sistema de cola para notificaciones
+3. Añadir pruebas de integración
+4. Mejorar la documentación de la API
+5. Implementar sistema de búsqueda en mensajes
+6. Añadir soporte para archivos adjuntos
+
+### Notas Técnicas
+- Integración completa con el sistema de autenticación
+- Documentación API disponible en Swagger
+- Sistema de señales configurado en `apps.py`
+- Pruebas unitarias implementadas para funcionalidades principales

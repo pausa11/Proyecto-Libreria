@@ -88,6 +88,7 @@ python manage.py makemigrations usuarios
 python manage.py makemigrations libros
 python manage.py makemigrations busqueda 
 python manage.py makemigrations noticias
+python manage.py makemigrations mensajeria
 
 # Aplicar migraciones
 python manage.py migrate
