@@ -1,15 +1,15 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from apps.libros.models import Libro, Categoria
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
-class Noticia(models.Model):
-    ESTADO_CHOICES = [
-        ('borrador', 'Borrador'),
-        ('publicado', 'Publicado'),
-    ]
+class EstadoNoticia(models.TextChoices):
+    BORRADOR = 'BORRADOR', _('Borrador')
+    PUBLICADO = 'PUBLICADO', _('Publicado')
 
+class Noticia(models.Model):
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
     fecha_publicacion = models.DateTimeField(auto_now_add=True)
@@ -23,10 +23,11 @@ class Noticia(models.Model):
         related_name='noticias'
     )
     imagen = models.ImageField(upload_to='noticias/', null=True, blank=True)
-    estado = models.CharField(
+    estado_noticia = models.CharField(
         max_length=10,
-        choices=ESTADO_CHOICES,
-        default='borrador'
+        choices=EstadoNoticia.choices,
+        default=EstadoNoticia.BORRADOR,
+        verbose_name=_('Estado de la Noticia')
     )
     tags = models.CharField(max_length=200, blank=True)  # Almacenará tags separados por comas
 

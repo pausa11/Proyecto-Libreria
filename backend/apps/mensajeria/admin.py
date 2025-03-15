@@ -11,8 +11,8 @@ class ForoPersonalAdmin(admin.ModelAdmin):
 
 @admin.register(Mensaje)
 class MensajeAdmin(admin.ModelAdmin):
-    list_display = ('autor', 'foro', 'estado', 'es_respuesta', 'fecha_creacion')
-    list_filter = ('estado', 'es_respuesta', 'fecha_creacion')
+    list_display = ('autor', 'foro', 'estado_mensaje', 'es_respuesta', 'fecha_creacion')
+    list_filter = ('estado_mensaje', 'es_respuesta', 'fecha_creacion')
     search_fields = ('autor__username', 'contenido')
     date_hierarchy = 'fecha_creacion'
     raw_id_fields = ('autor', 'foro', 'mensaje_original')

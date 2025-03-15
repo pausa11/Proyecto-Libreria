@@ -32,16 +32,16 @@ class ForoPersonal(models.Model):
     def __str__(self):
         return f'Foro de {self.usuario.username}'
 
+class EstadoMensaje(models.TextChoices):
+    ABIERTO = 'ABIERTO', _('Abierto')
+    RESPONDIDO = 'RESPONDIDO', _('Respondido')
+    CERRADO = 'CERRADO', _('Cerrado')
+
 class Mensaje(models.Model):
     """
     Modelo para los mensajes dentro de un foro personal.
     Puede ser tanto una consulta inicial como una respuesta a otro mensaje.
     """
-    class EstadoMensaje(models.TextChoices):
-        ABIERTO = 'ABIERTO', _('Abierto')
-        RESPONDIDO = 'RESPONDIDO', _('Respondido')
-        CERRADO = 'CERRADO', _('Cerrado')
-
     foro = models.ForeignKey(
         ForoPersonal,
         on_delete=models.CASCADE,
@@ -61,11 +61,11 @@ class Mensaje(models.Model):
         auto_now_add=True,
         verbose_name=_('Fecha de creación')
     )
-    estado = models.CharField(
+    estado_mensaje = models.CharField(
         max_length=10,
         choices=EstadoMensaje.choices,
         default=EstadoMensaje.ABIERTO,
-        verbose_name=_('Estado')
+        verbose_name=_('Estado del Mensaje')
     )
     es_respuesta = models.BooleanField(
         default=False,

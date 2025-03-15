@@ -198,32 +198,45 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API para el sistema de gestión de librería',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    
+    # Configuración de enums con estructura más robusta
     'ENUM_NAME_OVERRIDES': {
-        'EstadoMensaje': {
-            'enum_names': {
+        'apps.mensajeria.models.Mensaje.estado_mensaje': {
+            'enum': {
                 'ABIERTO': 'EstadoMensajeAbierto',
                 'RESPONDIDO': 'EstadoMensajeRespondido',
                 'CERRADO': 'EstadoMensajeCerrado',
-            }
+            },
+            'field': 'estado_mensaje'
         },
-        'EstadoNoticia': {
-            'enum_names': {
+        'apps.noticias.models.Noticia.estado_noticia': {
+            'enum': {
                 'BORRADOR': 'EstadoNoticiaBorrador',
                 'PUBLICADO': 'EstadoNoticiaPublicado',
-                'ARCHIVADO': 'EstadoNoticiaArchivado',
-            }
+            },
+            'field': 'estado_noticia'
         }
     },
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SCHEMA_PATH_PREFIX': '/api/',
+    
+    # Configuraciones para mejorar el manejo de enums
+    'ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE': False,
+    'ENUM_GENERATE_CHOICE_DESCRIPTION': True,
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.hooks.postprocess_schema_enums',
+    ],
+    'COMPONENT_SPLIT_REQUEST': False,
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
     'SCHEMA_COERCE_PATH_PK_SUFFIX': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    
+    # Tags para organización
     'TAGS': [
         {'name': 'Foros Personales', 'description': 'Gestión de foros personales de usuarios'},
         {'name': 'Mensajes', 'description': 'Gestión de mensajes y respuestas'},
         {'name': 'Notificaciones', 'description': 'Gestión de notificaciones de mensajes'},
+        {'name': 'Noticias', 'description': 'Gestión de noticias y publicaciones'},
+        {'name': 'Suscripciones', 'description': 'Gestión de suscripciones a noticias'},
     ],
-    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
-    'SCHEMA_COMPONENT_SPLIT_REQUEST': True
 }
 
 # CORS settings

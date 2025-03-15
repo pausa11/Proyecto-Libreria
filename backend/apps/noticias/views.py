@@ -10,6 +10,17 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 # Create your views here.
 
+@extend_schema(
+    tags=['Noticias'],
+    parameters=[
+        OpenApiParameter(
+            name='id',
+            type=int,
+            location=OpenApiParameter.PATH,
+            description='ID de la noticia'
+        )
+    ]
+)
 class NoticiaViewSet(viewsets.ModelViewSet):
     """
     ViewSet para ver y gestionar noticias.
@@ -21,7 +32,7 @@ class NoticiaViewSet(viewsets.ModelViewSet):
     queryset = Noticia.objects.all()
     serializer_class = NoticiaSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['estado', 'autor']
+    filterset_fields = ['estado_noticia', 'autor']
     search_fields = ['titulo', 'contenido', 'tags']
     ordering_fields = ['fecha_publicacion', 'fecha_actualizacion']
     ordering = ['-fecha_publicacion']
@@ -61,9 +72,20 @@ class NoticiaViewSet(viewsets.ModelViewSet):
         """
         queryset = super().get_queryset()
         if not self.request.user.is_staff:
-            queryset = queryset.filter(estado='publicado')
+            queryset = queryset.filter(estado_noticia='PUBLICADO')
         return queryset
 
+@extend_schema(
+    tags=['Suscripciones'],
+    parameters=[
+        OpenApiParameter(
+            name='id',
+            type=int,
+            location=OpenApiParameter.PATH,
+            description='ID de la suscripción'
+        )
+    ]
+)
 class SuscripcionViewSet(viewsets.ModelViewSet):
     """
     ViewSet para gestionar suscripciones a noticias.
@@ -97,7 +119,7 @@ class SuscripcionViewSet(viewsets.ModelViewSet):
 
             categorias = suscripcion.categorias_interes.all()
             noticias = Noticia.objects.filter(
-                Q(estado='publicado') &
+                Q(estado_noticia='PUBLICADO') &
                 (Q(libro_relacionado__categoria__in=categorias) | 
                  Q(libro_relacionado__isnull=True))
             ).distinct()

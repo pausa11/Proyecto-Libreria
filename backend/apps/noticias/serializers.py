@@ -20,7 +20,7 @@ class NoticiaSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'titulo', 'contenido', 'fecha_publicacion',
             'fecha_actualizacion', 'autor', 'libro_relacionado',
-            'imagen', 'estado', 'tags', 'tags_list'
+            'imagen', 'estado_noticia', 'tags', 'tags_list'
         ]
         read_only_fields = ['fecha_publicacion', 'fecha_actualizacion', 'autor']
 

@@ -16,10 +16,10 @@ class MensajeSerializer(serializers.ModelSerializer):
         model = Mensaje
         fields = [
             'id', 'foro', 'autor', 'autor_username', 'contenido',
-            'fecha_creacion', 'estado', 'es_respuesta',
+            'fecha_creacion', 'estado_mensaje', 'es_respuesta',
             'mensaje_original', 'respuestas_count'
         ]
-        read_only_fields = ['fecha_creacion', 'autor', 'estado']
+        read_only_fields = ['fecha_creacion', 'autor', 'estado_mensaje']
 
     def validate(self, data):
         # Validar que un mensaje de respuesta tenga mensaje_original

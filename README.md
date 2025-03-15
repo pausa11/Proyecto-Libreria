@@ -53,6 +53,7 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
 3. **Configurar Base de Datos**
    ```bash
    # Aplicar migraciones
+   python manage.py makemigrations
    python manage.py migrate
 
    # Crear superusuario

@@ -3,8 +3,8 @@ from .models import Noticia, Suscripcion
 
 @admin.register(Noticia)
 class NoticiaAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'autor', 'fecha_publicacion', 'estado', 'libro_relacionado')
-    list_filter = ('estado', 'fecha_publicacion', 'autor')
+    list_display = ('titulo', 'autor', 'fecha_publicacion', 'estado_noticia', 'libro_relacionado')
+    list_filter = ('estado_noticia', 'fecha_publicacion', 'autor')
     search_fields = ('titulo', 'contenido', 'tags')
     readonly_fields = ('fecha_publicacion', 'fecha_actualizacion')
     list_per_page = 20

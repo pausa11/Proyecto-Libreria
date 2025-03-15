@@ -114,7 +114,7 @@ class MensajeViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         
         # Actualizar estado del mensaje original
-        mensaje_original.estado = 'RESPONDIDO'
+        mensaje_original.estado_mensaje = 'RESPONDIDO'
         mensaje_original.save()
         
         # Crear notificación
@@ -140,15 +140,9 @@ class MensajeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def cerrar(self, request, pk=None):
         mensaje = self.get_object()
-        if not (request.user.is_staff or mensaje.foro.usuario == request.user):
-            return Response(
-                {'detail': _('No tienes permiso para cerrar este mensaje')},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
-        mensaje.estado = 'CERRADO'
+        mensaje.estado_mensaje = 'CERRADO'
         mensaje.save()
-        return Response({'status': 'mensaje cerrado'})
+        return Response(status=status.HTTP_200_OK)
 
 @extend_schema(
     tags=['Notificaciones'],
