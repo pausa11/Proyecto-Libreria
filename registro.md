@@ -309,3 +309,263 @@
 - Integrar sistema de sugerencias de búsqueda
 - Optimizar rendimiento con índices de búsqueda
 - Conectar con sistema de recomendaciones
+
+# Registro de Cambios del Proyecto
+
+## [2025-03-10] Implementación y Mejora de las Aplicaciones de Compras y Finanzas
+
+### feat(compras): Implementación del módulo de compras
+
+#### Implementación del modelo Carrito y sus funcionalidades
+- **Creación del modelo Carrito** con campos básicos:
+  - `libros` (ManyToManyField a Libro)
+  - `fecha` (DateTimeField con auto_now_add)
+- **Métodos añadidos al modelo Carrito:**
+  - `total` (calcula el total del carrito con o sin descuento)
+  - `total_libros` (cuenta el número de libros en el carrito)
+  - `agregar_libro` (agrega un libro al carrito)
+  - `quitar_libro` (quita un libro del carrito)
+  - `nombre_libros` (devuelve una lista de los nombres de los libros en el carrito)
+  - `limpiar_carrito` (vacía el carrito)
+  - `pagar` (método placeholder para futuras implementaciones)
+
+#### Configuración del admin para Carrito
+- **Registro del modelo Carrito en el admin de Django**
+- **Acciones personalizadas en el admin:**
+  - `vaciar_carrito` (vacía los carritos seleccionados)
+  - `agregar_libro` (permite agregar un libro seleccionado a los carritos)
+
+#### Implementación de serializers y views para Carrito
+- **Serializer para Carrito**:
+  - `CarritoSerializer` con todos los campos y `fecha` como read-only
+- **ViewSet para Carrito**:
+  - `CarritoViewSet` con permisos `IsAuthenticatedOrReadOnly`
+  - Filtros y búsqueda configurados por `fecha`
+
+---
+
+### feat(finanzas): Implementación del módulo de finanzas
+
+#### Implementación de los modelos Tarjeta y Saldo
+- **Creación del modelo Tarjeta** con campos básicos:
+  - `numero` (CharField)
+  - `fecha_expiracion` (DateField)
+  - `cvv` (CharField)
+  - `titular` (CharField)
+- **Métodos añadidos al modelo Tarjeta:**
+  - `mostrar_información` (devuelve una cadena con el número y titular de la tarjeta)
+
+- **Creación del modelo Saldo** con campos básicos:
+  - `saldo` (DecimalField)
+- **Métodos añadidos al modelo Saldo:**
+  - `modificar_saldo` (modifica el saldo)
+  - `mostrar_saldo` (devuelve el saldo actual)
+
+#### Configuración del admin para Tarjeta y Saldo
+- **Registro de los modelos Tarjeta y Saldo en el admin de Django**
+- **Configuración del admin para Tarjeta**:
+  - `list_display` (muestra número y titular)
+  - `search_fields` (permite buscar por número y titular)
+  - `ordering` (ordena por número)
+- **Configuración del admin para Saldo**:
+  - `list_display` (muestra el saldo)
+
+---
+
+### Estado Actual del Proyecto
+
+- **Módulos Implementados ✅**
+  - **Compras**
+    - Modelo Carrito completo
+    - API REST funcional
+    - Endpoints documentados
+    - Integración con admin
+  - **Finanzas**
+    - Modelos Tarjeta y Saldo completos
+    - Integración con admin
+
+- **Módulos Pendientes 🚧**
+  - Noticias
+  - Búsqueda
+  - Mensajería
+  - Recomendaciones
+
+### Próximos Pasos
+
+- Implementar módulo de noticias
+- Desarrollar sistema de mensajería
+- Integrar recomendaciones
+- Mejorar el sistema de búsqueda
+
+## [2025-03-12] Implementación del Módulo de Noticias y Sistema de Suscripciones
+
+### feat(noticias): Implementación completa del módulo de noticias
+
+#### Modelos y Estructura Base
+- **Implementación de modelos principales:**
+  - Modelo `Noticia` con campos para título, contenido, estado, tags, etc.
+  - Modelo `Suscripcion` para gestionar suscripciones de usuarios
+  - Integración con modelos existentes (Libro, Categoria, Usuario)
+
+#### Sistema de Administración
+- **Configuración del panel administrativo:**
+  - Interfaz personalizada para gestión de noticias
+  - Panel de control para suscripciones
+  - Filtros y búsqueda avanzada
+  - Asignación automática de autores
+
+#### API REST y Endpoints
+- **Implementación de ViewSets y Serializers:**
+  - `NoticiaViewSet` con permisos diferenciados
+  - `SuscripcionViewSet` con endpoint personalizado
+  - Documentación Swagger/OpenAPI
+  - Filtros y ordenamiento
+
+#### Sistema de Notificaciones
+- **Implementación del sistema de emails:**
+  - Plantillas HTML personalizadas
+  - Notificaciones automáticas para nuevos libros
+  - Emails de confirmación de suscripción
+  - Sistema de tags y categorización
+
+#### Integración con Libros
+- **Automatización y relaciones:**
+  - Creación automática de noticias al añadir libros
+  - Sistema de tags basado en categorías
+  - Relaciones entre libros y noticias
+  - Filtrado por categorías suscritas
+
+#### Optimizaciones y Mejoras
+- **Mejoras en el sistema:**
+  - Optimización de señales para evitar emails duplicados
+  - Corrección de importaciones (`LibroSerializer`)
+  - Mejora en la documentación de la API
+  - Implementación de pruebas unitarias
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de Noticias**
+  - CRUD completo de noticias
+  - Sistema de estados (borrador/publicado)
+  - Asignación automática de autores
+  - Tags y categorización
+
+- **Sistema de Suscripciones**
+  - Suscripción por categorías
+  - Notificaciones personalizadas
+  - Gestión de preferencias
+  - Emails de confirmación
+
+- **Notificaciones Automáticas**
+  - Emails HTML personalizados
+  - Notificaciones de nuevos libros
+  - Sistema de plantillas
+  - Control de duplicados
+
+#### Endpoints Disponibles
+- `/api/noticias/noticias/` (GET, POST)
+- `/api/noticias/noticias/{id}/` (GET, PUT, PATCH, DELETE)
+- `/api/noticias/suscripciones/` (GET, POST)
+- `/api/noticias/suscripciones/{id}/` (GET, PUT, PATCH, DELETE)
+- `/api/noticias/suscripciones/mis-noticias/` (GET)
+
+### Próximos Pasos 🚧
+1. Configurar URLs reales en emails
+2. Implementar sistema de cola para emails
+3. Añadir más pruebas de integración
+4. Implementar control de frecuencia de emails
+5. Mejorar la descripción en noticias automáticas
+6. Configurar enlaces de desuscripción
+
+### Notas Técnicas
+- Backend de email configurado para desarrollo (consola)
+- Integración completa con el sistema de autenticación
+- Documentación API disponible en Swagger
+- Pruebas unitarias implementadas para funcionalidades principales
+
+## [2025-03-14] Implementación del Módulo de Mensajería
+
+### feat(mensajeria): Implementación completa del sistema de mensajería
+
+#### Modelos y Estructura Base
+- **Implementación de modelos principales:**
+  - Modelo `ForoPersonal` para gestión de foros individuales
+  - Modelo `Mensaje` con sistema de estados y respuestas
+  - Modelo `NotificacionMensaje` para notificaciones automáticas
+  - Integración con el modelo de Usuario existente
+
+#### Sistema de Administración
+- **Configuración del panel administrativo:**
+  - Interfaz personalizada para gestión de foros
+  - Panel de control para mensajes y respuestas
+  - Gestión de notificaciones
+  - Filtros y búsqueda avanzada
+
+#### API REST y Endpoints
+- **Implementación de ViewSets y Serializers:**
+  - `ForoPersonalViewSet` con permisos diferenciados
+  - `MensajeViewSet` con acciones personalizadas
+  - `NotificacionMensajeViewSet` para gestión de notificaciones
+  - Documentación Swagger/OpenAPI completa
+  - Filtros y ordenamiento configurados
+
+#### Sistema de Señales Automáticas
+- **Implementación de señales para automatización:**
+  - Creación automática de foro personal al registrar usuario
+  - Notificaciones automáticas para:
+    - Nuevos mensajes en foro
+    - Respuestas a mensajes
+  - Actualización automática de estados de mensajes
+
+#### Integración con Usuarios
+- **Sistema de permisos y roles:**
+  - Permisos diferenciados por tipo de usuario
+  - Acceso restringido a foros personales
+  - Sistema de notificaciones personalizado
+  - Gestión de estados de mensajes
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de Foros**
+  - Foros personales por usuario
+  - Sistema de estados (activo/inactivo)
+  - Creación automática al registro
+
+- **Sistema de Mensajes**
+  - CRUD completo de mensajes
+  - Sistema de estados (abierto/respondido/cerrado)
+  - Respuestas anidadas
+  - Marcado de mensajes originales
+
+- **Notificaciones Automáticas**
+  - Notificaciones por nuevos mensajes
+  - Notificaciones por respuestas
+  - Sistema de marcado de leídos
+  - Gestión de estados de notificación
+
+#### Endpoints Disponibles
+- `/api/mensajeria/foros/` (GET, POST)
+- `/api/mensajeria/foros/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/mensajes/` (GET, POST)
+- `/api/mensajeria/mensajes/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/mensajes/{id}/responder/` (POST)
+- `/api/mensajeria/mensajes/{id}/cerrar/` (POST)
+- `/api/mensajeria/notificaciones/` (GET, POST)
+- `/api/mensajeria/notificaciones/{id}/` (GET, PUT, DELETE)
+- `/api/mensajeria/notificaciones/{id}/marcar_leido/` (POST)
+
+### Próximos Pasos 🚧
+1. Resolver advertencias de tipos en Swagger
+2. Implementar sistema de cola para notificaciones
+3. Añadir pruebas de integración
+4. Mejorar la documentación de la API
+5. Implementar sistema de búsqueda en mensajes
+6. Añadir soporte para archivos adjuntos
+
+### Notas Técnicas
+- Integración completa con el sistema de autenticación
+- Documentación API disponible en Swagger
+- Sistema de señales configurado en `apps.py`
+- Pruebas unitarias implementadas para funcionalidades principales

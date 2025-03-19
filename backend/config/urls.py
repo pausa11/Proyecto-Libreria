@@ -25,6 +25,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,6 +35,8 @@ urlpatterns = [
     path('api/libros/', include('apps.libros.urls')),
     path('api/usuarios/', include('apps.usuarios.urls')),
     path('api/', include('apps.busqueda.urls')),
+    path('api/noticias/', include('apps.noticias.urls')),
+    path('api/mensajeria/', include('apps.mensajeria.urls')),
     
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -42,4 +46,4 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

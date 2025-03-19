@@ -18,14 +18,20 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Inicializa django-environ
-env = environ.Env(
-    # Establece valores predeterminados y lanza excepciones si faltan variables de entorno
-    DEBUG=(bool, False)
-)
+# Configuración de environ
+env = environ.Env(DEBUG=(bool, False))
 
-# Lee el archivo .env (especificando la ruta explícitamente)
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Buscar el archivo .env en varias ubicaciones posibles
+env_locations = [
+    os.path.join(BASE_DIR, '.env'),  # Desarrollo local
+    '/etc/secrets/.env',             # Render Secret Files
+]
+
+# Usar el primer archivo .env que encuentre
+for env_file in env_locations:
+    if os.path.exists(env_file):
+        environ.Env.read_env(env_file)
+        break
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -188,9 +194,49 @@ REST_FRAMEWORK = {
 
 # Spectacular API settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Librería API',
+    'TITLE': 'API de Librería',
     'DESCRIPTION': 'API para el sistema de gestión de librería',
     'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    
+    # Configuración de enums con estructura más robusta
+    'ENUM_NAME_OVERRIDES': {
+        'apps.mensajeria.models.Mensaje.estado_mensaje': {
+            'enum': {
+                'ABIERTO': 'EstadoMensajeAbierto',
+                'RESPONDIDO': 'EstadoMensajeRespondido',
+                'CERRADO': 'EstadoMensajeCerrado',
+            },
+            'field': 'estado_mensaje'
+        },
+        'apps.noticias.models.Noticia.estado_noticia': {
+            'enum': {
+                'BORRADOR': 'EstadoNoticiaBorrador',
+                'PUBLICADO': 'EstadoNoticiaPublicado',
+            },
+            'field': 'estado_noticia'
+        }
+    },
+    
+    # Configuraciones para mejorar el manejo de enums
+    'ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE': False,
+    'ENUM_GENERATE_CHOICE_DESCRIPTION': True,
+    'POSTPROCESSING_HOOKS': [
+        'drf_spectacular.hooks.postprocess_schema_enums',
+    ],
+    'COMPONENT_SPLIT_REQUEST': False,
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
+    'SCHEMA_COERCE_PATH_PK_SUFFIX': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    
+    # Tags para organización
+    'TAGS': [
+        {'name': 'Foros Personales', 'description': 'Gestión de foros personales de usuarios'},
+        {'name': 'Mensajes', 'description': 'Gestión de mensajes y respuestas'},
+        {'name': 'Notificaciones', 'description': 'Gestión de notificaciones de mensajes'},
+        {'name': 'Noticias', 'description': 'Gestión de noticias y publicaciones'},
+        {'name': 'Suscripciones', 'description': 'Gestión de suscripciones a noticias'},
+    ],
 }
 
 # CORS settings
@@ -205,3 +251,9 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'
     }
 }
+
+# Email Configuration for Development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@libreria.com'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
