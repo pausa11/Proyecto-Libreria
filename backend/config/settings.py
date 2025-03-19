@@ -236,6 +236,7 @@ SPECTACULAR_SETTINGS = {
         {'name': 'Notificaciones', 'description': 'Gestión de notificaciones de mensajes'},
         {'name': 'Noticias', 'description': 'Gestión de noticias y publicaciones'},
         {'name': 'Suscripciones', 'description': 'Gestión de suscripciones a noticias'},
+        {'name': 'Compras', 'description': 'Gestión de carritos de compra'},
     ],
 }
 

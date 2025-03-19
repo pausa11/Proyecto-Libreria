@@ -4,14 +4,17 @@ from apps.libros.models import Libro
 
 @admin.register(Carrito)
 class CarritoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'fecha', 'total_libros', 'nombre_libros', 'total')
+    list_display = ('id', 'fecha', 'total_libros', 'total')
     list_filter = ('fecha',)
-    search_fields = ('libros__titulo',)
+    filter_horizontal = ('libros',)
     actions = ['vaciar_carrito', 'agregar_libro']
 
     def total(self, obj):
-        return obj.total()
+        return f"${obj.total()}"
     total.short_description = 'Total sin descuento'
+
+    def total_libros(self, obj):
+        return obj.total_libros()
 
     def vaciar_carrito(self, request, queryset):
         for carrito in queryset:
@@ -23,4 +26,4 @@ class CarritoAdmin(admin.ModelAdmin):
         for carrito in queryset:
             carrito.agregar_libro(Libro.objects.first())
         self.message_user(request, "Libro agregado con éxito.")
-        
+

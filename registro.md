@@ -569,3 +569,189 @@
 - Documentación API disponible en Swagger
 - Sistema de señales configurado en `apps.py`
 - Pruebas unitarias implementadas para funcionalidades principales
+
+
+
+# Registro de Cambios del Proyecto
+
+## [2025-03-19] Corrección de Swagger y Actualización del Módulo de Compras
+
+### fix(swagger): Resolución de problemas con la documentación Swagger
+
+- **commit:** Corrección de integración de API Schema con módulos
+  - Verificación y corrección de serializers en aplicaciones
+  - Configuración adicional de DRF Spectacular en settings
+  - Optimización de rutas y endpoints para compatibilidad Swagger
+  - Solución de errores de carga en el esquema de API
+
+#### Detalles de la implementación:
+
+- **Serializers:**
+  - Revisión y corrección de todos los serializers para mantener consistencia
+  - Corrección de campos read_only en CarritoSerializer
+  - Verificación de tipos de campos para compatibilidad con esquemas OpenAPI
+
+- **Configuración:**
+  - Actualización de SPECTACULAR_SETTINGS para mejorar manejo de errores
+  - Configuración de esquemas de seguridad JWT para autenticación
+  - Simplificación de hooks de post-procesamiento para evitar errores
+
+- **Integración:**
+  - Verificación de inclusión correcta de todas las apps en URLs globales
+  - Comprobación de compatibilidad de ViewSets con DRF Spectacular
+  - Implementación de anotaciones OpenAPI para mejor documentación
+
+---
+
+### feat(compras): Mejora de la documentación y API del módulo de compras
+
+- **commit:** Actualización y documentación del módulo de compras existente
+  - Mejora de la documentación de acciones en CarritoViewSet
+  - Implementación de acciones personalizadas para el carrito (vaciar, agregar/quitar libro)
+  - Optimización de permisos para operaciones CRUD
+  - Preparación para integración con módulo de finanzas
+
+#### Detalles de la implementación:
+
+- **Acciones Mejoradas:**
+  - Implementación de acción `vaciar` para limpiar carritos
+  - Acción `agregar_libro` con validación de parámetros
+  - Acción `quitar_libro` con manejo de errores
+  - Documentación detallada para todas las acciones
+
+- **Documentación API:**
+  - Uso de decoradores `extend_schema` y `extend_schema_view` para mejorar documentación
+  - Parámetros OpenAPI implementados para todas las acciones
+  - Descripciones detalladas de los endpoints y sus funcionalidades
+  - Respuestas HTTP documentadas con códigos de estado apropiados
+
+---
+
+### Estado Actual del Sistema
+
+#### Módulos Completamente Funcionales ✅
+- **Libros**
+  - Modelo completo con categorías
+  - API REST documentada
+  - Panel administrativo optimizado
+  - Sistema de búsqueda integrado
+
+- **Usuarios**
+  - Sistema de autenticación JWT
+  - Gestión de permisos y roles
+  - Endpoints documentados
+  - Integración con admin
+
+- **Compras (Básico)**
+  - Modelo Carrito implementado
+  - Operaciones CRUD y acciones personalizadas
+  - Documentación Swagger completa
+  - Endpoints funcionales
+
+- **Búsqueda**
+  - Sistema de búsqueda flexible
+  - Filtros avanzados implementados
+  - Historial de consultas
+  - Documentación completa
+
+- **Noticias**
+  - Sistema de noticias completo
+  - Suscripciones implementadas
+  - Notificaciones automáticas
+  - API documentada
+
+- **Mensajería**
+  - Foros personales por usuario
+  - Sistema de mensajes con estados
+  - Notificaciones automáticas
+  - API con documentación completa
+
+#### Módulos Parcialmente Implementados 🚧
+- **Finanzas**
+  - Modelos básicos creados
+  - Integración con admin
+  - Falta completar API REST
+  - Pendiente integración con Compras
+
+#### Funcionalidades Pendientes 🔄
+- **Compras**
+  - Sistema de reservas con temporalidad
+  - Gestión de devoluciones
+  - Seguimiento de envíos
+  - Historial completo de transacciones
+
+- **Recomendaciones**
+  - Implementación completa del modelo
+  - Algoritmo de recomendación
+  - API para sugerencias
+  - Integración con compras y búsquedas
+
+---
+
+### Próximos Pasos
+
+1. **Completar la integración entre Compras y Finanzas**
+   - Implementar método `pagar()` en Carrito
+   - Crear endpoint para procesamiento de pagos
+   - Integrar con modelos de Tarjeta y Saldo
+
+2. **Desarrollar sistema de reservas**
+   - Implementar modelo Reserva
+   - Configurar temporalidad de 24 horas
+   - Añadir validaciones de cantidad
+
+3. **Crear sistema de devoluciones**
+   - Modelo para registro de devoluciones
+   - Generación de códigos QR
+   - Sistema de validación de plazos
+
+4. **Implementar seguimiento de envíos**
+   - Modelo de Envío con estados
+   - Opciones de recogida en tienda
+   - Visualización de ubicaciones
+
+5. **Iniciar desarrollo del módulo de recomendaciones**
+   - Diseñar modelo de Recomendación
+   - Implementar algoritmo básico
+   - Integrar con historial de compras y búsquedas
+
+---
+
+## Nota sobre configuración de Swagger y buenas prácticas
+
+### Workflow para hacer funcionar Swagger correctamente
+
+1. **Verificar serializers:**
+   - Asegurar que todos los serializers tengan definiciones de campos correctas
+   - Cuando se usa `read_only_fields`, asegurarse de que sea una tupla con coma final
+   - Ejemplo: `read_only_fields = ('fecha',)` en lugar de `read_only_fields = ('fecha')`
+
+2. **Configurar correctamente los ViewSets:**
+   - Usar decoradores `@extend_schema_view` para documentar cada método
+   - Implementar `@action` con documentación `@extend_schema` para acciones personalizadas
+   - Proporcionar descripciones detalladas para todos los parámetros y respuestas
+
+3. **Integrar URLs correctamente:**
+   - Cada app debe tener su propio archivo `urls.py`
+   - Todas las apps deben estar registradas en `config/urls.py`
+   - Usar prefijos coherentes como `/api/[app_name]/`
+
+4. **Configuración en settings.py:**
+   - Asegurar que `drf_spectacular` esté en `INSTALLED_APPS`
+   - Configurar `SPECTACULAR_SETTINGS` con los valores adecuados
+   - Incluir configuración JWT para autenticación en la documentación
+
+5. **Para un nuevo módulo:**
+   - Crear un router en el archivo `urls.py` del módulo
+   - Registrar todos los ViewSets con nombres de base apropiados
+   - Incluir las URLs del módulo en `config/urls.py`
+   - Verificar la carga de la documentación después de cada cambio
+   - Utilizar `extend_schema` para documentar detalladamente cada endpoint
+
+6. **Manejo de errores:**
+   - Verificar logs del servidor cuando hay errores de carga en Swagger
+   - Resolver problemas uno por uno, comenzando por serializers y modelos
+   - Simplificar configuraciones complejas que puedan estar causando problemas
+   - Usar ventanas de incógnito o limpiar caché del navegador para pruebas
+
+Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctamente con la documentación Swagger, facilitando el desarrollo y prueba de la API.
