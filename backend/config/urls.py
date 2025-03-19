@@ -37,6 +37,7 @@ urlpatterns = [
     path('api/', include('apps.busqueda.urls')),
     path('api/noticias/', include('apps.noticias.urls')),
     path('api/mensajeria/', include('apps.mensajeria.urls')),
+    path('api/compras/', include('apps.compras.urls')),  
     
     # JWT Authentication
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
