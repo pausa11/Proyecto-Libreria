@@ -97,7 +97,7 @@ const Home = () => {
               {index % 2 === 0 ? (
                 <>
                   <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
-                    <img src="https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" alt="portada del libro" />
+                    <img src="https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" alt="portada del libro" className="w-full h-full" />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[50%] h-[80%]">
                     <h1 className="font-medium text-4xl">
@@ -119,7 +119,7 @@ const Home = () => {
                     </h2>
                   </div>
                   <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
-                    <img src="https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" alt="portada del libro" />
+                    <img src="https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" alt="portada del libro" className="w-full h-full" />
                   </div>
                 </>
               )}
