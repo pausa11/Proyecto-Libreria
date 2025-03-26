@@ -12,13 +12,15 @@ function RecuperarContraseña() {
 
     return(
         <div className="w-[100vw] h-[100vh] bg-[#DBDBDB]">
+            
             <NavBar />
+
             <AuthFrame>
-                <p className="text-[3vw] font-[500]"> Recuperar contraseña </p>
+                <p className="text-[3vw] font-[500] w-[60%]"> Recuperar contraseña </p>
                 <InputAuora type="text" placeholder="Correo electronico" value="" onChange={() => {}} />
-                <ButtonA text="Recuperar Contraseña" onClick={() => {}} width="50%" color="#2B388C"/>
-                <div className="flex justify-between items-center w-[50%]" onClick={() => navigate('/login')}>
-                    <p style={{textAlign:'left',textDecoration:'underline',fontSize:'1vw'}} >¿Ya tienes una cuenta? Inicia sesion</p>
+                <ButtonA text="Recuperar Contraseña" onClick={() => {}} width="60%" color="#2B388C"/>
+                <div className="flex justify-between items-center w-[60%]" onClick={() => navigate('/login')}>
+                    <p style={{textAlign:'left',textDecoration:'underline',fontSize:'1vw',color:'#3B4CBF'}} >¿Ya tienes una cuenta? Inicia sesion</p>
                 </div>
             </AuthFrame>
         </div>
