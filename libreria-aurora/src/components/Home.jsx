@@ -138,7 +138,7 @@ const Home = () => {
                     <img 
                       src={threeRandomBooks[index].portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
-                      className="w-full h-full object-cover" 
+                      className="w-full h-full object-cover rounded-lg" 
                     />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[50%] h-[80%]">
@@ -164,7 +164,7 @@ const Home = () => {
                     <img 
                       src={threeRandomBooks[index].portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
-                      className="w-full h-full object-cover" 
+                      className="w-full h-full object-cover rounded-lg" 
                     />
                   </div>
                 </>
@@ -173,7 +173,7 @@ const Home = () => {
           ))}
       </div>
 
-      <div id="recent-books" className="w-full p-[2vw]" data-aos="fade-left">
+      <div id="recent-books" className="w-full p-[2vw]" data-aos="fade-down">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
           <div className="w-full flex justify-center">

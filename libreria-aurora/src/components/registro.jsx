@@ -100,7 +100,7 @@ function Registro() {
       <NavBar />
       <Toaster />
       <AuthFrame>
-        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto">
+        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto p-2 ">
           <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
           <InputText
             type="text"
@@ -177,7 +177,7 @@ function Registro() {
           />
 
           <ButtonA text="Registrarse" type="submit" width="60%" color="#2B388C" />
-          <p className="text-[1vw] font-[500]">
+          <p className="text-[1vw] font-[500] mb-5">
             ¿Ya tienes una cuenta?{" "}
             <span style={{ color: "#2B388C", cursor: "pointer" }} onClick={() => navigate("/login")}>
               Inicia sesión
