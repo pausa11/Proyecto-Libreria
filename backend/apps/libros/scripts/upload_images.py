@@ -3,6 +3,7 @@ import sys
 import django
 import cloudinary
 import cloudinary.api
+import re
 
 # Configurar entorno Django
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
@@ -20,37 +21,42 @@ cloudinary.config(
     api_secret=settings.CLOUDINARY_STORAGE['API_SECRET']
 )
 
-# Mapeo de títulos de libros a nombres de imágenes en Cloudinary
-libro_imagenes = {
-    "Cien años de soledad": "Cien_años_de_soledad.jpg",
-    "El principito": "El_principito.jpg",
-    "Breve historia del tiempo": "Breve_historia_del_tiempo.jpg",
-    "Cálculo: Una variable": "Cálculo_Una_variable.jpg"
-}
+def normalize_filename(title):
+    """Convierte un título en un nombre de archivo normalizado"""
+    title = title.replace(":", "")
+    return title.replace(" ", "_")
 
-print("Actualizando referencias de imágenes en la base de datos:")
-for titulo, imagen in libro_imagenes.items():
-    # Buscar el libro por título (aproximado)
-    libros = Libro.objects.filter(titulo__icontains=titulo)
-    
-    if libros.exists():
-        for libro in libros:
-            # Verificar si la imagen existe en Cloudinary
-            try:
-                result = cloudinary.api.resource(imagen.split('.')[0])  # Nombre sin extensión
-                
-                # Actualizar el campo portada del libro
-                libro.portada = imagen
-                libro.save()
-                
-                print(f"✅ Actualizado libro: '{libro.titulo}'")
-                print(f"   Con imagen: {imagen}")
-                print(f"   URL: {result['secure_url']}")
-            except Exception as e:
-                print(f"❌ Error al actualizar '{libro.titulo}'")
-                print(f"   Imagen: {imagen}")
-                print(f"   Error: {str(e)}")
-    else:
-        print(f"⚠️ No se encontró libro con título similar a: '{titulo}'")
+
+
+# Obtener todos los libros de la base de datos
+libros = Libro.objects.all()
+
+# Obtener el nombre de los archivos en cloudinary
+""" cloudinary_files = cloudinary.api.resources(type="upload", prefix="", max_results=500)
+cloudinary_filenames = [file['public_id'] for file in cloudinary_files['resources']]
+print(f"Archivos en Cloudinary: {len(cloudinary_filenames)} encontrados.")
+print(cloudinary_filenames)
+ """
+
+print(f"Actualizando referencias de imágenes para {libros.count()} libros:")
+for libro in libros:
+    # Generar nombre de archivo a partir del título
+    filename = normalize_filename(libro.titulo)
+    image_filename = f"{filename}.jpg"
+    # Verificar si la imagen existe en Cloudinary
+    try:
+        result = cloudinary.api.resource(filename)
+        
+        # Actualizar el campo portada del libro
+        libro.portada = image_filename
+        libro.save()
+        
+        print(f"✅ Actualizado libro: '{libro.titulo}'")
+        print(f"   Con imagen: {image_filename}")
+        print(f"   URL: {result['secure_url']}")
+    except Exception as e:
+        print(f"❌ Error al actualizar '{libro.titulo}'")
+        print(f"   Imagen buscada: {image_filename}")
+        print(f"   Error: {str(e)}")
 
 print("Proceso completado.")
