@@ -2,8 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, ShoppingCart, Search , LogOut} from "lucide-react";
 import logo from "../images/Logo.svg";
+import 'aos/dist/aos.css';
+import AOS from 'aos';
 
 function NavBar() {
+
+    useEffect(() => {
+        AOS.init({
+            duration: 1500,  
+            easing: 'ease-in-out',  
+            once: false,  
+            mirror: true,
+        });
+    }, []);
+
+
     const navigate = useNavigate();
     const [userName, setUserName] = useState(null);
 
@@ -47,7 +60,7 @@ function NavBar() {
     }
 
     return (
-        <nav className="h-[12vh] bg-[white] flex justify-between items-center p-[2vw] border-b-[.5vh] border-[#2B388C]">
+        <nav className="h-[12vh] bg-[white] flex justify-between items-center p-[2vw] border-b-[.5vh] border-[#2B388C]" data-aos="fade-down">
             
             <div className="flex justify-center items-center h-full">
                 <img src={logo} alt="logo" className="h-[8vh]" />

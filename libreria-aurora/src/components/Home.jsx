@@ -2,8 +2,20 @@ import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar";
 import ButtonA from "./ui/buttonA";
 import BookCard from "./home/bookCard";
+import 'aos/dist/aos.css';
+import AOS from 'aos';
 
 const Home = () => {
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1500,  
+      easing: 'ease-in-out',  
+      once: false,  
+      mirror: true,
+    });
+  }, []);
+
   const [books, setBooks] = useState([]);
   const [popularBooks, setPopularBooks] = useState([]);
   const [recentBooks, setRecentBooks] = useState([]);
@@ -50,9 +62,10 @@ const Home = () => {
 
   return (
     <div id="home" className="w-full h-screen overflow-auto">
+      
       <NavBar />
 
-      <div id="tiendas" className="bg-[#1B2459] w-full h-[50%] p-[2vw]">
+      <div id="tiendas" className="bg-[#1B2459] w-full h-[50%] p-[2vw]" data-aos="zoom-in">
         <div className="relative w-full h-full flex">
           <div className="absolute bottom-0 right-0 flex justify-end items-center w-full h-[10%]">
             <ButtonA text="Tiendas" onClick={() => {}} width="10%" color="#FFD700" />
@@ -60,28 +73,23 @@ const Home = () => {
         </div>
       </div>
 
-      <div id="populares" className="w-full p-[2vw]">
+      <div id="populares" className="w-full p-[2vw]" data-aos="fade-down-right">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
-          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center">
-            Populares
-          </p>
+          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Populares </p> 
           <div className="w-full flex justify-center">
             {popularBooks.map((book, index) => (
               <BookCard
                 key={index}
                 title={book.titulo}
                 author={book.autor}
-                img={
-                  book.portada ??
-                  "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"
-                }
+                img={ book.portada ?? "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" }
               />
             ))}
           </div>
         </div>
       </div>
 
-      <div id="catalogo" className="bg-[#5E5E51] w-full p-[2vw]">
+      <div id="catalogo" className="bg-[#5E5E51] w-full p-[2vw]" data-aos="fade-right">
         <div className="relative w-1/2 flex flex-col justify-evenly items-center">
           <p className="text-white text-[4vw] text-center">
             VISITA NUESTRO CATALOGO
@@ -127,26 +135,23 @@ const Home = () => {
           ))}
       </div>
 
-      <div id="populares" className="w-full p-[2vw]">
+      <div id="populares-2" className="w-full p-[2vw]">
+        
         <div className="relative w-full h-full flex flex-col justify-center items-center">
-          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center">
-            Recién Agregados
-          </p>
+          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
           <div className="w-full flex justify-center">
             {recentBooks.map((book, index) => (
               <BookCard
                 key={index}
                 title={book.titulo}
                 author={book.autor}
-                img={
-                  book.portada ??
-                  "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"
-                }
+                img={ book.portada ?? "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize" }
               />
             ))}
           </div>
         </div>
       </div>
+
     </div>
   );
 };
