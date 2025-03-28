@@ -81,8 +81,11 @@ function Login() {
             }
 
             console.log("Login exitoso, guardando token y redirigiendo");
+            //si hay cosas en el local storage, se borran
+            localStorage.clear();
             localStorage.setItem("token", data.access);
             localStorage.setItem("refreshToken", data.refresh);
+            localStorage.setItem("username", loginData.username);
             
             // Simular una breve espera para mejor feedback de éxito
             setTimeout(() => {
