@@ -100,7 +100,7 @@ function Registro() {
       <NavBar />
       <Toaster />
       <AuthFrame>
-        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto">
+        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto p-2 ">
           <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
           <InputText
             type="text"
@@ -159,13 +159,6 @@ function Registro() {
               className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
             />
           </div>
-          {/* <InputText
-            type="number"
-            placeholder="Teléfono"
-            value={userData.telefono}
-            onChange={handleChange}
-            name="telefono"
-          /> */}
           <InputText
             type="text"
             placeholder="Dirección"
@@ -178,11 +171,13 @@ function Registro() {
             placeholder="Fecha de nacimiento"
             value={userData.fecha_nacimiento}
             onChange={handleChange}
-            name="fecha_nacimiento"
+            name="fecha_nacimiento" 
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]} // Máximo: hoy - 18 años
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 140)).toISOString().split("T")[0]} // Mínimo: hoy - 140 años
           />
 
           <ButtonA text="Registrarse" type="submit" width="60%" color="#2B388C" />
-          <p className="text-[1vw] font-[500]">
+          <p className="text-[1vw] font-[500] mb-5">
             ¿Ya tienes una cuenta?{" "}
             <span style={{ color: "#2B388C", cursor: "pointer" }} onClick={() => navigate("/login")}>
               Inicia sesión

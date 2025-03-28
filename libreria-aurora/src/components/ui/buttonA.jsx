@@ -13,7 +13,7 @@ function ButtonA({ text, onClick, width, color, disabled = false, icon }) {
       style={buttonStyle}
       onClick={disabled ? null : onClick}
       disabled={disabled}
-      className="h-[5vh] rounded-[.7vw] text-white text-[min(1vw,14px)] font-[500] flex items-center justify-center transition-all duration-300 hover:opacity-90"
+      className="min-h-[5vh] rounded-[.7vw] text-white text-[min(1vw,14px)] font-[500] flex items-center justify-center transition-all duration-300 hover:opacity-90"
     >
       {icon && <span className="mr-2">{icon}</span>}
       {text}

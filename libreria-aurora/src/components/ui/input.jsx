@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Key ,Calendar , House, User, CaseUpper , IdCard, Phone} from "lucide-react";
 
-function Input({ type, placeholder, value, onChange, name}) {
+function Input({ type, placeholder, value, onChange, name, min = undefined, max= undefined}) {
 
   const handleIcon = (placeholder) => {
     switch (placeholder) {
@@ -16,6 +16,8 @@ function Input({ type, placeholder, value, onChange, name}) {
       case "Dirección":
         return <House color="#1B2459" size={"1.2vw"} />;
       case "Crea tu usuario":
+        return <User color="#1B2459" size={"1.2vw"} />;
+      case "Usuario o correo electrónico":
         return <User color="#1B2459" size={"1.2vw"} />;
       case "Nombre":
         return <CaseUpper color="#1B2459" size={"1.2vw"} />;
@@ -40,6 +42,8 @@ function Input({ type, placeholder, value, onChange, name}) {
         value={value}
         onChange={onChange}
         className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
+        min={min}
+        max={max}
       />
       <style jsx>{`
         /* Neutralizar estilos de autocompletado */
