@@ -146,7 +146,7 @@ const Home = () => {
                       {threeRandomBooks[index].titulo}
                     </h1>
                     <h2 className="text-lg">
-                      Descripción sobre sus libros populares y datos curiosos
+                      {threeRandomBooks[index].descripcion}
                     </h2>
                   </div>
                 </>
@@ -157,7 +157,7 @@ const Home = () => {
                       {threeRandomBooks[index].titulo}
                     </h1>
                     <h2 className="text-lg">
-                      Descripción sobre sus libros populares y datos curiosos
+                      {threeRandomBooks[index].descripcion}
                     </h2>
                   </div>
                   <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
