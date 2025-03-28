@@ -17,6 +17,8 @@ function Input({ type, placeholder, value, onChange, name, min = undefined, max=
         return <House color="#1B2459" size={"1.2vw"} />;
       case "Crea tu usuario":
         return <User color="#1B2459" size={"1.2vw"} />;
+      case "Usuario o correo electrónico":
+        return <User color="#1B2459" size={"1.2vw"} />;
       case "Nombre":
         return <CaseUpper color="#1B2459" size={"1.2vw"} />;
       case "Apellido": 
