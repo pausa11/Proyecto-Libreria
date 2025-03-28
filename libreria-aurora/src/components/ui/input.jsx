@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Key ,Calendar , House, User, CaseUpper , IdCard, Phone} from "lucide-react";
 
-function Input({ type, placeholder, value, onChange, name}) {
+function Input({ type, placeholder, value, onChange, name, min = undefined, max= undefined}) {
 
   const handleIcon = (placeholder) => {
     switch (placeholder) {
@@ -40,6 +40,8 @@ function Input({ type, placeholder, value, onChange, name}) {
         value={value}
         onChange={onChange}
         className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
+        min={min}
+        max={max}
       />
       <style jsx>{`
         /* Neutralizar estilos de autocompletado */
