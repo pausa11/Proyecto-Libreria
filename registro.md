@@ -871,3 +871,35 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Refinar permisos para cada tipo de usuario
    - Documentar matriz de permisos en Swagger
    - Implementar pruebas de autorización
+
+
+## [2025-03-27] Implementacion de recuperar contraseña
+### feat(usuarios): Implementación del sistema de recuperación de contraseñas
+
+#### Detalles del cambio:
+- **Endpoint de Recuperación de Contraseña:**
+  - Se agregó el método `recuperar_contraseña` en el `UsuarioViewSet`.
+  - Permite a los usuarios no autenticados solicitar un correo para restablecer su contraseña.
+  - El correo incluye un enlace o instrucciones para restablecer la contraseña.
+
+- **Validación de Correo Electrónico:**
+  - Se implementó el serializador `RecuperarContraseñaSerializer` para validar que el correo proporcionado exista en la base de datos.
+
+- **Configuración de Permisos:**
+  - Se ajustaron los permisos en el método `get_permissions` para permitir acceso público al endpoint `recuperar_contraseña`.
+
+- **Configuración de Envío de Correos:**
+  - Se configuró el backend de correo SMTP utilizando Gmail.
+  - Se documentó cómo generar una contraseña de aplicación para evitar errores de autenticación.
+
+#### Documentación:
+- **Swagger:** Se agregó documentación detallada al endpoint `recuperar_contraseña` utilizando `drf-spectacular`.
+- **Respuestas Documentadas:**
+  - **200 OK:** Correo enviado correctamente.
+  - **400 Bad Request:** El correo no fue proporcionado.
+  - **404 Not Found:** No se encontró un usuario con el correo proporcionado.
+
+#### Próximos Pasos:
+1. Implementar un endpoint para restablecer la contraseña con un token temporal.
+2. Mejorar la seguridad del flujo de recuperación de contraseñas.
+3. Implementar pruebas unitarias para validar el flujo completo.

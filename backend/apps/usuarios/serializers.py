@@ -46,3 +46,13 @@ class CambioContraseñaSerializer(serializers.Serializer):
         if attrs['new_password'] != attrs['new_password2']:
             raise serializers.ValidationError({"new_password": "Las contraseñas no coinciden"})
         return attrs
+
+class RecuperarContraseñaSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        try:
+            Usuario.objects.get(email=value)
+        except Usuario.DoesNotExist:
+            raise serializers.ValidationError("No existe un usuario con este correo electrónico")
+        return value

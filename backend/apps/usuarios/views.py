@@ -3,10 +3,14 @@ from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import AllowAny
+from django.core.mail import send_mail
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from .serializers import (
     UsuarioSerializer,
     UsuarioRegistroSerializer,
-    CambioContraseñaSerializer
+    CambioContraseñaSerializer,
+    RecuperarContraseñaSerializer
 )
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 
@@ -140,5 +144,56 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     def perfil(self, request):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+    
+
+    def get_permissions(self):
+        if self.action in ['create', 'recuperar_contraseña']:
+            return [AllowAny()]  # Permitir acceso público a estos métodos
+        return super().get_permissions()
+
+    
+    @extend_schema(
+        description="Recupera la contraseña del usuario y envía un correo electrónico con un enlace para restablecerla",
+        request = CambioContraseñaSerializer,
+        responses={
+            200: {"description": "Correo enviado correctamente"},
+            400: {"description": "Email no proporcionado"},
+            404: {"description": "Usuario no encontrado"}
+        },
+        examples=[
+            OpenApiExample(
+                "Ejemplo de solicitud",
+                value={"email": "usuario@ejemplo.com"},
+                description="Ejemplo de cómo enviar el correo electrónico en el cuerpo de la solicitud"
+            )
+        ]
+    )
+    @action(detail=False, methods=['post'])
+    def recuperar_contraseña(self, request):
+        email = request.data.get('email')
+        
+        if not email:
+            return Response(
+                {'error': 'Email no proporcionado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        try:
+            usuario = Usuario.objects.get(email=email)
+            send_mail(
+                'Recuperación de contraseña',
+                f'Hola {usuario.username},\n\nTu contraseña es: {usuario.password}',
+                'auroralibreria05@gmail.com',
+                [email],
+                fail_silently=False,
+            )
+            return Response(
+                {'message': 'Correo de recuperación enviado'},
+                status=status.HTTP_200_OK
+            )
+        except Usuario.DoesNotExist:
+            return Response(
+                {'error': 'Usuario no encontrado'},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 # Create your views here.
