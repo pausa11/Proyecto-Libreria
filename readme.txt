@@ -108,7 +108,15 @@ Cada módulo deberá implementar los requerimientos funcionales (RF) correspondi
 ### D. Módulo de Noticias y Mensajería
 - **RF29 a RF31 y RF35:**
   - Subscripción a novedades y catálogo de nuevos libros.
-  - Sistema de mensajería instantánea para interacción entre usuarios y administradores (se puede usar Django Channels o soluciones externas para mensajería en tiempo real).
+  - Sistema de mensajería para interacción entre usuarios y administradores:
+    - Foros personales por usuario
+    - Sistema de mensajes con estados (abierto/respondido/cerrado)
+    - Respuestas anidadas a mensajes
+    - Notificaciones automáticas para nuevos mensajes y respuestas
+    - Panel de administración para gestión de foros y mensajes
+    - API REST completa con documentación Swagger
+    - Integración con el sistema de autenticación y permisos
+    - Señales automáticas para creación de foros y notificaciones
 
 ### E. Módulo de Búsqueda
 - **RF32:**
@@ -167,12 +175,16 @@ Cada iteración incluirá:
 
 ### A. Despliegue
 - **GitHub:** Repositorio central para control de versiones y colaboración.
-- **Heroku (Back-end):**  
-  - Configurar Procfile, variables de entorno y base de datos (se puede utilizar Heroku Postgres).
-  - Asegurar que las migraciones y configuraciones de Django sean compatibles con producción.
-- **Vercel (Front-end):**  
-  - Configurar el despliegue del proyecto Next.js y conectar con las APIs de Heroku.
+- **Render (Back-end):**  
+  - Configurar el `Procfile`, variables de entorno y base de datos (usando PostgreSQL en Render).
+  - Asegurar que las migraciones y configuraciones de tu framework backend (por ejemplo, Django, Express.js) sean compatibles con producción.
+- **GitHub Pages (Front-end):**
+  - Configurar el despliegue de tu proyecto React.
+  - Usar Tailwind CSS para el diseño y estilos.
+  - Asegurar que el archivo `package.json` tenga los scripts necesarios para el despliegue en GitHub Pages.
+- **Configuraciones adicionales:**  
   - Configurar variables de entorno necesarias (por ejemplo, URL base de la API).
+  - Integrar Tailwind CSS con tu proyecto React adecuadamente.
 
 ### B. Consideraciones Post-Despliegue
 - **Monitoreo:** Implementar herramientas básicas de logging y monitoreo.
