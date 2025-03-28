@@ -16,6 +16,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'fecha_registro', 'ultima_actualizacion')
 
 class UsuarioRegistroSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
+    first_name = serializers.CharField(required=True)
+    numero_identificacion = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
@@ -28,6 +32,15 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
+        if Usuario.objects.filter(username=attrs['username']).exists():
+            raise serializers.ValidationError({"username": "Ya existe un usuario con este nombre de usuario"})
+        
+        if Usuario.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError({"email": "Ya existe un usuario con este correo electrónico"})
+        
+        if Usuario.objects.filter(numero_identificacion=attrs['numero_identificacion']).exists():
+            raise serializers.ValidationError({"numero_identificacion": "Ya existe un usuario con este número de identificación"})
+        
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Las contraseñas no coinciden"})
         return attrs
