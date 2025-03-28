@@ -72,6 +72,8 @@ INSTALLED_APPS = [
     'apps.finanzas',
     'apps.mensajeria',
     'apps.recomendaciones',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -261,3 +263,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'auroralibreria05@gmail.com' 
 EMAIL_HOST_PASSWORD = 'xdgwudfkygokmftq'  
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': env('CLOUDINARY_API_KEY'),
+    'API_SECRET': env('CLOUDINARY_API_SECRET')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

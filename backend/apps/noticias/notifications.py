@@ -10,7 +10,7 @@ def enviar_notificacion_nueva_noticia(noticia):
     cuando se publica una nueva noticia
     """
     # Solo enviar si la noticia está publicada
-    if noticia.estado != 'publicado':
+    if noticia.estado_noticia != 'PUBLICADO':  # Cambiado de estado!='publicado'
         return
 
     # Obtener suscriptores relevantes
@@ -66,4 +66,4 @@ def enviar_confirmacion_suscripcion(suscripcion):
             fail_silently=False,
         )
     except Exception as e:
-        print(f"Error al enviar confirmación a {suscripcion.usuario.email}: {str(e)}") 
+        print(f"Error al enviar confirmación a {suscripcion.usuario.email}: {str(e)}")

@@ -112,7 +112,7 @@ const Home = () => {
                 key={book.id || index}
                 title={book.titulo}
                 author={book.autor}
-                img={book.portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
               />
             ))}
           </div>
@@ -136,7 +136,7 @@ const Home = () => {
                 <>
                   <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
                     <img 
-                      src={threeRandomBooks[index].portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
+                      src={threeRandomBooks[index].portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
                       className="w-full h-full object-cover rounded-lg" 
                     />
@@ -162,7 +162,7 @@ const Home = () => {
                   </div>
                   <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
                     <img 
-                      src={threeRandomBooks[index].portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
+                      src={threeRandomBooks[index].portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
                       className="w-full h-full object-cover rounded-lg" 
                     />
@@ -182,7 +182,7 @@ const Home = () => {
                 key={book.id || index}
                 title={book.titulo}
                 author={book.autor}
-                img={book.portada || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
               />
             ))}
           </div>
