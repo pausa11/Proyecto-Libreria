@@ -14,8 +14,8 @@ function NavBar(){
             </div>
 
             <div id='menu' className="gap-[3vw] flex justify-center items-center">
-                <a className="text-[#2B388C] text-[1.5vw] font-[200]" onClick={() => navigate('/')}>Inicio</a>
-                <a className="text-[#2B388C] text-[1.5vw] font-[200]" onClick={() => navigate('/catalogo')}>Catalogo</a>
+                <p className="text-[#2B388C] text-[1.5vw] font-[200]" onClick={() => navigate('/')}>Inicio</p>
+                <p className="text-[#2B388C] text-[1.5vw] font-[200]" onClick={() => navigate('/catalogo')}>Catalogo</p>
             </div>
 
             <div id='options' className="flex justify-center items-center gap-4">
