@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
+import { Toaster, toast } from "sonner";
 
 import InputText from "./ui/input";
 import ButtonA from "./ui/buttonA";
 import AuthFrame from "./ui/authFrame";
 
+import 'react-phone-number-input/style.css'
+import PhoneInput from 'react-phone-number-input'
+
 function Registro() {
+  const [value, setValue] = useState()
+
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/";
   const navigate = useNavigate();
 
@@ -31,12 +37,27 @@ function Registro() {
     });
   };
 
+  // Función que mapea los errores del backend a mensajes amigables y muestra un toast por cada error
+  const showErrorNotifications = (errors) => {
+    //toma el objeto de errores y lo convierte en un array de strings
+    const errorArray = Object.entries(errors).map(([key, value]) => {
+      return `${key}: ${value}`;
+    });
+
+    errorArray.forEach((error) => {
+      toast.error(error);
+    }
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (userData.password !== userData.password2) {
-      alert("Las contraseñas no coinciden");
+      toast.error("Las contraseñas no coinciden");
       return;
     }
+
     try {
       const response = await fetch(backendURL, {
         method: "POST",
@@ -57,24 +78,29 @@ function Registro() {
           fecha_nacimiento: userData.fecha_nacimiento
         })
       });
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Detalles del error:", errorData);
+        showErrorNotifications(errorData);
         throw new Error("Error en la petición");
       }
+
       const data = await response.json();
       console.log("Usuario registrado:", data);
+      toast.success("Usuario registrado exitosamente");
       navigate("/login");
     } catch (error) {
       console.error("Error registrando usuario:", error);
     }
   };
-  
+
   return (
     <div className="w-[100vw] h-[100vh] bg-[#DBDBDB]">
       <NavBar />
+      <Toaster />
       <AuthFrame>
-        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-[1vw] overflow-auto">
+        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto">
           <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
           <InputText
             type="text"
@@ -125,13 +151,21 @@ function Registro() {
             onChange={handleChange}
             name="numero_identificacion"
           />
-          <InputText
-            type="text"
+          <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
+            <PhoneInput
+              placeholder="Enter phone number"
+              value={value}
+              onChange={setValue}
+              className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
+            />
+          </div>
+          {/* <InputText
+            type="number"
             placeholder="Teléfono"
             value={userData.telefono}
             onChange={handleChange}
             name="telefono"
-          />
+          /> */}
           <InputText
             type="text"
             placeholder="Dirección"
@@ -140,7 +174,7 @@ function Registro() {
             name="direccion"
           />
           <InputText
-            type="text"
+            type="date"
             placeholder="Fecha de nacimiento"
             value={userData.fecha_nacimiento}
             onChange={handleChange}
@@ -150,7 +184,7 @@ function Registro() {
           <ButtonA text="Registrarse" type="submit" width="60%" color="#2B388C" />
           <p className="text-[1vw] font-[500]">
             ¿Ya tienes una cuenta?{" "}
-            <span style={{ color: "#2B388C", cursor: "pointer" }} onClick={() => navigate("/login")} >
+            <span style={{ color: "#2B388C", cursor: "pointer" }} onClick={() => navigate("/login")}>
               Inicia sesión
             </span>
           </p>
