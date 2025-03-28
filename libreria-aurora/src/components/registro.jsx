@@ -11,8 +11,7 @@ import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 
 function Registro() {
-  const [value, setValue] = useState()
-
+  const [value, setValue] = useState("");
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/";
   const navigate = useNavigate();
 
@@ -39,19 +38,42 @@ function Registro() {
 
   // Función que mapea los errores del backend a mensajes amigables y muestra un toast por cada error
   const showErrorNotifications = (errors) => {
-    //toma el objeto de errores y lo convierte en un array de strings
+    // Toma el objeto de errores y lo convierte en un array de strings
     const errorArray = Object.entries(errors).map(([key, value]) => {
       return `${key}: ${value}`;
     });
 
     errorArray.forEach((error) => {
       toast.error(error);
-    }
-    );
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar que ningún campo obligatorio esté vacío
+    const requiredFields = [
+      "email",
+      "username",
+      "password",
+      "password2",
+      "first_name",
+      "last_name",
+      "numero_identificacion",
+      "direccion",
+      "fecha_nacimiento"
+    ];
+
+    for (let field of requiredFields) {
+      if (!userData[field] || userData[field].trim() === "") {
+        toast.error("Todos los campos son obligatorios");
+        return;
+      }
+    }
+    if (!value || value.trim() === "") {
+      toast.error("El teléfono es obligatorio");
+      return;
+    }
 
     if (userData.password !== userData.password2) {
       toast.error("Las contraseñas no coinciden");
@@ -73,7 +95,7 @@ function Registro() {
           last_name: userData.last_name,
           tipo_usuario: userData.tipo_usuario,
           numero_identificacion: userData.numero_identificacion,
-          telefono: userData.telefono,
+          telefono: value, // Se utiliza el estado "value" del PhoneInput
           direccion: userData.direccion,
           fecha_nacimiento: userData.fecha_nacimiento
         })
@@ -100,7 +122,7 @@ function Registro() {
       <NavBar />
       <Toaster />
       <AuthFrame>
-        <form onSubmit={handleSubmit} className=" w-full flex flex-col items-center gap-[1vw] overflow-auto p-2 ">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-[1vw] overflow-auto p-2">
           <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
           <InputText
             type="text"
