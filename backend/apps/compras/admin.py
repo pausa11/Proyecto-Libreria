@@ -26,4 +26,14 @@ class CarritoAdmin(admin.ModelAdmin):
         for carrito in queryset:
             carrito.agregar_libro(Libro.objects.first())
         self.message_user(request, "Libro agregado con éxito.")
+    
+    def quitar_libro(self, request, queryset):
+        for carrito in queryset:
+            carrito.quitar_libro(Libro.objects.first())
+        self.message_user(request, "Libro quitado con éxito.")
+    
+    def pagar(self, request, queryset):
+        for carrito in queryset:
+            carrito.pagar()
+        self.message_user(request, "Pago procesado con éxito.")
 
