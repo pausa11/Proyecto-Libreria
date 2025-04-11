@@ -3,14 +3,16 @@ import sys
 import django
 import cloudinary
 import cloudinary.api
+import re
 
 # Configurar entorno Django
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-# Importar la configuración de Django
+# Importar la configuración de Django y el modelo Libro
 from django.conf import settings
+from apps.libros.models import Libro
 
 # Configurar explícitamente Cloudinary con los valores de settings.py
 cloudinary.config(
@@ -19,24 +21,27 @@ cloudinary.config(
     api_secret=settings.CLOUDINARY_STORAGE['API_SECRET']
 )
 
-# Libros a verificar
-books = [
-    "Cien_años_de_soledad",
-    "El_principito",
-    "Breve_historia_del_tiempo",
-    "Cálculo_Una_variable"
-]
+def normalize_filename(title):
+    """Convierte un título en un nombre de archivo normalizado"""
+    title = title.replace(":", "")
+    return title.replace(" ", "_")
 
-# Verificar si las imágenes existen en Cloudinary
-print("Verificando imágenes en Cloudinary:")
-for book in books:
+# Obtener todos los libros de la base de datos
+libros = Libro.objects.all()
+
+print(f"Verificando imágenes para {libros.count()} libros:")
+for libro in libros:
+    # Generar nombre de archivo a partir del título
+    filename = normalize_filename(libro.titulo)
+    
     try:
-        # Intentar obtener información de la imagen
-        result = cloudinary.api.resource(book)
-        print(f"✅ Imagen encontrada: {book}")
+        # Intentar obtener información de la imagen en Cloudinary
+        result = cloudinary.api.resource(filename)
+        print(f"✅ Imagen encontrada para: '{libro.titulo}'")
         print(f"   URL: {result['secure_url']}")
     except Exception as e:
-        print(f"❌ No se encontró: {book}")
+        print(f"❌ No se encontró imagen para: '{libro.titulo}'")
+        print(f"   Nombre buscado: {filename}")
         print(f"   Error: {str(e)}")
 
 print("Verificación completada.")
