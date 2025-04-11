@@ -3,6 +3,8 @@ import Login from './components/login';
 import RecuperarContraseña from './components/recuperarContraseña';
 import Registro from './components/registro';
 import Home from './components/Home';
+import SearchBook from './components/SearchBook';
+import Catalogo from './components/catalogo';
 
 function App() {
   return (
@@ -12,7 +14,8 @@ function App() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperarContraseña" element={<RecuperarContraseña />} />
         <Route path="/" element={<Home/>} />
-        <Route path="/catalogo" element={<Home/>} />
+        <Route path="/Search" element={<SearchBook/>} />
+        <Route path="/catalogo" element={<Catalogo/>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </HashRouter>

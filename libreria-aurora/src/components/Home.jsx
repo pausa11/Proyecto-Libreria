@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import ButtonA from "./ui/buttonA";
 import BookCard from "./home/bookCard";
@@ -6,6 +7,7 @@ import 'aos/dist/aos.css';
 import AOS from 'aos';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [popularBooks, setPopularBooks] = useState([]);
   const [recentBooks, setRecentBooks] = useState([]);
@@ -14,7 +16,6 @@ const Home = () => {
 
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
 
-  // Initialize AOS with more robust configuration
   useEffect(() => {
     AOS.init({
       duration: 1000,  
@@ -124,7 +125,7 @@ const Home = () => {
           <p className="text-white text-[4vw] text-center">
             VISITA NUESTRO CATALOGO
           </p>
-          <ButtonA text="ver más" onClick={() => {}} width="20%" color="#FFD700" />
+          <ButtonA text="ver más" onClick={() => {navigate('/catalogo')}} width="20%" color="#FFD700" />
         </div>
       </div>
 
