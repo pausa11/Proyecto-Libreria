@@ -755,3 +755,151 @@
    - Usar ventanas de incógnito o limpiar caché del navegador para pruebas
 
 Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctamente con la documentación Swagger, facilitando el desarrollo y prueba de la API.
+
+## [2025-03-26] Corrección y Documentación del Sistema de Autenticación
+
+### fix(auth): Corrección del endpoint de autenticación en componente Login
+
+#### Detalles del cambio
+- **commit:** Corrección del endpoint de autenticación JWT en componente Login
+  - **Modificado:** Endpoint de login para usar correctamente la ruta JWT
+  - **Anterior:** Intentaba usar un endpoint inexistente
+  - **Actual:** Utiliza el endpoint `/api/token/` proporcionado por SimpleJWT
+  - **Implementado:** Manejo correcto de tokens (access y refresh)
+  - **Actualizado:** Almacenamiento de tokens en localStorage
+
+### feat(docs): Documentación del workflow de autenticación
+
+#### Documentación del sistema de autenticación
+- **Diferenciación entre registro y login:**
+  - **Registro:** Usa endpoint `/api/usuarios/` (POST) - ViewSet estándar
+  - **Login:** Usa endpoint `/api/token/` (POST) - Sistema JWT dedicado
+  - **Documentación:** Clarificación de diferencias en Swagger y código
+
+- **Workflow de autenticación JWT:**
+  - **Obtención de token:** POST a `/api/token/` con username/password
+  - **Almacenamiento:** LocalStorage para tokens (access y refresh)
+  - **Uso:** Envío de token en header `Authorization: Bearer [token]`
+  - **Renovación:** Uso de refresh token cuando el token principal expira
+
+- **Mejoras en la documentación Swagger:**
+  - **Implementación:** Decoradores `extend_schema` para endpoints de usuarios
+  - **Detalle:** Documentación clara de parámetros y respuestas
+  - **Ejemplos:** Ejemplos de uso para login y registro
+
+### feat(swagger): Mejora de la documentación OpenAPI para usuarios
+
+- **commit:** Ampliación de la documentación Swagger para el módulo de usuarios
+  - **Añadido:** Descripción detallada para cada endpoint
+  - **Implementado:** Ejemplos de solicitudes y respuestas
+  - **Documentado:** Tipos de errores y códigos de estado
+  - **Clarificado:** Flujo completo de autenticación y uso de JWT
+
+### Estado Actual del Sistema
+
+#### Sistema de Autenticación ✅
+- **Registro de usuarios:** Completamente funcional
+  - Endpoint: `/api/usuarios/` (POST)
+  - No requiere autenticación
+  - Documentado en Swagger
+
+- **Login JWT:** Completamente funcional
+  - Endpoint: `/api/token/` (POST)
+  - Devuelve tokens access y refresh
+  - Manejo de errores implementado
+
+- **Perfil de usuario:** Completamente funcional
+  - Endpoint: `/api/usuarios/perfil/` (GET)
+  - Requiere autenticación
+  - Devuelve datos del usuario actual
+
+- **Cambio de contraseña:** Completamente funcional
+  - Endpoint: `/api/usuarios/{id}/cambiar_contraseña/` (POST)
+  - Requiere autenticación
+  - Valida contraseña actual
+
+#### Frontend de Autenticación ✅
+- **Componente Login:** Corregido y funcional
+  - Usa correctamente el endpoint JWT
+  - Almacena tokens en localStorage
+  - Manejo de errores implementado
+  - Redirección automática tras login exitoso
+
+- **Componente Registro:** Completamente funcional
+  - Validación de campos
+  - Comunicación correcta con backend
+  - Redirección a login tras registro exitoso
+
+### Workflow Actual de Autenticación
+
+1. **Registro:**
+   - Usuario completa formulario en `/registro`
+   - Frontend envía datos a `/api/usuarios/` (POST)
+   - Backend valida y crea usuario
+   - Usuario recibe confirmación y es redirigido a login
+
+2. **Login:**
+   - Usuario ingresa credenciales en `/login`
+   - Frontend envía username/password a `/api/token/` (POST)
+   - Backend valida y devuelve tokens JWT
+   - Frontend almacena tokens en localStorage
+   - Usuario es redirigido a página principal
+
+3. **Autorización:**
+   - Cada petición autenticada incluye token JWT en header
+   - Backend valida token y permite/deniega acceso
+   - Si token expira, se usa refresh token para obtener uno nuevo
+
+4. **Gestión de perfil:**
+   - Usuario autenticado puede ver/modificar su perfil
+   - Cambios de contraseña requieren validación de contraseña actual
+   - Acciones privilegiadas requieren roles específicos
+
+### Próximos Pasos 🚧
+
+1. **Implementar recuperación de contraseña**
+   - Crear endpoint para generación de tokens de recuperación
+   - Implementar sistema de envío de emails
+   - Desarrollar interfaz para restablecimiento de contraseña
+
+2. **Mejorar gestión de sesiones**
+   - Implementar logout que invalide tokens
+   - Añadir detección de inactividad
+   - Permitir gestión de sesiones múltiples
+
+3. **Ampliar permisos por roles**
+   - Refinar permisos para cada tipo de usuario
+   - Documentar matriz de permisos en Swagger
+   - Implementar pruebas de autorización
+
+
+## [2025-03-27] Implementacion de recuperar contraseña
+### feat(usuarios): Implementación del sistema de recuperación de contraseñas
+
+#### Detalles del cambio:
+- **Endpoint de Recuperación de Contraseña:**
+  - Se agregó el método `recuperar_contraseña` en el `UsuarioViewSet`.
+  - Permite a los usuarios no autenticados solicitar un correo para restablecer su contraseña.
+  - El correo incluye un enlace o instrucciones para restablecer la contraseña.
+
+- **Validación de Correo Electrónico:**
+  - Se implementó el serializador `RecuperarContraseñaSerializer` para validar que el correo proporcionado exista en la base de datos.
+
+- **Configuración de Permisos:**
+  - Se ajustaron los permisos en el método `get_permissions` para permitir acceso público al endpoint `recuperar_contraseña`.
+
+- **Configuración de Envío de Correos:**
+  - Se configuró el backend de correo SMTP utilizando Gmail.
+  - Se documentó cómo generar una contraseña de aplicación para evitar errores de autenticación.
+
+#### Documentación:
+- **Swagger:** Se agregó documentación detallada al endpoint `recuperar_contraseña` utilizando `drf-spectacular`.
+- **Respuestas Documentadas:**
+  - **200 OK:** Correo enviado correctamente.
+  - **400 Bad Request:** El correo no fue proporcionado.
+  - **404 Not Found:** No se encontró un usuario con el correo proporcionado.
+
+#### Próximos Pasos:
+1. Implementar un endpoint para restablecer la contraseña con un token temporal.
+2. Mejorar la seguridad del flujo de recuperación de contraseñas.
+3. Implementar pruebas unitarias para validar el flujo completo.

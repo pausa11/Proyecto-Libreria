@@ -5,7 +5,7 @@ El sistema se dividirá en módulos claramente definidos que cubrirán desde la 
 **Objetivos principales:**
 - **Back-end robusto:** Utilizando Django (y Django REST Framework) para definir y exponer APIs seguras y escalables.
 - **Front-end moderno:** Con Next.js se garantizará una experiencia de usuario dinámica y optimizada (renderizado híbrido y SSR).
-- **Despliegue sencillo:** Separar los repositorios o carpetas para back-end y front-end, facilitando el despliegue en Heroku para Django y en Vercel para Next.js.
+- **Despliegue sencillo:** Separar los repositorios o carpetas para back-end y front-end, facilitando el despliegue en Render para Django y en github pages para Next.js.
 
 ---
 

@@ -63,6 +63,20 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
    python manage.py loaddata usuarios_prueba.json
    python manage.py loaddata libros_prueba.json
 
+   ## Gestión Automatizada de Imágenes de Portadas
+
+   Este proyecto usa Cloudinary para almacenar portadas de libros. Las imágenes se vinculan automáticamente basándose en los títulos de los libros.
+
+   ### Convención de nombres
+   Las imágenes en Cloudinary deben seguir esta convención de nombres:
+   - Título del libro con espacios reemplazados por guiones bajos (Ej: "El_principito.jpg")
+
+   # Verificar que las imágenes referenciadas en el fixture existan en Cloudinary(Opcional)
+   python apps/libros/scripts/manage_images.py --mode verify
+
+   # Normalizar nombres de imágenes en el fixture (basado en títulos)(Opcional)
+   python apps/libros/scripts/manage_images.py --mode normalize
+
    # Iniciar Servidor de Desarrollo
    python manage.py runserver
    ```

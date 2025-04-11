@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 
 # Create your models here.
 
@@ -30,7 +30,13 @@ class Libro(models.Model):
         null=True
     )
     descripcion = models.TextField(blank=True)
-    portada = models.ImageField(upload_to='portadas/', null=True, blank=True)
+    portada = models.ImageField(
+        upload_to='portadas/',
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'webp'])],
+        blank=True,
+        null=True,
+        help_text='Portada del libro (formatos: JPG, PNG, WebP)'
+    )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 

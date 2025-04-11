@@ -36,6 +36,7 @@
             "editorial": "Vintage Español",
             "año_publicacion": 1967,
             "descripcion": "Una saga familiar que narra la historia de los Buendía en Macondo",
+            "portada": "Cien años de soledad",
             "fecha_creacion": "2025-02-10T01:33:09-05:00",
             "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
         }
@@ -53,6 +54,7 @@
             "editorial": "Harvest Books",
             "año_publicacion": 1943,
             "descripcion": "Una historia sobre la amistad, el amor y el sentido de la vida",
+            "portada": "El principito",
             "fecha_creacion": "2025-02-10T01:33:09-05:00",
             "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
         }
@@ -70,6 +72,7 @@
             "editorial": "Bantam",
             "año_publicacion": 1988,
             "descripcion": "Una exploración de los misterios del universo",
+            "portada": "Breve historia del tiempo",
             "fecha_creacion": "2025-02-10T01:33:09-05:00",
             "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
         }
@@ -87,6 +90,151 @@
             "editorial": "Cengage Learning",
             "año_publicacion": 2012,
             "descripcion": "Libro de texto fundamental para el estudio del cálculo",
+            "portada": "Cálculo: Una variable",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 5,
+        "fields": {
+            "titulo": "1984",
+            "autor": "George Orwell",
+            "isbn": "9780451524935",
+            "precio": "18.99",
+            "stock": 12,
+            "categoria": 1,
+            "editorial": "Signet Classics",
+            "año_publicacion": 1949,
+            "descripcion": "Una inquietante visión de un futuro totalitario y vigilado",
+            "portada": "1984",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 6,
+        "fields": {
+            "titulo": "Don Quijote de la Mancha",
+            "autor": "Miguel de Cervantes",
+            "isbn": "9788420412146",
+            "precio": "22.50",
+            "stock": 7,
+            "categoria": 1,
+            "editorial": "Alfaguara",
+            "año_publicacion": 1605,
+            "descripcion": "La gran obra maestra de la literatura española",
+            "portada": "Don Quijote de la Mancha",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 7,
+        "fields": {
+            "titulo": "Sapiens: De animales a dioses",
+            "autor": "Yuval Noah Harari",
+            "isbn": "9788499926223",
+            "precio": "29.95",
+            "stock": 18,
+            "categoria": 2,
+            "editorial": "Debate",
+            "año_publicacion": 2014,
+            "descripcion": "Un recorrido por la historia de la humanidad y nuestra evolución",
+            "portada": "Sapiens: De animales a dioses",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 8,
+        "fields": {
+            "titulo": "El señor de los anillos",
+            "autor": "J.R.R. Tolkien",
+            "isbn": "9788445073735",
+            "precio": "35.99",
+            "stock": 9,
+            "categoria": 1,
+            "editorial": "Minotauro",
+            "año_publicacion": 1954,
+            "descripcion": "La épica obra que definió el género de la fantasía moderna",
+            "portada": "El señor de los anillos",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 9,
+        "fields": {
+            "titulo": "Harry Potter y la piedra filosofal",
+            "autor": "J.K. Rowling",
+            "isbn": "9788478884452",
+            "precio": "19.99",
+            "stock": 22,
+            "categoria": 1,
+            "editorial": "Salamandra",
+            "año_publicacion": 1997,
+            "descripcion": "El inicio de la famosa saga sobre el joven mago",
+            "portada": "Harry Potter y la piedra filosofal",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 10,
+        "fields": {
+            "titulo": "El código Da Vinci",
+            "autor": "Dan Brown",
+            "isbn": "9788408095040",
+            "precio": "16.95",
+            "stock": 14,
+            "categoria": 1,
+            "editorial": "Booket",
+            "año_publicacion": 2003,
+            "descripcion": "Un thriller que combina arte, historia y religión",
+            "portada": "El código Da Vinci",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 11,
+        "fields": {
+            "titulo": "Física Universitaria",
+            "autor": "Sears Zemansky",
+            "isbn": "9786073221900",
+            "precio": "56.25",
+            "stock": 16,
+            "categoria": 3,
+            "editorial": "Pearson",
+            "año_publicacion": 2018,
+            "descripcion": "Manual completo de física para estudiantes universitarios",
+            "portada": "Física Universitaria",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 12,
+        "fields": {
+            "titulo": "Crónica de una muerte anunciada",
+            "autor": "Gabriel García Márquez",
+            "isbn": "9788437604787",
+            "precio": "14.95",
+            "stock": 11,
+            "categoria": 1,
+            "editorial": "Debolsillo",
+            "año_publicacion": 1981,
+            "descripcion": "Una novela corta que narra los eventos que llevan a un asesinato anunciado",
+            "portada": "Crónica de una muerte anunciada",
             "fecha_creacion": "2025-02-10T01:33:09-05:00",
             "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
         }

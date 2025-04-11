@@ -72,6 +72,8 @@ INSTALLED_APPS = [
     'apps.finanzas',
     'apps.mensajeria',
     'apps.recomendaciones',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -243,7 +245,7 @@ SPECTACULAR_SETTINGS = {
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Next.js frontend
-    "https://pausa11.github.io/Proyecto-Libreria/",  # GitHub Pages
+    "https://pausa11.github.io",  # GitHub Pages
 ]
 
 # Channels settings
@@ -255,7 +257,17 @@ CHANNEL_LAYERS = {
 }
 
 # Email Configuration for Development
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@libreria.com'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'auroralibreria05@gmail.com' 
+EMAIL_HOST_PASSWORD = 'xdgwudfkygokmftq'  
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': env('CLOUDINARY_API_KEY'),
+    'API_SECRET': env('CLOUDINARY_API_SECRET')
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
