@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import Usuario
+from .models import Usuario, UsuarioPreferencias
 
 # Register your models here.
 
@@ -33,3 +33,22 @@ class UsuarioAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2', 'tipo_usuario', 'numero_identificacion'),
         }),
     )
+
+
+@admin.register(UsuarioPreferencias)
+class UsuarioPreferenciasAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'recibir_actualizaciones', 'recibir_noticias', 'recibir_descuentos', 'recibir_mensajes_foro')
+    list_filter = ('recibir_actualizaciones', 'recibir_noticias', 'recibir_descuentos', 'recibir_mensajes_foro')
+    search_fields = ('usuario__username', 'usuario__email')
+    raw_id_fields = ('usuario',)
+    fieldsets = (
+        (_('Usuario'), {'fields': ('usuario',)}),
+        (_('Preferencias de comunicación'), {
+            'fields': (
+                'recibir_actualizaciones', 'recibir_noticias',
+                'recibir_descuentos', 'recibir_mensajes_foro'
+            )
+        }),
+        (_('Metadatos'), {'fields': ('fecha_actualizacion',)}),
+    )
+    readonly_fields = ('fecha_actualizacion',)

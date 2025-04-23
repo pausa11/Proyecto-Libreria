@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from .models import UsuarioPreferencias
 
 Usuario = get_user_model()
 
@@ -14,6 +15,29 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'ultima_actualizacion', 'activo'
         )
         read_only_fields = ('id', 'fecha_registro', 'ultima_actualizacion')
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer para actualizar los datos del perfil de usuario.
+    No permite actualizar campos sensibles como tipo_usuario o número de identificación.
+    """
+    class Meta:
+        model = Usuario
+        fields = (
+            'first_name', 'last_name', 'telefono',
+            'direccion', 'fecha_nacimiento'
+        )
+        
+    def validate(self, attrs):
+        # Aquí se pueden agregar validaciones específicas si es necesario
+        return attrs
+        
+    def update(self, instance, validated_data):
+        # Actualización de los campos permitidos
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class UsuarioRegistroSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
@@ -69,3 +93,24 @@ class RecuperarContraseñaSerializer(serializers.Serializer):
         except Usuario.DoesNotExist:
             raise serializers.ValidationError("No existe un usuario con este correo electrónico")
         return value
+
+class PreferenciasUsuarioSerializer(serializers.ModelSerializer):
+    """
+    Serializer para gestionar las preferencias de suscripción del usuario.
+    """
+    class Meta:
+        model = UsuarioPreferencias
+        fields = (
+            'recibir_actualizaciones',
+            'recibir_noticias',
+            'recibir_descuentos',
+            'recibir_mensajes_foro',
+            'fecha_actualizacion'
+        )
+        read_only_fields = ('fecha_actualizacion',)
+        
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
