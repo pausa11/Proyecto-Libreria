@@ -5,13 +5,14 @@ import 'aos/dist/aos.css';
 import AOS from 'aos';
 
 function SearchBooks() {
-  const filtersArray = ['Genero', 'Año', 'Autor', 'Editorial', 'Precio'];
+  const filtersArray = ['categoria', 'año_publicacion', 'Autor', 'Editorial', 'Precio'];
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
 
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState(null);
 
   useEffect(() => {
     AOS.init();
@@ -33,14 +34,22 @@ function SearchBooks() {
   };
 
   const handleSearchBook = () => {
+    console.log(books);
     const term = searchTerm.toLowerCase();
     const filtered = books.filter(book =>
       (book.titulo && book.titulo.toLowerCase().includes(term)) ||
       (book.autor && book.autor.toLowerCase().includes(term))
     );
     setFilteredBooks(filtered);
+    setActiveFilter(null); // desactivar filtros cuando se busca manualmente
   };
 
+  const handleFilterClick = (filter) => {
+    const field = filter.toLowerCase();
+    const filtered = books.filter(book => book[field] && book[field] !== "");
+    setFilteredBooks(filtered);
+    setActiveFilter(filter);
+  };
 
   if (isLoading) {
     return (
@@ -77,7 +86,10 @@ function SearchBooks() {
           {filtersArray.map((filter, index) => (
             <button
               key={index}
-              className="bg-[#E8BD83] text-black p-2 rounded-lg hover:bg-[#D9A76B] transition duration-300 min-w-[7vw]"
+              onClick={() => handleFilterClick(filter)}
+              className={`${
+                activeFilter === filter ? 'bg-[#D9A76B]' : 'bg-[#E8BD83]'
+              } text-black p-2 rounded-lg transition duration-300 min-w-[7vw]`}
             >
               {filter}
             </button>
