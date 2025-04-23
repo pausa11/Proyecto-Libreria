@@ -903,3 +903,93 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 1. Implementar un endpoint para restablecer la contraseña con un token temporal.
 2. Mejorar la seguridad del flujo de recuperación de contraseñas.
 3. Implementar pruebas unitarias para validar el flujo completo.
+
+[2025-04-11] Corrección de Modelos y Configuración del Proyecto
+fix(compras): Corrección del modelo Carrito y relaciones en compras
+commit: Corregido el modelo Carrito y sus administradores
+Resuelto: Conflicto entre el campo libros ManyToManyField y métodos en el modelo Carrito
+Corregido: Método total_libros() para contar correctamente los libros en el carrito
+Implementado: Métodos para agregar, quitar y limpiar libros del carrito
+Refactorizado: Admin de Carrito para visualizar correctamente los libros
+Detalles de la implementación:
+Administración de carritos:
+
+Corregido error en filter_horizontal para la relación ManyToManyField
+Implementadas acciones en admin para vaciar carritos y agregar libros
+Añadidos métodos para cálculo de total y conteo de libros
+Resolución de errores:
+
+Solucionado el problema de conflicto entre campo y método con el mismo nombre
+Implementado método obtener_libros() para reemplazar al método libros()
+Corregida la visualización en admin panel con campos personalizados
+fix(finanzas): Implementación correcta de OneToOneField en modelos de finanzas
+commit: Corregidas relaciones entre modelos de finanzas y usuarios
+Modificado: Relación OneToOneField entre Usuario y Saldo
+Corregido: Método modificar_saldo() para guardar los cambios correctamente
+Implementado: Método __str__ para mejor representación en admin
+Optimizado: Serializer de Saldo para gestión de usuarios
+Detalles de la implementación:
+Estructura de modelos:
+
+Implementación correcta de OneToOneField para relación única entre Usuario y Saldo
+Eliminada la redundancia de unique=True en campo OneToOneField
+Corregida la definición de campos en el modelo Saldo
+Implementados métodos para gestionar el saldo correctamente
+Correcciones de APIs:
+
+Corregidas importaciones en views.py utilizando importaciones relativas
+Implementado SaldoViewSet para gestión del saldo por usuario
+Ajustado el serializer para representar correctamente las relaciones
+fix(admin): Solución de problemas con archivos estáticos y configuración
+commit: Corregida la configuración para servir archivos estáticos
+Resuelto: Error 404 en rutas de admin sin trailing slash
+Configurado: Servicio correcto de archivos estáticos en desarrollo
+Implementado: Manejo de URLs con APPEND_SLASH
+Optimizado: Sistema de migraciones para resolver dependencias
+Detalles de la implementación:
+Configuración de estáticos:
+
+Configurados correctamente STATIC_URL y STATIC_ROOT en settings.py
+Implementado servicio de archivos estáticos en modo DEBUG
+Resueltos problemas de rutas para admin y otros recursos estáticos
+Gestión de migraciones:
+
+Corregidas dependencias entre migraciones para evitar errores
+Implementado proceso para rehacer migraciones con problemas
+Solucionado error de inconsistencia entre migraciones de libros y compras
+Estado Actual del Sistema
+Módulos Corregidos ✅
+Compras
+
+Modelo Carrito completamente funcional
+Relaciones ManyToManyField configuradas correctamente
+Admin con acciones personalizadas
+Métodos para gestión de libros en carrito
+Finanzas
+
+Modelos Tarjeta y Saldo con relaciones OneToOneField correctas
+Serializers implementados para gestión vía API
+Métodos para modificación y visualización de datos
+Integración con sistema de admin
+Mejoras en Infraestructura ✅
+Archivos Estáticos
+
+Configuración correcta para servir estáticos en desarrollo
+Solución para rutas de admin
+Manejo de URLs con/sin trailing slash
+Sistema de Migraciones
+
+Proceso definido para resolver dependencias circulares
+Corrección de inconsistencias entre aplicaciones
+Manejo adecuado de migraciones en PostgreSQL
+Validaciones y Seguridad ✅
+Integridad de Datos
+Corregidas relaciones entre modelos
+Implementadas validaciones en métodos de modelos
+Métodos save() configurados para persistir cambios correctamente
+Próximos Pasos 🚧
+Completar integraciones entre módulos de compras y finanzas
+Implementar vistas personalizadas para gestión de saldo
+Desarrollar pruebas automatizadas para modelos corregidos
+Mejorar la documentación de API en Swagger/OpenAPI
+Optimizar consultas de base de datos en modelos con relaciones complejas
