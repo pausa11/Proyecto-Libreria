@@ -34,6 +34,8 @@ class TarjetaViewSet(viewsets.ModelViewSet):
     
     @extend_schema(
         description="Actualiza la información de la tarjeta",
+        parameters={'id_usuario': 'ID del usuario'},
+        request=TarjetaSerializer,
         responses={200: TarjetaSerializer, 400: None}
     )
     @action(detail=True, methods=['put'])
