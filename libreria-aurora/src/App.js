@@ -5,6 +5,7 @@ import Registro from './components/registro';
 import Home from './components/Home';
 import SearchBook from './components/SearchBook';
 import Catalogo from './components/catalogo';
+import DetalleLibro from './components/DetalleLibro';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/Search" element={<SearchBook/>} />
         <Route path="/catalogo" element={<Catalogo/>} />
         <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path='/:libro' element={<DetalleLibro/>} />
       </Routes>
     </HashRouter>
   );

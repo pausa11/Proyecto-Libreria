@@ -51,10 +51,11 @@ function Catalogo() {
   }
 
   return (
-    <div className="w-screen min-h-screen overflow-auto bg-black">
+    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-black">
+      
       <NavBar />
 
-      <div id="filtro" className="flex flex-col justify-center items-center p-[2vw] w-full">
+      <div id="filtro" className="flex flex-col justify-center items-center w-full p-[2vw]">
         <h1 className="text-4xl font-bold text-white text-start w-full">filtra por:</h1>
         <div className="w-full flex items-center gap-[2vw] mt-[2vh]">
           {filtersArray.map((filter, index) => (
@@ -71,11 +72,11 @@ function Catalogo() {
         </div>
       </div>
 
-      <div id="filtrados" className="w-full p-[2vw]">
-        <h1 className="text-white font-[500] text-[3.5vw]">
+      <div id="filtrados" className="w-full flex flex-col p-[2vw]">
+        <h1 className="text-white font-[500] text-[3.5vw] w-full">
           {activeFilter ? `Filtrando por ${activeFilter}` : "Todos los libros"}
         </h1>
-        <div className="w-full flex flex-wrap justify-start gap-[2vw] mt-[2vh]">
+        <div className="w-full flex flex-wrap justify-between mt-[2vh]">
           {filteredBooks.map((book, index) => (
             <BookCard
               key={book.id || index}

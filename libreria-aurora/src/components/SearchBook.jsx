@@ -60,7 +60,7 @@ function SearchBooks() {
   }
 
   return (
-    <div className="w-screen min-h-screen overflow-auto bg-black text-white">
+    <div className="w-full min-h-screen overflow-auto bg-black text-white">
       <NavBar />
 
       <div id="busqueda" className="flex flex-col p-[2vw] w-full">
@@ -97,7 +97,7 @@ function SearchBooks() {
         </div>
       </div>
 
-      <div id="resultados" className="flex flex-wrap gap-4 justify-start p-[2vw]">
+      <div id="resultados" className="w-full flex flex-wrap gap-4 justify-between p-[2vw]">
         {filteredBooks.length === 0 ? (
           <p className="text-white">No se encontraron libros.</p>
         ) : (
