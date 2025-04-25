@@ -57,3 +57,30 @@ class Usuario(AbstractUser):
     @property
     def nombre_completo(self):
         return self.get_full_name() or self.username
+
+
+class UsuarioPreferencias(models.Model):
+    """
+    Modelo para almacenar las preferencias de suscripción y contenido del usuario.
+    """
+    usuario = models.OneToOneField(
+        Usuario, 
+        on_delete=models.CASCADE, 
+        related_name='preferencias'
+    )
+    
+    # Preferencias de suscripción
+    recibir_actualizaciones = models.BooleanField(default=True)
+    recibir_noticias = models.BooleanField(default=True)
+    recibir_descuentos = models.BooleanField(default=True)
+    recibir_mensajes_foro = models.BooleanField(default=True)
+    
+    # Campos de metadatos
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Preferencia de Usuario"
+        verbose_name_plural = "Preferencias de Usuarios"
+    
+    def __str__(self):
+        return f"Preferencias de {self.usuario.nombre_completo}"

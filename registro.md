@@ -904,92 +904,177 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 2. Mejorar la seguridad del flujo de recuperación de contraseñas.
 3. Implementar pruebas unitarias para validar el flujo completo.
 
-[2025-04-11] Corrección de Modelos y Configuración del Proyecto
-fix(compras): Corrección del modelo Carrito y relaciones en compras
-commit: Corregido el modelo Carrito y sus administradores
-Resuelto: Conflicto entre el campo libros ManyToManyField y métodos en el modelo Carrito
-Corregido: Método total_libros() para contar correctamente los libros en el carrito
-Implementado: Métodos para agregar, quitar y limpiar libros del carrito
-Refactorizado: Admin de Carrito para visualizar correctamente los libros
-Detalles de la implementación:
-Administración de carritos:
+## [2025-04-11] Corrección de Modelos y Configuración del Proyecto
+### fix(compras): Corrección del modelo Carrito y relaciones en compras
+- **commit:** Corregido el modelo Carrito y sus administradores
+  - **Resuelto:** Conflicto entre el campo libros ManyToManyField y métodos en el modelo Carrito
+  - **Corregido:** Método total_libros() para contar correctamente los libros en el carrito
+  - **Implementado:** Métodos para agregar, quitar y limpiar libros del carrito
+  - **Refactorizado:** Admin de Carrito para visualizar correctamente los libros
 
-Corregido error en filter_horizontal para la relación ManyToManyField
-Implementadas acciones en admin para vaciar carritos y agregar libros
-Añadidos métodos para cálculo de total y conteo de libros
-Resolución de errores:
+#### Detalles de la implementación:
+- **Administración de carritos:**
+  - Corregido error en filter_horizontal para la relación ManyToManyField
+  - Implementadas acciones en admin para vaciar carritos y agregar libros
+  - Añadidos métodos para cálculo de total y conteo de libros
 
-Solucionado el problema de conflicto entre campo y método con el mismo nombre
-Implementado método obtener_libros() para reemplazar al método libros()
-Corregida la visualización en admin panel con campos personalizados
-fix(finanzas): Implementación correcta de OneToOneField en modelos de finanzas
-commit: Corregidas relaciones entre modelos de finanzas y usuarios
-Modificado: Relación OneToOneField entre Usuario y Saldo
-Corregido: Método modificar_saldo() para guardar los cambios correctamente
-Implementado: Método __str__ para mejor representación en admin
-Optimizado: Serializer de Saldo para gestión de usuarios
-Detalles de la implementación:
-Estructura de modelos:
+- **Resolución de errores:**
+  - Solucionado el problema de conflicto entre campo y método con el mismo nombre
+  - Implementado método obtener_libros() para reemplazar al método libros()
+  - Corregida la visualización en admin panel con campos personalizados
 
-Implementación correcta de OneToOneField para relación única entre Usuario y Saldo
-Eliminada la redundancia de unique=True en campo OneToOneField
-Corregida la definición de campos en el modelo Saldo
-Implementados métodos para gestionar el saldo correctamente
-Correcciones de APIs:
+### fix(finanzas): Implementación correcta de OneToOneField en modelos de finanzas
+- **commit:** Corregidas relaciones entre modelos de finanzas y usuarios
+  - **Modificado:** Relación OneToOneField entre Usuario y Saldo
+  - **Corregido:** Método modificar_saldo() para guardar los cambios correctamente
+  - **Implementado:** Método __str__ para mejor representación en admin
+  - **Optimizado:** Serializer de Saldo para gestión de usuarios
 
-Corregidas importaciones en views.py utilizando importaciones relativas
-Implementado SaldoViewSet para gestión del saldo por usuario
-Ajustado el serializer para representar correctamente las relaciones
-fix(admin): Solución de problemas con archivos estáticos y configuración
-commit: Corregida la configuración para servir archivos estáticos
-Resuelto: Error 404 en rutas de admin sin trailing slash
-Configurado: Servicio correcto de archivos estáticos en desarrollo
-Implementado: Manejo de URLs con APPEND_SLASH
-Optimizado: Sistema de migraciones para resolver dependencias
-Detalles de la implementación:
-Configuración de estáticos:
+#### Detalles de la implementación:
+- **Estructura de modelos:**
+  - Implementación correcta de OneToOneField para relación única entre Usuario y Saldo
+  - Eliminada la redundancia de unique=True en campo OneToOneField
+  - Corregida la definición de campos en el modelo Saldo
+  - Implementados métodos para gestionar el saldo correctamente
 
-Configurados correctamente STATIC_URL y STATIC_ROOT en settings.py
-Implementado servicio de archivos estáticos en modo DEBUG
-Resueltos problemas de rutas para admin y otros recursos estáticos
-Gestión de migraciones:
+- **Correcciones de APIs:**
+  - Corregidas importaciones en views.py utilizando importaciones relativas
+  - Implementado SaldoViewSet para gestión del saldo por usuario
+  - Ajustado el serializer para representar correctamente las relaciones
 
-Corregidas dependencias entre migraciones para evitar errores
-Implementado proceso para rehacer migraciones con problemas
-Solucionado error de inconsistencia entre migraciones de libros y compras
-Estado Actual del Sistema
-Módulos Corregidos ✅
-Compras
+### fix(admin): Solución de problemas con archivos estáticos y configuración
+- **commit:** Corregida la configuración para servir archivos estáticos
+  - **Resuelto:** Error 404 en rutas de admin sin trailing slash
+  - **Configurado:** Servicio correcto de archivos estáticos en desarrollo
+  - **Implementado:** Manejo de URLs con APPEND_SLASH
+  - **Optimizado:** Sistema de migraciones para resolver dependencias
 
-Modelo Carrito completamente funcional
-Relaciones ManyToManyField configuradas correctamente
-Admin con acciones personalizadas
-Métodos para gestión de libros en carrito
-Finanzas
+#### Detalles de la implementación:
+- **Configuración de estáticos:**
+  - Configurados correctamente STATIC_URL y STATIC_ROOT en settings.py
+  - Implementado servicio de archivos estáticos en modo DEBUG
+  - Resueltos problemas de rutas para admin y otros recursos estáticos
 
-Modelos Tarjeta y Saldo con relaciones OneToOneField correctas
-Serializers implementados para gestión vía API
-Métodos para modificación y visualización de datos
-Integración con sistema de admin
-Mejoras en Infraestructura ✅
-Archivos Estáticos
+- **Gestión de migraciones:**
+  - Corregidas dependencias entre migraciones para evitar errores
+  - Implementado proceso para rehacer migraciones con problemas
+  - Solucionado error de inconsistencia entre migraciones de libros y compras
 
-Configuración correcta para servir estáticos en desarrollo
-Solución para rutas de admin
-Manejo de URLs con/sin trailing slash
-Sistema de Migraciones
+### Estado Actual del Sistema
 
-Proceso definido para resolver dependencias circulares
-Corrección de inconsistencias entre aplicaciones
-Manejo adecuado de migraciones en PostgreSQL
-Validaciones y Seguridad ✅
-Integridad de Datos
-Corregidas relaciones entre modelos
-Implementadas validaciones en métodos de modelos
-Métodos save() configurados para persistir cambios correctamente
-Próximos Pasos 🚧
-Completar integraciones entre módulos de compras y finanzas
-Implementar vistas personalizadas para gestión de saldo
-Desarrollar pruebas automatizadas para modelos corregidos
-Mejorar la documentación de API en Swagger/OpenAPI
-Optimizar consultas de base de datos en modelos con relaciones complejas
+#### Módulos Corregidos ✅
+- **Compras**
+  - Modelo Carrito completamente funcional
+  - Relaciones ManyToManyField configuradas correctamente
+  - Admin con acciones personalizadas
+  - Métodos para gestión de libros en carrito
+
+- **Finanzas**
+  - Modelos Tarjeta y Saldo con relaciones OneToOneField correctas
+  - Serializers implementados para gestión vía API
+  - Métodos para modificación y visualización de datos
+  - Integración con sistema de admin
+
+#### Mejoras en Infraestructura ✅
+- **Archivos Estáticos**
+  - Configuración correcta para servir estáticos en desarrollo
+  - Solución para rutas de admin
+  - Manejo de URLs con/sin trailing slash
+
+- **Sistema de Migraciones**
+  - Proceso definido para resolver dependencias circulares
+  - Corrección de inconsistencias entre aplicaciones
+  - Manejo adecuado de migraciones en PostgreSQL
+
+#### Validaciones y Seguridad ✅
+- **Integridad de Datos**
+  - Corregidas relaciones entre modelos
+  - Implementadas validaciones en métodos de modelos
+  - Métodos save() configurados para persistir cambios correctamente
+
+### Próximos Pasos 🚧
+- Completar integraciones entre módulos de compras y finanzas
+- Implementar vistas personalizadas para gestión de saldo
+- Desarrollar pruebas automatizadas para modelos corregidos
+- Mejorar la documentación de API en Swagger/OpenAPI
+- Optimizar consultas de base de datos en modelos con relaciones complejas
+
+## [2025-04-15] Implementación y Mejora de la Gestión del Perfil de Usuario
+
+### feat(usuarios): Implementación completa del sistema de edición de perfil
+
+#### Detalles del cambio:
+- **commit:** Implementación de endpoints para la gestión completa del perfil de usuario
+  - **Implementado:** Endpoint para actualizar datos del perfil de usuario
+  - **Documentado:** Campos actualizables y validaciones
+  - **Optimizado:** Serializer específico para actualización de perfil
+  - **Configurado:** Sistema de permisos para garantizar que cada usuario solo edite su propio perfil
+
+#### Funcionalidad de actualización de perfil:
+- **Sistema de Actualización de Perfil:**
+  - Endpoint `/api/usuarios/actualizar_perfil/` (PUT, PATCH)
+  - Permite actualización de datos personales: nombres, apellidos, teléfono, dirección y fecha de nacimiento
+  - Validación de datos antes de actualizar
+  - Permisos configurados para acceso solo a usuarios autenticados
+  - Serializer específico (ProfileUpdateSerializer) que protege campos sensibles
+
+- **Documentación API:**
+  - Uso de decoradores `extend_schema` para documentación completa en Swagger
+  - Ejemplos de uso incluidos en la documentación
+  - Descripción detallada de los campos actualizables
+  - Documentación de posibles errores y respuestas
+
+#### Estado Actual de la Funcionalidad de Gestión de Perfil ✅
+
+- **Implementación Completa:**
+  - Modelo Usuario con campos completos para información personal
+  - Serializers especializados para diferentes operaciones:
+    - `UsuarioSerializer`: Visualización completa de datos
+    - `ProfileUpdateSerializer`: Actualización segura de perfil
+  - ViewSet con métodos especializados:
+    - `perfil`: Obtener datos del perfil propio (GET)
+    - `actualizar_perfil`: Modificar datos personales (PUT/PATCH)
+    
+- **Endpoints Disponibles:**
+  - **GET** `/api/usuarios/perfil/` - Obtiene los datos del perfil del usuario autenticado
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Actualiza los datos personales del usuario
+
+- **Seguridad Implementada:**
+  - Validación de datos de entrada
+  - Control de campos actualizables (no permite modificar campos críticos)
+  - Autenticación requerida para todas las operaciones
+  - Verificación de permisos de acceso
+
+#### Aspectos Técnicos
+
+- **Modelo Usuario:**
+  - Extiende de AbstractUser para mantener compatibilidad con Django
+  - Campos adicionales: tipo_usuario, numero_identificacion, teléfono, dirección, fecha_nacimiento
+  - Metadatos: fecha_registro, ultima_actualizacion, activo
+
+- **ProfileUpdateSerializer:**
+  - Únicamente expone campos seguros para actualización: first_name, last_name, telefono, direccion, fecha_nacimiento
+  - Implementa validaciones específicas para cada campo
+  - Método update optimizado para actualización segura
+
+- **Mejoras de Usabilidad:**
+  - Respuesta formateada con datos completos tras actualización exitosa
+  - Mensajes de error descriptivos en caso de datos inválidos
+  - Documentación completa para integración con frontend
+
+### Próximos Pasos 🚧
+
+1. **Implementar subida de foto de perfil**
+   - Añadir campo de imagen al modelo Usuario
+   - Implementar endpoint para subida/actualización de foto
+   - Configurar almacenamiento adecuado para imágenes
+
+2. **Mejorar sistema de validación de datos**
+   - Implementar validaciones más estrictas para números telefónicos
+   - Añadir validación de edad mínima en fecha_nacimiento
+   - Validar formato de direcciones
+
+3. **Expandir gestión de preferencias de usuario**
+   - Mejorar integración con sistema de preferencias
+   - Implementar gestión de notificaciones por usuario
+   - Permitir configuración de privacidad

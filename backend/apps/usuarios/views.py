@@ -10,8 +10,11 @@ from .serializers import (
     UsuarioSerializer,
     UsuarioRegistroSerializer,
     CambioContraseñaSerializer,
-    RecuperarContraseñaSerializer
+    RecuperarContraseñaSerializer,
+    ProfileUpdateSerializer,
+    PreferenciasUsuarioSerializer
 )
+from .models import UsuarioPreferencias
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 
 Usuario = get_user_model()
@@ -92,6 +95,10 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return UsuarioRegistroSerializer
+        elif self.action == 'actualizar_perfil':
+            return ProfileUpdateSerializer
+        elif self.action in ['preferencias_suscripcion', 'actualizar_preferencias']:
+            return PreferenciasUsuarioSerializer
         return self.serializer_class
 
     @extend_schema(
@@ -196,4 +203,91 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-# Create your views here.
+    @extend_schema(
+        description="Permite al usuario actualizar su información de perfil",
+        request=ProfileUpdateSerializer,
+        responses={
+            200: UsuarioSerializer,
+            400: {"description": "Datos inválidos"},
+        },
+        examples=[
+            OpenApiExample(
+                'Ejemplo de actualización de perfil',
+                value={
+                    "first_name": "Nuevo Nombre",
+                    "last_name": "Nuevo Apellido",
+                    "telefono": "+573001234567",
+                    "direccion": "Nueva Dirección #123",
+                    "fecha_nacimiento": "1990-01-01"
+                }
+            )
+        ]
+    )
+    @action(detail=False, methods=['put', 'patch'])
+    def actualizar_perfil(self, request):
+        usuario = request.user
+        serializer = self.get_serializer(usuario, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            # Devolver los datos actualizados usando el serializer completo
+            return Response(
+                UsuarioSerializer(usuario).data,
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="Obtiene las preferencias de suscripción del usuario",
+        responses={
+            200: PreferenciasUsuarioSerializer,
+            404: {"description": "Preferencias no encontradas"}
+        }
+    )
+    @action(detail=False, methods=['get'])
+    def preferencias_suscripcion(self, request):
+        """
+        Obtiene las preferencias de suscripción del usuario autenticado.
+        Si no existen, las crea con valores predeterminados.
+        """
+        usuario = request.user
+        preferencias, created = UsuarioPreferencias.objects.get_or_create(usuario=usuario)
+        
+        serializer = self.get_serializer(preferencias)
+        return Response(serializer.data)
+    
+    @extend_schema(
+        description="Actualiza las preferencias de suscripción del usuario",
+        request=PreferenciasUsuarioSerializer,
+        responses={
+            200: PreferenciasUsuarioSerializer,
+            400: {"description": "Datos inválidos"}
+        },
+        examples=[
+            OpenApiExample(
+                'Ejemplo de actualización de preferencias',
+                value={
+                    "recibir_actualizaciones": True,
+                    "recibir_noticias": False,
+                    "recibir_descuentos": True,
+                    "recibir_mensajes_foro": False
+                }
+            )
+        ]
+    )
+    @action(detail=False, methods=['put', 'patch'])
+    def actualizar_preferencias(self, request):
+        """
+        Actualiza las preferencias de suscripción del usuario autenticado.
+        Si no existen, las crea con los valores proporcionados.
+        """
+        usuario = request.user
+        preferencias, created = UsuarioPreferencias.objects.get_or_create(usuario=usuario)
+        
+        serializer = self.get_serializer(preferencias, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
