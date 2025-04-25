@@ -51,7 +51,8 @@ Usuario = get_user_model()
                     "password2": "contraseña123",
                     "first_name": "Nombre",
                     "last_name": "Apellido",
-                    "tipo_usuario": "LECTOR"
+                    "tipo_usuario": "LECTOR",
+                    "nacionalidad" : "Colombia",
                 }
             )
         ]

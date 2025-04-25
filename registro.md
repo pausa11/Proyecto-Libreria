@@ -1078,3 +1078,126 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Mejorar integración con sistema de preferencias
    - Implementar gestión de notificaciones por usuario
    - Permitir configuración de privacidad
+
+   # Registro de Cambios del Proyecto
+
+## [2025-04-25] Corrección y Mejora de los Módulos de Finanzas y Usuarios
+
+### **fix(finanzas): Corrección de modelos y mejoras en la API**
+
+#### **Detalles del cambio:**
+- **commit:** Corrección de los modelos `Tarjeta` y `Saldo` para mejorar la funcionalidad y la integración con el sistema de usuarios.
+  - **Modificado:** Método `modificar_saldo` en el modelo `Saldo` para validar la existencia de una tarjeta antes de modificar el saldo.
+  - **Implementado:** Método `__str__` en ambos modelos para mejorar la representación en el panel de administración.
+  - **Optimizado:** Serializador `SaldoSerializer` para exponer correctamente el campo `usuario_id`.
+
+#### **Mejoras en la API:**
+- **SaldoViewSet:**
+  - Implementado ViewSet para gestionar saldos.
+  - Configurado con permisos `IsAuthenticatedOrReadOnly`.
+  - Añadido soporte para filtros en el campo `saldo`.
+
+- **TarjetaViewSet:**
+  - Configurado ViewSet para gestionar tarjetas.
+  - Añadida documentación detallada con `drf-spectacular`.
+
+#### **Documentación API:**
+- **Endpoints Disponibles:**
+  - **GET** `/api/finanzas/tarjetas/` - Lista de tarjetas.
+  - **POST** `/api/finanzas/tarjetas/` - Crear una nueva tarjeta.
+  - **GET** `/api/finanzas/saldos/` - Lista de saldos.
+  - **POST** `/api/finanzas/saldos/` - Crear un nuevo saldo.
+
+- **Swagger/OpenAPI:**
+  - Documentación completa de los endpoints con ejemplos de uso.
+  - Parámetros personalizados documentados con `OpenApiParameter`.
+
+---
+
+### **feat(usuarios): Mejora del modelo Usuario y gestión de preferencias**
+
+#### **Detalles del cambio:**
+- **commit:** Ampliación del modelo `Usuario` con nuevos campos y mejoras en la API.
+  - **Añadido:** Campo `foto_perfil` para permitir la subida de imágenes de perfil.
+  - **Añadido:** Campo `nacionalidad` para almacenar la nacionalidad del usuario.
+  - **Optimizado:** Serializador `UsuarioRegistroSerializer` para validar y registrar usuarios con los nuevos campos.
+
+#### **Mejoras en la API:**
+- **Endpoints de Usuario:**
+  - **GET** `/api/usuarios/perfil/` - Obtiene los datos del perfil del usuario autenticado.
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Actualiza los datos personales del usuario.
+  - **POST** `/api/usuarios/recuperar_contraseña/` - Envía un correo para recuperar la contraseña.
+
+- **Preferencias de Usuario:**
+  - Implementado modelo `UsuarioPreferencias` para gestionar las preferencias de suscripción.
+  - Añadidos endpoints para obtener y actualizar las preferencias:
+    - **GET** `/api/usuarios/preferencias_suscripcion/`
+    - **PUT/PATCH** `/api/usuarios/actualizar_preferencias/`
+
+#### **Documentación API:**
+- **Swagger/OpenAPI:**
+  - Documentación detallada de los endpoints de usuario.
+  - Ejemplos de uso para registro, actualización de perfil y recuperación de contraseña.
+
+---
+
+### **fix(admin): Mejoras en la configuración del panel administrativo**
+
+#### **Detalles del cambio:**
+- **commit:** Configuración avanzada del panel administrativo para los modelos `Usuario`, `Tarjeta` y `Saldo`.
+  - **Usuario:**
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+    - Configurada búsqueda por `username` y `email`.
+  - **Tarjeta:**
+    - Configurada visualización de `numero` y `titular`.
+    - Añadida búsqueda por `numero`.
+  - **Saldo:**
+    - Configurada visualización de `usuario` y `saldo`.
+    - Añadida búsqueda por `usuario`.
+
+---
+
+### **Estado Actual del Sistema**
+
+#### **Módulos Completamente Funcionales ✅**
+- **Usuarios:**
+  - Modelo extendido con nuevos campos (`foto_perfil`, `nacionalidad`).
+  - API REST funcional con endpoints para perfil y preferencias.
+  - Sistema de recuperación de contraseña implementado.
+
+- **Finanzas:**
+  - Modelos `Tarjeta` y `Saldo` completamente funcionales.
+  - API REST funcional con endpoints para tarjetas y saldos.
+  - Integración con el sistema de usuarios.
+
+#### **Mejoras en Infraestructura ✅**
+- **Archivos Estáticos:**
+  - Configuración correcta para servir imágenes de perfil.
+  - Integración con `MEDIA_ROOT` y `MEDIA_URL`.
+
+- **Panel Administrativo:**
+  - Configuración avanzada para los modelos `Usuario`, `Tarjeta` y `Saldo`.
+  - Mejoras en la visualización y búsqueda.
+
+---
+
+### **Próximos Pasos 🚧**
+1. **Completar integración entre Finanzas y Compras:**
+   - Implementar método `pagar()` en el modelo `Carrito`.
+   - Crear endpoint para procesar pagos.
+
+2. **Mejorar validaciones en el modelo Usuario:**
+   - Validar formato de `foto_perfil`.
+   - Añadir validación de edad mínima en `fecha_nacimiento`.
+
+3. **Desarrollar pruebas automatizadas:**
+   - Implementar pruebas unitarias para los modelos y serializadores.
+   - Añadir pruebas de integración para los endpoints.
+
+4. **Optimizar consultas en la API:**
+   - Reducir el número de consultas a la base de datos en los ViewSets.
+   - Implementar `select_related` y `prefetch_related` donde sea necesario.
+
+5. **Documentar completamente el flujo de recuperación de contraseña:**
+   - Añadir ejemplos detallados en Swagger.
+   - Implementar pruebas para validar el flujo completo.

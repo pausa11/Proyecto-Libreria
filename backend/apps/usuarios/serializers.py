@@ -43,6 +43,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     first_name = serializers.CharField(required=True)
+    nacionalidad = serializers.CharField(required=True)
     numero_identificacion = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
@@ -52,7 +53,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'password', 'password2', 'email', 'first_name',
             'last_name', 'tipo_usuario', 'numero_identificacion',
-            'telefono', 'direccion', 'fecha_nacimiento'
+            'telefono', 'direccion', 'fecha_nacimiento', 'nacionalidad'
         )
 
     def validate(self, attrs):
@@ -67,7 +68,11 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Las contraseñas no coinciden"})
+    
+        if attrs['nacionalidad'] == '':
+            raise serializers.ValidationError({"nacionalidad": "La nacionalidad no puede estar vacía"})
         return attrs
+
 
     def create(self, validated_data):
         validated_data.pop('password2')

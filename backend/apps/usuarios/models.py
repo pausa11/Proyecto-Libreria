@@ -37,7 +37,8 @@ class Usuario(AbstractUser):
         blank=True,
         null=True
     )
-    
+    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
+    nacionalidad = models.TextField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
     
