@@ -12,14 +12,14 @@ function App() {
   return (
     <HashRouter>
       <Routes>
+        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Home/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperarContraseña" element={<RecuperarContraseña />} />
         <Route path="/miPerfil" element={<MiPerfil/>}/>
-        <Route path="/" element={<Home/>} />
         <Route path="/Search" element={<SearchBook/>} />
         <Route path="/catalogo" element={<Catalogo/>} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
         <Route path='/:libro' element={<DetalleLibro/>} />
       </Routes>
     </HashRouter>

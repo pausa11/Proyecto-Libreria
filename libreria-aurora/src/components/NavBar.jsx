@@ -78,15 +78,14 @@ function NavBar() {
             </div>
 
             <div className="flex justify-center items-center gap-4">
+                {userName && (
+                    <p className="text-[#2B388C] text-[1.2vw] font-[500]">Hola, {userName.split(" ")[0]}👋</p>
+                )}
                 <User size={'2.5vw'} color="#2B388C" onClick={handlePerfil} />
                 <ShoppingCart size={'2.5vw'} color="#2B388C" onClick={() => navigate('/cart')} />
                 <Search size={'2.5vw'} color="#2B388C" onClick={() => navigate('/search')} />
                 {userName && (
-                    <>
-                        <p className="text-[#2B388C] text-[1.2vw] font-[500]">Hola, {userName.split(" ")[0]}👋</p>
-                        <LogOut size={'2.5vw'} color="#2B388C" onClick={() => handleLogout()}/> 
-                    </>
-  
+                    <LogOut size={'2.5vw'} color="#2B388C" onClick={() => handleLogout()}/> 
                 )}
             </div>
 
