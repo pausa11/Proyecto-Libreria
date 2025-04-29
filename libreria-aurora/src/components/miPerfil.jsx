@@ -2,10 +2,27 @@ import React from "react";
 import NavBar from "./NavBar";
 
 function MiPerfil(){
+
+    const options = ['editar perfil', ]
     return(
-        <div>
+        <div className="w-full h-screen">
+            
             <NavBar/>
-            hola
+
+            <div className="w-full h-full flex flex-row p-10 bg-[#2B388C] justify-between">
+                <div className="bg-white w-[25%] rounded-lg">
+                    {
+
+                    }
+                </div>
+
+                <div className="bg-white w-[73%] rounded-lg">
+
+                </div>
+            </div>
+
+ 
+
         </div>
     )
 }
