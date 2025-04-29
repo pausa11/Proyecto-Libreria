@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from .models import Usuario, UsuarioPreferencias
+from .models import Usuario, UsuarioPreferencias, TokenRecuperacionPassword
 
 # Register your models here.
 
@@ -52,3 +52,17 @@ class UsuarioPreferenciasAdmin(admin.ModelAdmin):
         (_('Metadatos'), {'fields': ('fecha_actualizacion',)}),
     )
     readonly_fields = ('fecha_actualizacion',)
+
+
+@admin.register(TokenRecuperacionPassword)
+class TokenRecuperacionPasswordAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'token', 'fecha_creacion', 'fecha_expiracion', 'usado', 'esta_activo')
+    list_filter = ('usado', 'fecha_creacion')
+    search_fields = ('usuario__username', 'usuario__email')
+    readonly_fields = ('token', 'fecha_creacion')
+    date_hierarchy = 'fecha_creacion'
+    
+    def esta_activo(self, obj):
+        return obj.esta_activo
+    esta_activo.boolean = True
+    esta_activo.short_description = "¿Activo?"

@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
+import uuid
+from datetime import timedelta
+from django.utils import timezone
 
 class Usuario(AbstractUser):
     TIPO_USUARIO_CHOICES = [
@@ -85,3 +88,40 @@ class UsuarioPreferencias(models.Model):
     
     def __str__(self):
         return f"Preferencias de {self.usuario.nombre_completo}"
+
+
+class TokenRecuperacionPassword(models.Model):
+    """
+    Modelo para almacenar tokens de recuperación de contraseña con vencimiento.
+    """
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='tokens_recuperacion')
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_expiracion = models.DateTimeField()
+    usado = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Token de {self.usuario.username} - {'Usado' if self.usado else 'Activo'}"
+    
+    def save(self, *args, **kwargs):
+        if not self.fecha_expiracion:
+            # Por defecto, el token expira en 15 minutos
+            self.fecha_expiracion = timezone.now() + timedelta(minutes=15)
+        super().save(*args, **kwargs)
+    
+    @property
+    def esta_activo(self):
+        """Verifica si el token sigue siendo válido."""
+        return (not self.usado and 
+                timezone.now() < self.fecha_expiracion)
+    
+    @classmethod
+    def generar_token(cls, usuario):
+        """
+        Genera un nuevo token para un usuario, invalidando cualquier token previo.
+        """
+        # Marcar como usados todos los tokens previos del usuario
+        cls.objects.filter(usuario=usuario, usado=False).update(usado=True)
+        
+        # Crear un nuevo token
+        return cls.objects.create(usuario=usuario)

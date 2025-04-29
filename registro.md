@@ -1201,3 +1201,107 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 5. **Documentar completamente el flujo de recuperación de contraseña:**
    - Añadir ejemplos detallados en Swagger.
    - Implementar pruebas para validar el flujo completo.
+
+
+## [2025-04-29] Mejora de Seguridad en el Sistema de Recuperación de Contraseñas
+
+### feat(usuarios): Implementación segura del sistema de recuperación de contraseñas
+
+#### Detalles del cambio:
+- **commit:** Reemplazo del método inseguro de recuperación de contraseña por un sistema de tokens temporales
+  - **Problema anterior:** El endpoint `recuperar_contraseña` enviaba el hash de la contraseña por email
+  - **Solución implementada:** Sistema de tokens temporales con validez limitada (15 minutos)
+  - **Mejorado:** Flujo completo de recuperación con generación de token, validación y restablecimiento
+  - **Implementado:** Modelo `TokenRecuperacionPassword` para gestión segura de tokens
+
+#### Componentes implementados:
+- **Modelo para tokens de recuperación:**
+  - Nuevo modelo `TokenRecuperacionPassword` con los siguientes campos:
+    - `usuario` (ForeignKey a Usuario)
+    - `token` (UUIDField único generado automáticamente)
+    - `fecha_creacion` (DateTimeField auto_now_add)
+    - `fecha_expiracion` (DateTimeField con validez de 15 minutos)
+    - `usado` (BooleanField para controlar uso único del token)
+  - Métodos del modelo:
+    - `esta_activo` (property para verificar validez del token)
+    - `generar_token` (método de clase para crear tokens e invalidar anteriores)
+
+- **Serializers para el flujo de recuperación:**
+  - `ValidarTokenSerializer` para verificar la validez de un token
+  - `RestablecerContraseñaSerializer` para procesar la solicitud de cambio de contraseña
+
+- **Endpoints implementados:**
+  - **POST** `/api/usuarios/recuperar_contraseña/` - Solicita un token de recuperación vía email
+  - **POST** `/api/usuarios/validar_token/` - Verifica la validez de un token recibido
+  - **POST** `/api/usuarios/restablecer_contraseña/` - Establece una nueva contraseña usando un token válido
+
+#### Aspectos de seguridad:
+- **Flujo completo de recuperación seguro:**
+  - No se envían contraseñas (ni hashes) por email
+  - Tokens con tiempo de vida limitado (15 minutos)
+  - Tokens de un solo uso que se marcan como "usados" tras su utilización
+  - Invalidación automática de tokens anteriores al generar uno nuevo
+  - Verificación de token previa al cambio de contraseña
+
+- **Mejoras del correo electrónico:**
+  - Formato más profesional y claro
+  - Inclusión de enlace directo al formulario de recuperación
+  - Advertencia sobre tiempo de validez del enlace
+  - Instrucciones en caso de no haber solicitado el cambio
+
+#### Ventajas del nuevo sistema:
+- Mayor seguridad al seguir buenas prácticas de la industria
+- Flujo claro y usable para el usuario final
+- Protección contra ataques de fuerza bruta
+- Trazabilidad completa de los intentos de recuperación
+- Administración de tokens a través del panel de admin
+
+#### Panel de administración:
+- Configurado panel administrativo para el modelo `TokenRecuperacionPassword`
+- Listados con información relevante: usuario, token, estado, fecha
+- Filtros por estado (usado/activo) y fecha de creación
+- Búsqueda por usuario y email
+
+### Estado Actual de la Funcionalidad ✅
+
+- **Implementación Completa:**
+  - Modelo para gestión de tokens de recuperación
+  - Serializers para validación y procesamiento 
+  - Endpoints para el flujo completo de recuperación
+  - Sistema de envío de emails configurado
+  - Administración desde el panel Django admin
+
+- **Seguridad mejorada:**
+  - Tokens únicos con UUID4
+  - Tiempo de validez limitado
+  - Control de tokens usados
+  - Invalidación automática de tokens anteriores
+  - Validaciones en múltiples niveles (serializer y vista)
+
+- **Documentación API:**
+  - Endpoints documentados con `extend_schema`
+  - Ejemplos de uso incluidos
+  - Descripción detallada de parámetros y respuestas
+  - Explicación de códigos de error
+
+### Próximos Pasos 🚧
+
+1. **Actualizar el frontend para implementar el flujo completo:**
+   - Crear componente `ResetPassword.jsx` para restablecer contraseña
+   - Implementar validación del token en frontend
+   - Añadir formulario para nueva contraseña con validación
+
+2. **Mejorar experiencia de usuario:**
+   - Añadir retroalimentación sobre expiración de tokens
+   - Implementar redirecciones inteligentes basadas en el estado del token
+   - Mejorar mensajes de error para casos específicos
+
+3. **Ampliar pruebas:**
+   - Implementar pruebas unitarias para cada componente del flujo
+   - Añadir pruebas de integración para el proceso completo
+   - Probar casos de error y recuperación
+
+4. **Optimizar sistema de correos:**
+   - Implementar plantillas HTML para emails más atractivos
+   - Configurar sistema de cola para envío asíncrono de correos
+   - Añadir seguimiento de correos enviados

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from .models import UsuarioPreferencias
+from .models import UsuarioPreferencias, TokenRecuperacionPassword
 
 Usuario = get_user_model()
 
@@ -98,6 +98,43 @@ class RecuperarContraseñaSerializer(serializers.Serializer):
         except Usuario.DoesNotExist:
             raise serializers.ValidationError("No existe un usuario con este correo electrónico")
         return value
+
+class ValidarTokenSerializer(serializers.Serializer):
+    """
+    Serializer para validar un token de recuperación de contraseña.
+    """
+    token = serializers.UUIDField(required=True)
+    
+    def validate_token(self, value):
+        try:
+            token = TokenRecuperacionPassword.objects.get(token=value, usado=False)
+            if not token.esta_activo:
+                raise serializers.ValidationError("El token ha expirado")
+        except TokenRecuperacionPassword.DoesNotExist:
+            raise serializers.ValidationError("Token inválido o ya utilizado")
+        return value
+
+class RestablecerContraseñaSerializer(serializers.Serializer):
+    """
+    Serializer para restablecer la contraseña utilizando un token.
+    """
+    token = serializers.UUIDField(required=True)
+    new_password = serializers.CharField(required=True, validators=[validate_password])
+    new_password2 = serializers.CharField(required=True)
+    
+    def validate_token(self, value):
+        try:
+            token = TokenRecuperacionPassword.objects.get(token=value, usado=False)
+            if not token.esta_activo:
+                raise serializers.ValidationError("El token ha expirado")
+        except TokenRecuperacionPassword.DoesNotExist:
+            raise serializers.ValidationError("Token inválido o ya utilizado")
+        return value
+    
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['new_password2']:
+            raise serializers.ValidationError({"new_password": "Las contraseñas no coinciden"})
+        return attrs
 
 class PreferenciasUsuarioSerializer(serializers.ModelSerializer):
     """

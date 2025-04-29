@@ -12,10 +12,13 @@ from .serializers import (
     CambioContraseñaSerializer,
     RecuperarContraseñaSerializer,
     ProfileUpdateSerializer,
-    PreferenciasUsuarioSerializer
+    PreferenciasUsuarioSerializer,
+    ValidarTokenSerializer,
+    RestablecerContraseñaSerializer
 )
-from .models import UsuarioPreferencias
+from .models import UsuarioPreferencias, TokenRecuperacionPassword
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
+from django.utils.http import urlencode
 
 Usuario = get_user_model()
 
@@ -89,8 +92,8 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_permissions(self):
-        if self.action == 'create':
-            return [permissions.AllowAny()]
+        if self.action in ['create', 'recuperar_contraseña', 'validar_token', 'restablecer_contraseña']:
+            return [AllowAny()]  # Permitir acceso público a estos métodos
         return super().get_permissions()
 
     def get_serializer_class(self):
@@ -100,6 +103,10 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             return ProfileUpdateSerializer
         elif self.action in ['preferencias_suscripcion', 'actualizar_preferencias']:
             return PreferenciasUsuarioSerializer
+        elif self.action == 'validar_token':
+            return ValidarTokenSerializer
+        elif self.action == 'restablecer_contraseña':
+            return RestablecerContraseñaSerializer
         return self.serializer_class
 
     @extend_schema(
@@ -154,15 +161,9 @@ class UsuarioViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 
-    def get_permissions(self):
-        if self.action in ['create', 'recuperar_contraseña']:
-            return [AllowAny()]  # Permitir acceso público a estos métodos
-        return super().get_permissions()
-
-    
     @extend_schema(
-        description="Recupera la contraseña del usuario y envía un correo electrónico con un enlace para restablecerla",
-        request = CambioContraseñaSerializer,
+        description="Genera un token para recuperar la contraseña y envía un correo electrónico con un código de recuperación",
+        request=RecuperarContraseñaSerializer,
         responses={
             200: {"description": "Correo enviado correctamente"},
             400: {"description": "Email no proporcionado"},
@@ -187,9 +188,34 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             )
         try:
             usuario = Usuario.objects.get(email=email)
+            
+            # Generar token de recuperación
+            token_obj = TokenRecuperacionPassword.generar_token(usuario)
+            token = token_obj.token
+            
+            # Enviar email con el token
+            frontend_url = "https://proyecto-libreria-k9xr.onrender.com/reset-password"
+            reset_url = f"{frontend_url}?token={token}"
+            
+            # Construir mensaje de correo
+            mensaje = f"""
+Hola {usuario.username},
+
+Has solicitado restablecer tu contraseña. Para crear una nueva contraseña, haz clic en el siguiente enlace:
+
+{reset_url}
+
+Este enlace será válido durante 15 minutos.
+
+Si no has solicitado cambiar tu contraseña, puedes ignorar este mensaje.
+
+Saludos,
+El equipo de Librería Aurora
+"""
+            
             send_mail(
-                'Recuperación de contraseña',
-                f'Hola {usuario.username},\n\nTu contraseña es: {usuario.password}',
+                'Recuperación de contraseña - Librería Aurora',
+                mensaje,
                 'auroralibreria05@gmail.com',
                 [email],
                 fail_silently=False,
@@ -203,6 +229,91 @@ class UsuarioViewSet(viewsets.ModelViewSet):
                 {'error': 'Usuario no encontrado'},
                 status=status.HTTP_404_NOT_FOUND
             )
+    
+    @extend_schema(
+        description="Valida un token de recuperación de contraseña",
+        request=ValidarTokenSerializer,
+        responses={
+            200: {"description": "Token válido"},
+            400: {"description": "Token inválido o expirado"}
+        },
+        examples=[
+            OpenApiExample(
+                "Ejemplo de solicitud",
+                value={"token": "550e8400-e29b-41d4-a716-446655440000"},
+                description="Ejemplo de cómo validar un token de recuperación"
+            )
+        ]
+    )
+    @action(detail=False, methods=['post'])
+    def validar_token(self, request):
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            return Response(
+                {'message': 'Token válido'},
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        description="Restablece la contraseña usando un token válido",
+        request=RestablecerContraseñaSerializer,
+        responses={
+            200: {"description": "Contraseña restablecida correctamente"},
+            400: {"description": "Datos inválidos o token expirado"}
+        },
+        examples=[
+            OpenApiExample(
+                "Ejemplo de solicitud",
+                value={
+                    "token": "550e8400-e29b-41d4-a716-446655440000",
+                    "new_password": "NuevaContraseña123",
+                    "new_password2": "NuevaContraseña123"
+                },
+                description="Ejemplo de cómo restablecer una contraseña con un token"
+            )
+        ]
+    )
+    @action(detail=False, methods=['post'])
+    def restablecer_contraseña(self, request):
+        serializer = self.get_serializer(data=request.data)
+        
+        if serializer.is_valid():
+            token_str = serializer.validated_data['token']
+            new_password = serializer.validated_data['new_password']
+            
+            # Obtener el token y el usuario
+            try:
+                token_obj = TokenRecuperacionPassword.objects.get(token=token_str, usado=False)
+                if not token_obj.esta_activo:
+                    return Response(
+                        {'error': 'El token ha expirado'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Actualizar contraseña
+                usuario = token_obj.usuario
+                usuario.set_password(new_password)
+                usuario.save()
+                
+                # Marcar token como usado
+                token_obj.usado = True
+                token_obj.save()
+                
+                return Response(
+                    {'message': 'Contraseña restablecida correctamente'},
+                    status=status.HTTP_200_OK
+                )
+            
+            except TokenRecuperacionPassword.DoesNotExist:
+                return Response(
+                    {'error': 'Token inválido o ya utilizado'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         description="Permite al usuario actualizar su información de perfil",
