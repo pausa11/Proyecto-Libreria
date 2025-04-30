@@ -6,12 +6,11 @@ import 'aos/dist/aos.css';
 
 function Catalogo() {
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
+  const navigate = useNavigate();
 
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,7 +51,7 @@ function Catalogo() {
         <h1 className="text-white font-[500] text-[3.5vw] w-full">
           Todos los libros
         </h1>
-        <div className="w-full flex flex-wrap justify-between mt-[2vh]">
+        <div className="w-full flex flex-wrap mt-[2vh]">
           {filteredBooks.map((book, index) => (
             <BookCard
               key={book.id || index}

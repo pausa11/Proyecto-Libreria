@@ -75,6 +75,7 @@ function SearchBooks() {
 
   return (
     <div className="w-full min-h-screen overflow-auto bg-black text-white">
+      
       <NavBar />
 
       {activeFilter && (
@@ -112,24 +113,29 @@ function SearchBooks() {
         </div>
       </div>
 
-      <div id="resultados" className="w-full flex flex-wrap gap-4 items-left p-[2vw]">
+      <div id="resultados" className="w-full flex flex-col p-[2vw]">
         {filteredBooks.length === 0 ? (
           <p className="text-white">No se encontraron libros.</p>
         ) : (
-          filteredBooks.map((book, index) => (
-            <BookCard
-              key={book.id || index}
-              title={book.titulo}
-              author={book.autor}
-              img={
-                book.portada_url ||
-                "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"
-              }
-              color="white"
-            />
-          ))
+          <div className="w-full flex flex-wrap mt-[2vh]">
+            {
+              filteredBooks.map((book, index) => (
+                <BookCard
+                  key={book.id || index}
+                  title={book.titulo}
+                  author={book.autor}
+                  img={
+                    book.portada_url ||
+                    "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"
+                  }
+                  color="white"
+                />
+              ))
+            }
+          </div>
         )}
       </div>
+
     </div>
   );
 }
