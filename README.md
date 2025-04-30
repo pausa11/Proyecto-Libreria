@@ -71,10 +71,13 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
    Las imágenes en Cloudinary deben seguir esta convención de nombres:
    - Título del libro con espacios reemplazados por guiones bajos (Ej: "El_principito.jpg")
 
-   # Verificar que las imágenes referenciadas en el fixture existan en Cloudinary(Opcional)
-   python apps/libros/scripts/manage_images.py --mode verify
+   # Cargar y sincronizar las imagenes del cloudinary con el back y el front
+   python apps/libros/scripts/upload_images.py
 
-   # Normalizar nombres de imágenes en el fixture (basado en títulos)(Opcional)
+   # Verificar que las imágenes referenciadas en el fixture existan en Cloudinary(Opcional)
+   python apps/libros/scripts/verify_images.py
+
+   # Normalizar nombres de imágenes en el fixture (basado en títulos)(Opcional)(actualmente no funciona, cuando lo cree, hacia algo, ahora ni idea pa que sirve, lo dejo por si se necesita modificar en el futuro.)
    python apps/libros/scripts/manage_images.py --mode normalize
 
    # Iniciar Servidor de Desarrollo

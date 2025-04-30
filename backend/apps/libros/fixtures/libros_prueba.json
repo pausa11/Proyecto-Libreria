@@ -238,5 +238,275 @@
             "fecha_creacion": "2025-02-10T01:33:09-05:00",
             "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
         }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 13,
+        "fields": {
+            "titulo": "La sombra del viento",
+            "autor": "Carlos Ruiz Zafón",
+            "isbn": "9788408043645",
+            "precio": "21.50",
+            "stock": 17,
+            "categoria": 1,
+            "editorial": "Planeta",
+            "año_publicacion": 2001,
+            "descripcion": "Una novela ambientada en la Barcelona posterior a la guerra civil española",
+            "portada": "La sombra del viento",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 14,
+        "fields": {
+            "titulo": "El hobbit",
+            "autor": "J.R.R. Tolkien",
+            "isbn": "9788445073803",
+            "precio": "18.99",
+            "stock": 15,
+            "categoria": 1,
+            "editorial": "Minotauro",
+            "año_publicacion": 1937,
+            "descripcion": "La precuela de El señor de los anillos, una aventura fantástica",
+            "portada": "El hobbit",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 15,
+        "fields": {
+            "titulo": "Introducción al Pensamiento Complejo",
+            "autor": "Edgar Morin",
+            "isbn": "9788497841696",
+            "precio": "27.95",
+            "stock": 8,
+            "categoria": 2,
+            "editorial": "Gedisa",
+            "año_publicacion": 1990,
+            "descripcion": "Una reflexión sobre la complejidad del pensamiento humano y su impacto en la ciencia",
+            "portada": "Introducción al Pensamiento Complejo",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 16,
+        "fields": {
+            "titulo": "Rayuela",
+            "autor": "Julio Cortázar",
+            "isbn": "9788437604572",
+            "precio": "23.75",
+            "stock": 12,
+            "categoria": 1,
+            "editorial": "Cátedra",
+            "año_publicacion": 1963,
+            "descripcion": "Una novela experimental que se puede leer en diferentes órdenes",
+            "portada": "Rayuela",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 17,
+        "fields": {
+            "titulo": "Estadística para Administración y Economía",
+            "autor": "Robert D. Mason",
+            "isbn": "9786073221825",
+            "precio": "49.99",
+            "stock": 20,
+            "categoria": 3,
+            "editorial": "Alfaomega",
+            "año_publicacion": 2015,
+            "descripcion": "Manual completo de estadística aplicada a las ciencias económicas",
+            "portada": "Estadística para Administración y Economía",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 18,
+        "fields": {
+            "titulo": "Los juegos del hambre",
+            "autor": "Suzanne Collins",
+            "isbn": "9788427202122",
+            "precio": "17.50",
+            "stock": 23,
+            "categoria": 1,
+            "editorial": "Molino",
+            "año_publicacion": 2008,
+            "descripcion": "Primera novela de la trilogía distópica ambientada en Panem",
+            "portada": "Los juegos del hambre",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 19,
+        "fields": {
+            "titulo": "El arte de amar",
+            "autor": "Erich Fromm",
+            "isbn": "9788449326400",
+            "precio": "15.75",
+            "stock": 14,
+            "categoria": 2,
+            "editorial": "Paidós",
+            "año_publicacion": 1956,
+            "descripcion": "Estudio sobre la naturaleza del amor y sus diferentes formas",
+            "portada": "El arte de amar",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 20,
+        "fields": {
+            "titulo": "Algoritmos y estructuras de datos",
+            "autor": "Niklaus Wirth",
+            "isbn": "9780130220059",
+            "precio": "42.25",
+            "stock": 10,
+            "categoria": 3,
+            "editorial": "Prentice Hall",
+            "año_publicacion": 1985,
+            "descripcion": "Libro clásico sobre fundamentos de programación",
+            "portada": "Algoritmos y estructuras de datos",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 21,
+        "fields": {
+            "titulo": "Crimen y castigo",
+            "autor": "Fiódor Dostoyevski",
+            "isbn": "9788420651361",
+            "precio": "24.99",
+            "stock": 9,
+            "categoria": 1,
+            "editorial": "Alianza Editorial",
+            "año_publicacion": 1866,
+            "descripcion": "Novela de realismo psicológico sobre un crimen y sus consecuencias",
+            "portada": "Crimen y castigo",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 22,
+        "fields": {
+            "titulo": "El monje que vendió su Ferrari",
+            "autor": "Robin Sharma",
+            "isbn": "9788499087122",
+            "precio": "16.95",
+            "stock": 28,
+            "categoria": 2,
+            "editorial": "Debolsillo",
+            "año_publicacion": 1997,
+            "descripcion": "Fábula espiritual sobre la búsqueda de la felicidad y el propósito",
+            "portada": "El monje que vendió su Ferrari",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 23,
+        "fields": {
+            "titulo": "Orgullo y prejuicio",
+            "autor": "Jane Austen",
+            "isbn": "9788491051039",
+            "precio": "19.25",
+            "stock": 16,
+            "categoria": 1,
+            "editorial": "Austral",
+            "año_publicacion": 1813,
+            "descripcion": "Clásico de la literatura inglesa sobre las relaciones sociales y el matrimonio",
+            "portada": "Orgullo y prejuicio",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 24,
+        "fields": {
+            "titulo": "Homo Deus",
+            "autor": "Yuval Noah Harari",
+            "isbn": "9788499928081",
+            "precio": "29.95",
+            "stock": 13,
+            "categoria": 2,
+            "editorial": "Debate",
+            "año_publicacion": 2016,
+            "descripcion": "Reflexiones sobre el futuro de la humanidad y la tecnología",
+            "portada": "Homo Deus",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 25,
+        "fields": {
+            "titulo": "Inteligencia Artificial",
+            "autor": "Stuart Russell",
+            "isbn": "9788420697840",
+            "precio": "58.75",
+            "stock": 7,
+            "categoria": 3,
+            "editorial": "Pearson",
+            "año_publicacion": 2021,
+            "descripcion": "Manual completo sobre los fundamentos y aplicaciones de la IA",
+            "portada": "Inteligencia Artificial",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 26,
+        "fields": {
+            "titulo": "El nombre de la rosa",
+            "autor": "Umberto Eco",
+            "isbn": "9788432217500",
+            "precio": "26.50",
+            "stock": 11,
+            "categoria": 1,
+            "editorial": "Lumen",
+            "año_publicacion": 1980,
+            "descripcion": "Novela histórica ambientada en una abadía benedictina en el siglo XIV",
+            "portada": "El nombre de la rosa",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
+    },
+    {
+        "model": "libros.libro",
+        "pk": 27,
+        "fields": {
+            "titulo": "Principios de Economía",
+            "autor": "Gregory Mankiw",
+            "isbn": "9786075260280",
+            "precio": "52.99",
+            "stock": 19,
+            "categoria": 3,
+            "editorial": "Cengage Learning",
+            "año_publicacion": 2020,
+            "descripcion": "Introducción a los conceptos fundamentales de la economía moderna",
+            "portada": "Principios de Economía",
+            "fecha_creacion": "2025-02-10T01:33:09-05:00",
+            "fecha_actualizacion": "2025-02-10T01:33:09-05:00"
+        }
     }
 ]
