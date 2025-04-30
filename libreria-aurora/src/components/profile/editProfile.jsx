@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import EditContentPreferences from "./editContentPreference";
+import HandleNewsSubscription from "./handleNewsSubscription";
 
 function EditProfile() {
+  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/perfil/";
   const [userImageExists, setUserImageExists] = useState(false);
   const [usuario, setUsuario] = useState(null);
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/perfil/";
+  const [activeSection, setActiveSection] = useState("main"); 
 
   useEffect(() => {
     const getUserData = async () => {
@@ -33,6 +36,28 @@ function EditProfile() {
     getUserData();
   }, []);
 
+  if (activeSection === "preferences") {
+    return (
+      <div className="p-10">
+        <button onClick={() => setActiveSection("main")} className="mb-4 text-[#3B4CBF]">
+          ← Volver al perfil
+        </button>
+        <EditContentPreferences />
+      </div>
+    );
+  }
+
+  if (activeSection === "subscriptions") {
+    return (
+      <div className="p-10">
+        <button onClick={() => setActiveSection("main")} className="mb-4 text-[#3B4CBF]">
+          ← Volver al perfil
+        </button>
+        <HandleNewsSubscription />
+      </div>
+    );
+  }
+
   return (
     <div className="p-10 flex flex-col gap-2">
       <h1 className="text-3xl font-[500]">Mi Perfil</h1>
@@ -50,8 +75,12 @@ function EditProfile() {
 
       <br />
 
-      <p className="text-[#3B4CBF]">Personalizar preferencia de contenidos</p>
-      <p className="text-[#3B4CBF]">Gestionar suscripción a noticias</p>
+      <p className="text-[#3B4CBF] cursor-pointer" onClick={() => setActiveSection("preferences")}>
+        Personalizar preferencia de contenidos
+      </p>
+      <p className="text-[#3B4CBF] cursor-pointer" onClick={() => setActiveSection("subscriptions")}>
+        Gestionar suscripción a noticias
+      </p>
       <p className="text-[#3B4CBF]">Eliminar cuenta</p>
       <p className="text-[#3B4CBF]">Cerrar sesión</p>
     </div>
