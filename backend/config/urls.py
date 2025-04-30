@@ -34,6 +34,7 @@ urlpatterns = [
     # API URLs
     path('api/libros/', include('apps.libros.urls')),
     path('api/usuarios/', include('apps.usuarios.urls')),
+    path('api/finanzas/', include('apps.finanzas.urls')),
     path('api/', include('apps.busqueda.urls')),
     path('api/noticias/', include('apps.noticias.urls')),
     path('api/mensajeria/', include('apps.mensajeria.urls')),

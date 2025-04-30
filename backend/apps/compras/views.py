@@ -79,3 +79,49 @@ class CarritoViewSet(viewsets.ModelViewSet):
             return Response(self.get_serializer(carrito).data)
         except Libro.DoesNotExist:
             return Response({"error": "Libro no encontrado"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        description="Realiza el pago del carrito",
+        responses={200: CarritoSerializer, 400: None}
+    )
+
+    @action(detail=True, methods=['post'])
+    def pagar(self, request, pk=None):
+        carrito = self.get_object()
+        if carrito.total_libros() == 0:
+            return Response({"error": "El carrito está vacío"}, status=status.HTTP_400_BAD_REQUEST)
+        else: 
+            return Response(self.get_serializer(carrito.pagar()).data)
+
+    @extend_schema(description = "Obtiene el total del carrito", responses = {200: CarritoSerializer})
+    @action(detail=False, methods=['get'])
+    def total(self, request):
+        carrito = get_object()
+        total = carrito.total()
+        return Response({"total": total})
+    
+    extend_schema(description="Obtiene el número total de libros en el carrito", responses={200: CarritoSerializer})
+    @action(detail=False, methods=['get'])
+    def total_libros(self, request):
+        carrito = self.get_object()
+        total = carrito.total_libros()
+        return Response({"total": total})
+    
+    @extend_schema(description="Obtiene una lista de los libros en el carrito", responses={200: CarritoSerializer, 400: None})
+    @action(detail=False, methods=['get'])
+    def obtener_libros(self, request):
+        carrito = self.get_object()
+        libros = carrito.obtener_libros()
+        if libros.count() == 0:
+            return Response({"error": "El carrito está vacío"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"libros": libros})
+
+    @extend_schema(description="Pagar", responses={200: CarritoSerializer, 400: None})
+    @action(detail=False, methods=['post'])
+    def pagar(self, request):
+        carrito = self.get_object()
+        if carrito.total_libros() == 0:
+            return Response({"error": "El carrito está vacío"}, status=status.HTTP_400_BAD_REQUEST)
+        else: 
+            return Response(self.get_serializer(carrito.pagar()).data)

@@ -903,3 +903,573 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 1. Implementar un endpoint para restablecer la contraseña con un token temporal.
 2. Mejorar la seguridad del flujo de recuperación de contraseñas.
 3. Implementar pruebas unitarias para validar el flujo completo.
+
+## [2025-04-11] Corrección de Modelos y Configuración del Proyecto
+### fix(compras): Corrección del modelo Carrito y relaciones en compras
+- **commit:** Corregido el modelo Carrito y sus administradores
+  - **Resuelto:** Conflicto entre el campo libros ManyToManyField y métodos en el modelo Carrito
+  - **Corregido:** Método total_libros() para contar correctamente los libros en el carrito
+  - **Implementado:** Métodos para agregar, quitar y limpiar libros del carrito
+  - **Refactorizado:** Admin de Carrito para visualizar correctamente los libros
+
+#### Detalles de la implementación:
+- **Administración de carritos:**
+  - Corregido error en filter_horizontal para la relación ManyToManyField
+  - Implementadas acciones en admin para vaciar carritos y agregar libros
+  - Añadidos métodos para cálculo de total y conteo de libros
+
+- **Resolución de errores:**
+  - Solucionado el problema de conflicto entre campo y método con el mismo nombre
+  - Implementado método obtener_libros() para reemplazar al método libros()
+  - Corregida la visualización en admin panel con campos personalizados
+
+### fix(finanzas): Implementación correcta de OneToOneField en modelos de finanzas
+- **commit:** Corregidas relaciones entre modelos de finanzas y usuarios
+  - **Modificado:** Relación OneToOneField entre Usuario y Saldo
+  - **Corregido:** Método modificar_saldo() para guardar los cambios correctamente
+  - **Implementado:** Método __str__ para mejor representación en admin
+  - **Optimizado:** Serializer de Saldo para gestión de usuarios
+
+#### Detalles de la implementación:
+- **Estructura de modelos:**
+  - Implementación correcta de OneToOneField para relación única entre Usuario y Saldo
+  - Eliminada la redundancia de unique=True en campo OneToOneField
+  - Corregida la definición de campos en el modelo Saldo
+  - Implementados métodos para gestionar el saldo correctamente
+
+- **Correcciones de APIs:**
+  - Corregidas importaciones en views.py utilizando importaciones relativas
+  - Implementado SaldoViewSet para gestión del saldo por usuario
+  - Ajustado el serializer para representar correctamente las relaciones
+
+### fix(admin): Solución de problemas con archivos estáticos y configuración
+- **commit:** Corregida la configuración para servir archivos estáticos
+  - **Resuelto:** Error 404 en rutas de admin sin trailing slash
+  - **Configurado:** Servicio correcto de archivos estáticos en desarrollo
+  - **Implementado:** Manejo de URLs con APPEND_SLASH
+  - **Optimizado:** Sistema de migraciones para resolver dependencias
+
+#### Detalles de la implementación:
+- **Configuración de estáticos:**
+  - Configurados correctamente STATIC_URL y STATIC_ROOT en settings.py
+  - Implementado servicio de archivos estáticos en modo DEBUG
+  - Resueltos problemas de rutas para admin y otros recursos estáticos
+
+- **Gestión de migraciones:**
+  - Corregidas dependencias entre migraciones para evitar errores
+  - Implementado proceso para rehacer migraciones con problemas
+  - Solucionado error de inconsistencia entre migraciones de libros y compras
+
+### Estado Actual del Sistema
+
+#### Módulos Corregidos ✅
+- **Compras**
+  - Modelo Carrito completamente funcional
+  - Relaciones ManyToManyField configuradas correctamente
+  - Admin con acciones personalizadas
+  - Métodos para gestión de libros en carrito
+
+- **Finanzas**
+  - Modelos Tarjeta y Saldo con relaciones OneToOneField correctas
+  - Serializers implementados para gestión vía API
+  - Métodos para modificación y visualización de datos
+  - Integración con sistema de admin
+
+#### Mejoras en Infraestructura ✅
+- **Archivos Estáticos**
+  - Configuración correcta para servir estáticos en desarrollo
+  - Solución para rutas de admin
+  - Manejo de URLs con/sin trailing slash
+
+- **Sistema de Migraciones**
+  - Proceso definido para resolver dependencias circulares
+  - Corrección de inconsistencias entre aplicaciones
+  - Manejo adecuado de migraciones en PostgreSQL
+
+#### Validaciones y Seguridad ✅
+- **Integridad de Datos**
+  - Corregidas relaciones entre modelos
+  - Implementadas validaciones en métodos de modelos
+  - Métodos save() configurados para persistir cambios correctamente
+
+### Próximos Pasos 🚧
+- Completar integraciones entre módulos de compras y finanzas
+- Implementar vistas personalizadas para gestión de saldo
+- Desarrollar pruebas automatizadas para modelos corregidos
+- Mejorar la documentación de API en Swagger/OpenAPI
+- Optimizar consultas de base de datos en modelos con relaciones complejas
+
+## [2025-04-15] Implementación y Mejora de la Gestión del Perfil de Usuario
+
+### feat(usuarios): Implementación completa del sistema de edición de perfil
+
+#### Detalles del cambio:
+- **commit:** Implementación de endpoints para la gestión completa del perfil de usuario
+  - **Implementado:** Endpoint para actualizar datos del perfil de usuario
+  - **Documentado:** Campos actualizables y validaciones
+  - **Optimizado:** Serializer específico para actualización de perfil
+  - **Configurado:** Sistema de permisos para garantizar que cada usuario solo edite su propio perfil
+
+#### Funcionalidad de actualización de perfil:
+- **Sistema de Actualización de Perfil:**
+  - Endpoint `/api/usuarios/actualizar_perfil/` (PUT, PATCH)
+  - Permite actualización de datos personales: nombres, apellidos, teléfono, dirección y fecha de nacimiento
+  - Validación de datos antes de actualizar
+  - Permisos configurados para acceso solo a usuarios autenticados
+  - Serializer específico (ProfileUpdateSerializer) que protege campos sensibles
+
+- **Documentación API:**
+  - Uso de decoradores `extend_schema` para documentación completa en Swagger
+  - Ejemplos de uso incluidos en la documentación
+  - Descripción detallada de los campos actualizables
+  - Documentación de posibles errores y respuestas
+
+#### Estado Actual de la Funcionalidad de Gestión de Perfil ✅
+
+- **Implementación Completa:**
+  - Modelo Usuario con campos completos para información personal
+  - Serializers especializados para diferentes operaciones:
+    - `UsuarioSerializer`: Visualización completa de datos
+    - `ProfileUpdateSerializer`: Actualización segura de perfil
+  - ViewSet con métodos especializados:
+    - `perfil`: Obtener datos del perfil propio (GET)
+    - `actualizar_perfil`: Modificar datos personales (PUT/PATCH)
+    
+- **Endpoints Disponibles:**
+  - **GET** `/api/usuarios/perfil/` - Obtiene los datos del perfil del usuario autenticado
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Actualiza los datos personales del usuario
+
+- **Seguridad Implementada:**
+  - Validación de datos de entrada
+  - Control de campos actualizables (no permite modificar campos críticos)
+  - Autenticación requerida para todas las operaciones
+  - Verificación de permisos de acceso
+
+#### Aspectos Técnicos
+
+- **Modelo Usuario:**
+  - Extiende de AbstractUser para mantener compatibilidad con Django
+  - Campos adicionales: tipo_usuario, numero_identificacion, teléfono, dirección, fecha_nacimiento
+  - Metadatos: fecha_registro, ultima_actualizacion, activo
+
+- **ProfileUpdateSerializer:**
+  - Únicamente expone campos seguros para actualización: first_name, last_name, telefono, direccion, fecha_nacimiento
+  - Implementa validaciones específicas para cada campo
+  - Método update optimizado para actualización segura
+
+- **Mejoras de Usabilidad:**
+  - Respuesta formateada con datos completos tras actualización exitosa
+  - Mensajes de error descriptivos en caso de datos inválidos
+  - Documentación completa para integración con frontend
+
+### Próximos Pasos 🚧
+
+1. **Implementar subida de foto de perfil**
+   - Añadir campo de imagen al modelo Usuario
+   - Implementar endpoint para subida/actualización de foto
+   - Configurar almacenamiento adecuado para imágenes
+
+2. **Mejorar sistema de validación de datos**
+   - Implementar validaciones más estrictas para números telefónicos
+   - Añadir validación de edad mínima en fecha_nacimiento
+   - Validar formato de direcciones
+
+3. **Expandir gestión de preferencias de usuario**
+   - Mejorar integración con sistema de preferencias
+   - Implementar gestión de notificaciones por usuario
+   - Permitir configuración de privacidad
+
+   # Registro de Cambios del Proyecto
+
+## [2025-04-25] Corrección y Mejora de los Módulos de Finanzas y Usuarios
+
+### **fix(finanzas): Corrección de modelos y mejoras en la API**
+
+#### **Detalles del cambio:**
+- **commit:** Corrección de los modelos `Tarjeta` y `Saldo` para mejorar la funcionalidad y la integración con el sistema de usuarios.
+  - **Modificado:** Método `modificar_saldo` en el modelo `Saldo` para validar la existencia de una tarjeta antes de modificar el saldo.
+  - **Implementado:** Método `__str__` en ambos modelos para mejorar la representación en el panel de administración.
+  - **Optimizado:** Serializador `SaldoSerializer` para exponer correctamente el campo `usuario_id`.
+
+#### **Mejoras en la API:**
+- **SaldoViewSet:**
+  - Implementado ViewSet para gestionar saldos.
+  - Configurado con permisos `IsAuthenticatedOrReadOnly`.
+  - Añadido soporte para filtros en el campo `saldo`.
+
+- **TarjetaViewSet:**
+  - Configurado ViewSet para gestionar tarjetas.
+  - Añadida documentación detallada con `drf-spectacular`.
+
+#### **Documentación API:**
+- **Endpoints Disponibles:**
+  - **GET** `/api/finanzas/tarjetas/` - Lista de tarjetas.
+  - **POST** `/api/finanzas/tarjetas/` - Crear una nueva tarjeta.
+  - **GET** `/api/finanzas/saldos/` - Lista de saldos.
+  - **POST** `/api/finanzas/saldos/` - Crear un nuevo saldo.
+
+- **Swagger/OpenAPI:**
+  - Documentación completa de los endpoints con ejemplos de uso.
+  - Parámetros personalizados documentados con `OpenApiParameter`.
+
+---
+
+### **feat(usuarios): Mejora del modelo Usuario y gestión de preferencias**
+
+#### **Detalles del cambio:**
+- **commit:** Ampliación del modelo `Usuario` con nuevos campos y mejoras en la API.
+  - **Añadido:** Campo `foto_perfil` para permitir la subida de imágenes de perfil.
+  - **Añadido:** Campo `nacionalidad` para almacenar la nacionalidad del usuario.
+  - **Optimizado:** Serializador `UsuarioRegistroSerializer` para validar y registrar usuarios con los nuevos campos.
+
+#### **Mejoras en la API:**
+- **Endpoints de Usuario:**
+  - **GET** `/api/usuarios/perfil/` - Obtiene los datos del perfil del usuario autenticado.
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Actualiza los datos personales del usuario.
+  - **POST** `/api/usuarios/recuperar_contraseña/` - Envía un correo para recuperar la contraseña.
+
+- **Preferencias de Usuario:**
+  - Implementado modelo `UsuarioPreferencias` para gestionar las preferencias de suscripción.
+  - Añadidos endpoints para obtener y actualizar las preferencias:
+    - **GET** `/api/usuarios/preferencias_suscripcion/`
+    - **PUT/PATCH** `/api/usuarios/actualizar_preferencias/`
+
+#### **Documentación API:**
+- **Swagger/OpenAPI:**
+  - Documentación detallada de los endpoints de usuario.
+  - Ejemplos de uso para registro, actualización de perfil y recuperación de contraseña.
+
+---
+
+### **fix(admin): Mejoras en la configuración del panel administrativo**
+
+#### **Detalles del cambio:**
+- **commit:** Configuración avanzada del panel administrativo para los modelos `Usuario`, `Tarjeta` y `Saldo`.
+  - **Usuario:**
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+    - Configurada búsqueda por `username` y `email`.
+  - **Tarjeta:**
+    - Configurada visualización de `numero` y `titular`.
+    - Añadida búsqueda por `numero`.
+  - **Saldo:**
+    - Configurada visualización de `usuario` y `saldo`.
+    - Añadida búsqueda por `usuario`.
+
+---
+
+### **Estado Actual del Sistema**
+
+#### **Módulos Completamente Funcionales ✅**
+- **Usuarios:**
+  - Modelo extendido con nuevos campos (`foto_perfil`, `nacionalidad`).
+  - API REST funcional con endpoints para perfil y preferencias.
+  - Sistema de recuperación de contraseña implementado.
+
+- **Finanzas:**
+  - Modelos `Tarjeta` y `Saldo` completamente funcionales.
+  - API REST funcional con endpoints para tarjetas y saldos.
+  - Integración con el sistema de usuarios.
+
+#### **Mejoras en Infraestructura ✅**
+- **Archivos Estáticos:**
+  - Configuración correcta para servir imágenes de perfil.
+  - Integración con `MEDIA_ROOT` y `MEDIA_URL`.
+
+- **Panel Administrativo:**
+  - Configuración avanzada para los modelos `Usuario`, `Tarjeta` y `Saldo`.
+  - Mejoras en la visualización y búsqueda.
+
+---
+
+### **Próximos Pasos 🚧**
+1. **Completar integración entre Finanzas y Compras:**
+   - Implementar método `pagar()` en el modelo `Carrito`.
+   - Crear endpoint para procesar pagos.
+
+2. **Mejorar validaciones en el modelo Usuario:**
+   - Validar formato de `foto_perfil`.
+   - Añadir validación de edad mínima en `fecha_nacimiento`.
+
+3. **Desarrollar pruebas automatizadas:**
+   - Implementar pruebas unitarias para los modelos y serializadores.
+   - Añadir pruebas de integración para los endpoints.
+
+4. **Optimizar consultas en la API:**
+   - Reducir el número de consultas a la base de datos en los ViewSets.
+   - Implementar `select_related` y `prefetch_related` donde sea necesario.
+
+5. **Documentar completamente el flujo de recuperación de contraseña:**
+   - Añadir ejemplos detallados en Swagger.
+   - Implementar pruebas para validar el flujo completo.
+
+
+## [2025-04-29] Mejora de Seguridad en el Sistema de Recuperación de Contraseñas
+
+### feat(usuarios): Implementación segura del sistema de recuperación de contraseñas
+
+#### Detalles del cambio:
+- **commit:** Reemplazo del método inseguro de recuperación de contraseña por un sistema de tokens temporales
+  - **Problema anterior:** El endpoint `recuperar_contraseña` enviaba el hash de la contraseña por email
+  - **Solución implementada:** Sistema de tokens temporales con validez limitada (15 minutos)
+  - **Mejorado:** Flujo completo de recuperación con generación de token, validación y restablecimiento
+  - **Implementado:** Modelo `TokenRecuperacionPassword` para gestión segura de tokens
+
+#### Componentes implementados:
+- **Modelo para tokens de recuperación:**
+  - Nuevo modelo `TokenRecuperacionPassword` con los siguientes campos:
+    - `usuario` (ForeignKey a Usuario)
+    - `token` (UUIDField único generado automáticamente)
+    - `fecha_creacion` (DateTimeField auto_now_add)
+    - `fecha_expiracion` (DateTimeField con validez de 15 minutos)
+    - `usado` (BooleanField para controlar uso único del token)
+  - Métodos del modelo:
+    - `esta_activo` (property para verificar validez del token)
+    - `generar_token` (método de clase para crear tokens e invalidar anteriores)
+
+- **Serializers para el flujo de recuperación:**
+  - `ValidarTokenSerializer` para verificar la validez de un token
+  - `RestablecerContraseñaSerializer` para procesar la solicitud de cambio de contraseña
+
+- **Endpoints implementados:**
+  - **POST** `/api/usuarios/recuperar_contraseña/` - Solicita un token de recuperación vía email
+  - **POST** `/api/usuarios/validar_token/` - Verifica la validez de un token recibido
+  - **POST** `/api/usuarios/restablecer_contraseña/` - Establece una nueva contraseña usando un token válido
+
+#### Aspectos de seguridad:
+- **Flujo completo de recuperación seguro:**
+  - No se envían contraseñas (ni hashes) por email
+  - Tokens con tiempo de vida limitado (15 minutos)
+  - Tokens de un solo uso que se marcan como "usados" tras su utilización
+  - Invalidación automática de tokens anteriores al generar uno nuevo
+  - Verificación de token previa al cambio de contraseña
+
+- **Mejoras del correo electrónico:**
+  - Formato más profesional y claro
+  - Inclusión de enlace directo al formulario de recuperación
+  - Advertencia sobre tiempo de validez del enlace
+  - Instrucciones en caso de no haber solicitado el cambio
+
+#### Ventajas del nuevo sistema:
+- Mayor seguridad al seguir buenas prácticas de la industria
+- Flujo claro y usable para el usuario final
+- Protección contra ataques de fuerza bruta
+- Trazabilidad completa de los intentos de recuperación
+- Administración de tokens a través del panel de admin
+
+#### Panel de administración:
+- Configurado panel administrativo para el modelo `TokenRecuperacionPassword`
+- Listados con información relevante: usuario, token, estado, fecha
+- Filtros por estado (usado/activo) y fecha de creación
+- Búsqueda por usuario y email
+
+### Estado Actual de la Funcionalidad ✅
+
+- **Implementación Completa:**
+  - Modelo para gestión de tokens de recuperación
+  - Serializers para validación y procesamiento 
+  - Endpoints para el flujo completo de recuperación
+  - Sistema de envío de emails configurado
+  - Administración desde el panel Django admin
+
+- **Seguridad mejorada:**
+  - Tokens únicos con UUID4
+  - Tiempo de validez limitado
+  - Control de tokens usados
+  - Invalidación automática de tokens anteriores
+  - Validaciones en múltiples niveles (serializer y vista)
+
+- **Documentación API:**
+  - Endpoints documentados con `extend_schema`
+  - Ejemplos de uso incluidos
+  - Descripción detallada de parámetros y respuestas
+  - Explicación de códigos de error
+
+### Próximos Pasos 🚧
+
+1. **Actualizar el frontend para implementar el flujo completo:**
+   - Crear componente `ResetPassword.jsx` para restablecer contraseña
+   - Implementar validación del token en frontend
+   - Añadir formulario para nueva contraseña con validación
+
+2. **Mejorar experiencia de usuario:**
+   - Añadir retroalimentación sobre expiración de tokens
+   - Implementar redirecciones inteligentes basadas en el estado del token
+   - Mejorar mensajes de error para casos específicos
+
+3. **Ampliar pruebas:**
+   - Implementar pruebas unitarias para cada componente del flujo
+   - Añadir pruebas de integración para el proceso completo
+   - Probar casos de error y recuperación
+
+4. **Optimizar sistema de correos:**
+   - Implementar plantillas HTML para emails más atractivos
+   - Configurar sistema de cola para envío asíncrono de correos
+   - Añadir seguimiento de correos enviados
+
+   ## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
+
+### feat(usuarios): Implementación de la visualización de la foto de perfil en el panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se agregó la funcionalidad para mostrar la foto de perfil de los usuarios en el panel administrativo.
+  - **Implementado:** Método `mostrar_foto_perfil` en la clase `UsuarioAdmin` para renderizar la imagen de perfil en la lista de usuarios.
+  - **Configurado:** Campo `foto_perfil` en el modelo `Usuario` para almacenar imágenes de perfil.
+  - **Optimizado:** Visualización de imágenes con un tamaño fijo de 50x50 píxeles y estilo redondeado.
+
+#### Cambios en el Modelo:
+- **Modelo `Usuario`:**
+  - Campo `foto_perfil` configurado como `ImageField` con validación de formatos (`jpg`, `jpeg`, `png`, `webp`).
+  - Configuración de la carpeta de subida de imágenes en `MEDIA_ROOT`.
+
+#### Cambios en el Panel Administrativo:
+- **Clase `UsuarioAdmin`:**
+  - Se agregó el método `mostrar_foto_perfil` para mostrar la imagen de perfil en la lista de usuarios.
+  - Se añadió la columna "Foto de perfil" en la lista de usuarios.
+  - Se configuró el campo `foto_perfil` en los formularios de edición y creación de usuarios.
+
+#### Documentación API:
+- **Endpoints relacionados:**
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Permite a los usuarios actualizar su foto de perfil junto con otros datos personales.
+
+---
+
+### feat(admin): Mejoras en la configuración del panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se mejoró la configuración del panel administrativo para los modelos `Usuario` y `TokenRecuperacionPassword`.
+  - **Usuario:**
+    - Añadida la columna "Foto de perfil" en la lista de usuarios.
+    - Configurada la búsqueda por `username` y `email`.
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+  - **TokenRecuperacionPassword:**
+    - Añadida la columna "¿Activo?" para mostrar el estado del token.
+    - Configurada la búsqueda por `usuario` y `email`.
+    - Añadidos filtros por estado (`usado`) y fecha de creación.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Usuarios:**
+  - Visualización de la foto de perfil en el panel administrativo.
+  - API para actualizar la foto de perfil del usuario.
+  - Modelo `Usuario` extendido con el campo `foto_perfil`.
+
+- **Panel Administrativo:**
+  - Configuración avanzada para los modelos `Usuario` y `TokenRecuperacionPassword`.
+  - Mejoras en la visualización y búsqueda.
+
+#### Mejoras en Infraestructura ✅
+- **Archivos Multimedia:**
+  - Configuración correcta para servir imágenes de perfil.
+  - Integración con `MEDIA_ROOT` y `MEDIA_URL`.
+
+---
+
+### Próximos Pasos 🚧
+1. **Completar pruebas unitarias:**
+   - Implementar pruebas para la funcionalidad de subida de imágenes.
+   - Validar el flujo completo de actualización de perfil.
+
+2. **Optimizar la gestión de imágenes:**
+   - Implementar redimensionamiento automático de imágenes al subirlas.
+   - Configurar un sistema de almacenamiento en la nube para producción.
+
+3. **Ampliar la funcionalidad del perfil de usuario:**
+   - Permitir la eliminación de la foto de perfil.
+   - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
+
+
+   ## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
+
+### feat(usuarios): Implementación y mejora de la gestión de preferencias de usuario
+
+#### Detalles del cambio:
+- **commit:** Se implementaron endpoints para agregar y eliminar preferencias de usuario.
+  - **Implementado:** Métodos `agregar_preferencia` y `eliminar_preferencia` en el modelo `UsuarioPreferencias`.
+  - **Configurado:** Validación para asegurar que las preferencias sean válidas (autores o categorías existentes).
+  - **Optimizado:** Uso de `ArrayField` para almacenar las preferencias como una lista.
+
+#### Cambios en el Modelo:
+- **Modelo `UsuarioPreferencias`:**
+  - Campo `preferencias` configurado como `ArrayField` para almacenar una lista de preferencias.
+  - Métodos implementados:
+    - `agregar_preferencia(preferencia)`: Agrega una preferencia válida a la lista.
+    - `eliminar_preferencia(preferencia)`: Elimina una preferencia existente de la lista.
+
+#### Cambios en la API:
+- **Endpoints relacionados:**
+  - **POST** `/api/usuarios/agregar_preferencia/` - Agrega una preferencia a la lista del usuario.
+  - **DELETE** `/api/usuarios/eliminar_preferencia/` - Elimina una preferencia de la lista del usuario.
+
+#### Documentación API:
+- **Swagger/OpenAPI:**
+  - Documentación detallada de los endpoints con ejemplos de uso.
+  - Parámetros personalizados documentados con `OpenApiParameter`.
+
+---
+
+### feat(usuarios): Mejora en la gestión del perfil de usuario
+
+#### Detalles del cambio:
+- **commit:** Se mejoró el endpoint para actualizar el perfil del usuario.
+  - **Implementado:** Soporte para subir imágenes de perfil.
+  - **Validado:** Tamaño máximo de la imagen (2 MB).
+  - **Optimizado:** Serializador `ProfileUpdateSerializer` para manejar archivos.
+
+#### Cambios en la API:
+- **Endpoints relacionados:**
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Permite actualizar datos personales y la foto de perfil.
+
+#### Documentación API:
+- **Swagger/OpenAPI:**
+  - Documentación detallada del endpoint con ejemplos de uso.
+  - Validaciones documentadas para el tamaño y formato de la imagen.
+
+---
+
+### feat(admin): Mejoras en la configuración del panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se mejoró la visualización de las preferencias y la foto de perfil en el panel administrativo.
+  - **Usuario:**
+    - Añadida la columna "Foto de perfil" en la lista de usuarios.
+    - Configurada la búsqueda por `username` y `email`.
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+  - **UsuarioPreferencias:**
+    - Configurada la visualización de las preferencias en el panel administrativo.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Preferencias de Usuario:**
+  - Gestión completa de preferencias (agregar y eliminar).
+  - Validación de preferencias válidas (autores o categorías existentes).
+  - Almacenamiento eficiente con `ArrayField`.
+
+- **Perfil de Usuario:**
+  - Actualización de datos personales.
+  - Subida de imágenes de perfil con validaciones.
+  - Respuesta detallada tras la actualización.
+
+- **Panel Administrativo:**
+  - Visualización de la foto de perfil en la lista de usuarios.
+  - Gestión avanzada de preferencias en el panel administrativo.
+
+---
+
+### Próximos Pasos 🚧
+1. **Completar pruebas unitarias:**
+   - Implementar pruebas para la funcionalidad de gestión de preferencias.
+   - Validar el flujo completo de actualización de perfil.
+
+2. **Optimizar la gestión de imágenes:**
+   - Implementar redimensionamiento automático de imágenes al subirlas.
+   - Configurar un sistema de almacenamiento en la nube para producción.
+
+3. **Ampliar la funcionalidad del perfil de usuario:**
+   - Permitir la eliminación de la foto de perfil.
+   - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
