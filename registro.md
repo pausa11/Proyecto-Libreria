@@ -1379,3 +1379,97 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 3. **Ampliar la funcionalidad del perfil de usuario:**
    - Permitir la eliminación de la foto de perfil.
    - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
+
+
+   ## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
+
+### feat(usuarios): Implementación y mejora de la gestión de preferencias de usuario
+
+#### Detalles del cambio:
+- **commit:** Se implementaron endpoints para agregar y eliminar preferencias de usuario.
+  - **Implementado:** Métodos `agregar_preferencia` y `eliminar_preferencia` en el modelo `UsuarioPreferencias`.
+  - **Configurado:** Validación para asegurar que las preferencias sean válidas (autores o categorías existentes).
+  - **Optimizado:** Uso de `ArrayField` para almacenar las preferencias como una lista.
+
+#### Cambios en el Modelo:
+- **Modelo `UsuarioPreferencias`:**
+  - Campo `preferencias` configurado como `ArrayField` para almacenar una lista de preferencias.
+  - Métodos implementados:
+    - `agregar_preferencia(preferencia)`: Agrega una preferencia válida a la lista.
+    - `eliminar_preferencia(preferencia)`: Elimina una preferencia existente de la lista.
+
+#### Cambios en la API:
+- **Endpoints relacionados:**
+  - **POST** `/api/usuarios/agregar_preferencia/` - Agrega una preferencia a la lista del usuario.
+  - **DELETE** `/api/usuarios/eliminar_preferencia/` - Elimina una preferencia de la lista del usuario.
+
+#### Documentación API:
+- **Swagger/OpenAPI:**
+  - Documentación detallada de los endpoints con ejemplos de uso.
+  - Parámetros personalizados documentados con `OpenApiParameter`.
+
+---
+
+### feat(usuarios): Mejora en la gestión del perfil de usuario
+
+#### Detalles del cambio:
+- **commit:** Se mejoró el endpoint para actualizar el perfil del usuario.
+  - **Implementado:** Soporte para subir imágenes de perfil.
+  - **Validado:** Tamaño máximo de la imagen (2 MB).
+  - **Optimizado:** Serializador `ProfileUpdateSerializer` para manejar archivos.
+
+#### Cambios en la API:
+- **Endpoints relacionados:**
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Permite actualizar datos personales y la foto de perfil.
+
+#### Documentación API:
+- **Swagger/OpenAPI:**
+  - Documentación detallada del endpoint con ejemplos de uso.
+  - Validaciones documentadas para el tamaño y formato de la imagen.
+
+---
+
+### feat(admin): Mejoras en la configuración del panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se mejoró la visualización de las preferencias y la foto de perfil en el panel administrativo.
+  - **Usuario:**
+    - Añadida la columna "Foto de perfil" en la lista de usuarios.
+    - Configurada la búsqueda por `username` y `email`.
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+  - **UsuarioPreferencias:**
+    - Configurada la visualización de las preferencias en el panel administrativo.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Preferencias de Usuario:**
+  - Gestión completa de preferencias (agregar y eliminar).
+  - Validación de preferencias válidas (autores o categorías existentes).
+  - Almacenamiento eficiente con `ArrayField`.
+
+- **Perfil de Usuario:**
+  - Actualización de datos personales.
+  - Subida de imágenes de perfil con validaciones.
+  - Respuesta detallada tras la actualización.
+
+- **Panel Administrativo:**
+  - Visualización de la foto de perfil en la lista de usuarios.
+  - Gestión avanzada de preferencias en el panel administrativo.
+
+---
+
+### Próximos Pasos 🚧
+1. **Completar pruebas unitarias:**
+   - Implementar pruebas para la funcionalidad de gestión de preferencias.
+   - Validar el flujo completo de actualización de perfil.
+
+2. **Optimizar la gestión de imágenes:**
+   - Implementar redimensionamiento automático de imágenes al subirlas.
+   - Configurar un sistema de almacenamiento en la nube para producción.
+
+3. **Ampliar la funcionalidad del perfil de usuario:**
+   - Permitir la eliminación de la foto de perfil.
+   - Añadir validaciones adicionales para el formato y tamaño de las imágenes.

@@ -4,6 +4,8 @@ from django.core.validators import RegexValidator, FileExtensionValidator
 import uuid
 from datetime import timedelta
 from django.utils import timezone
+from django.contrib.postgres.fields import ArrayField
+from apps.libros.models import Categoria, Libro
 
 class Usuario(AbstractUser):
     TIPO_USUARIO_CHOICES = [
@@ -78,7 +80,7 @@ class UsuarioPreferencias(models.Model):
         on_delete=models.CASCADE, 
         related_name='preferencias'
     )
-    
+    preferencias=ArrayField(models.CharField(max_length=100), blank=True, default=list)
     # Preferencias de suscripción
     recibir_actualizaciones = models.BooleanField(default=True)
     recibir_noticias = models.BooleanField(default=True)
@@ -94,6 +96,33 @@ class UsuarioPreferencias(models.Model):
     
     def __str__(self):
         return f"Preferencias de {self.usuario.nombre_completo}"
+    
+    def agregar_preferencia(self, preferencia):
+        """
+        Agrega una preferencia a la lista de preferencias del usuario.
+        """
+        for autor, categoria in zip(Libro.objects.values_list("autor", flat=True), Categoria.objects.values_list('nombre', flat=True)):
+            if preferencia == autor or preferencia == categoria:
+                print(f"Preferencia: {preferencia}, Autor: {autor}, Categoria: {categoria}")
+                if preferencia not in self.preferencias:
+                    self.preferencias.append(preferencia)
+                    self.save()
+                else:
+                    raise ValueError("La preferencia ya existe en la lista.")
+        
+        raise ValueError("Preferencia no válida. Debe ser un autor o una categoría existente.")
+    
+    def eliminar_preferencia(self, preferencia):
+        """
+        Elimina una preferencia de la lista de preferencias del usuario.
+        """
+        if self.preferencias == []:
+            raise ValueError("No hay preferencias para eliminar.")
+        if preferencia in self.preferencias:
+            self.preferencias.remove(preferencia)
+            self.save()
+        else:
+            raise ValueError("Preferencia no encontrada en la lista.")
 
 
 class TokenRecuperacionPassword(models.Model):

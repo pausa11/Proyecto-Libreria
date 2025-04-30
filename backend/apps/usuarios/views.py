@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from django.core.mail import send_mail
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from .serializers import (
+    PreferenciasUsuarioPorCategoriauAutorSerializer,
     UsuarioSerializer,
     UsuarioRegistroSerializer,
     CambioContraseñaSerializer,
@@ -355,6 +356,30 @@ El equipo de Librería Aurora
             )
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        description="Obtiene la imagen de perfil del usuario autenticado",
+        responses={
+            200: {"description": "URL de la imagen de perfil"},
+            404: {"description": "Imagen no encontrada"}
+        }
+    )
+    @action(detail=False, methods=['get'])
+    def obtener_imagen_perfil(self, request):
+        """
+        Devuelve la URL de la imagen de perfil del usuario autenticado.
+        """
+        usuario = request.user
+        if usuario.foto_perfil:
+            return Response(
+                {'foto_perfil': usuario.foto_perfil.url},
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(
+            {'error': 'No se encontró la imagen de perfil'},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
     @extend_schema(
         description="Obtiene las preferencias de suscripción del usuario",
@@ -407,5 +432,69 @@ El equipo de Librería Aurora
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="Agrega una preferencia u autor a la lista de preferencias del usuario",
+        request=PreferenciasUsuarioPorCategoriauAutorSerializer,
+        responses={
+            200: PreferenciasUsuarioPorCategoriauAutorSerializer,
+            400: {"description": "Datos inválidos"}
+        },
+        examples=[
+            OpenApiExample(
+                'Ejemplo de agregar preferencia',
+                value={
+                    "preferencias": "Ficción"
+                }
+            )
+        ]
+    )
+    @action(detail=False, methods=['post'])
+    def agregar_preferencia(self, request):
+        """
+        Agrega una preferencia a la lista de preferencias del usuario autenticado.
+        """
+        usuario = request.user
+        usuario_preferencias, created = UsuarioPreferencias.objects.get_or_create(usuario=usuario)
+        
+        serializer = PreferenciasUsuarioPorCategoriauAutorSerializer(data=request.data)
+        if serializer.is_valid():
+            preferencias = serializer.validated_data['preferencias']
+            usuario_preferencias.agregar_preferencia(preferencias)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @extend_schema(
+        description="Elimina una preferencia de la lista de preferencias del usuario",
+        request=PreferenciasUsuarioPorCategoriauAutorSerializer,
+        responses={
+            200: PreferenciasUsuarioPorCategoriauAutorSerializer,
+            400: {"description": "Datos inválidos"}
+        },
+        examples=[
+            OpenApiExample(
+                'Ejemplo de eliminar preferencia',
+                value={
+                    "preferencias": "Ficción"
+                }
+            )
+        ]
+    )
+    @action(detail=False, methods=['delete'])
+    def eliminar_preferencia(self, request):
+        """
+        Elimina una preferencia de la lista de preferencias del usuario autenticado.
+        """
+        usuario = request.user
+        usuario_preferencias, created = UsuarioPreferencias.objects.get_or_create(usuario=usuario)
+        
+        serializer = PreferenciasUsuarioPorCategoriauAutorSerializer(data=request.data)
+        if serializer.is_valid():
+            preferencias = serializer.validated_data['preferencias']
+            usuario_preferencias.eliminar_preferencia(preferencias)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

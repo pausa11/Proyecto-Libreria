@@ -12,7 +12,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name',
             'tipo_usuario', 'numero_identificacion', 'telefono',
             'direccion', 'fecha_nacimiento', 'fecha_registro',
-            'ultima_actualizacion', 'activo'
+            'ultima_actualizacion', 'activo', 'foto_perfil', 'nacionalidad'
         )
         read_only_fields = ('id', 'fecha_registro', 'ultima_actualizacion')
 
@@ -25,7 +25,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = (
             'first_name', 'last_name', 'telefono',
-            'direccion', 'fecha_nacimiento'
+            'direccion', 'fecha_nacimiento', 'foto_perfil'
         )
     
     def get_foto_perfil_url(self, usuario):
@@ -162,3 +162,18 @@ class PreferenciasUsuarioSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+class PreferenciasUsuarioPorCategoriauAutorSerializer(serializers.ModelSerializer):
+    """
+    Serializer para listar las preferencias de libros por categoría o autor.
+    """
+    preferencias = serializers.CharField(max_length=100, allow_blank=False)
+    
+    class Meta:
+        model = UsuarioPreferencias
+        fields = ['preferencias']
+        read_only_fields = ['preferencias']
+        
+    
+
+    
