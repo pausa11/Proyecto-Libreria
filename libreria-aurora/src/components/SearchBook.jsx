@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 import NavBar from "./NavBar";
 import BookCard from "./home/bookCard";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
 
 function SearchBooks() {
+  const navigate = useNavigate(); 
 
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
   const filtersArray = [
@@ -18,11 +20,16 @@ function SearchBooks() {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("categoria");
   const [filterValue, setFilterValue] = useState("");
 
-
   useEffect(() => {
+    const token = localStorage.getItem("token"); 
+    if (!token) {
+      navigate("/login"); 
+      return;
+    }
+
     AOS.init();
     fetchBooks();
   }, []);
@@ -32,7 +39,7 @@ function SearchBooks() {
       const response = await fetch(backendURL);
       if (!response.ok) throw new Error("Error en la petición");
       const data = await response.json();
-      console.log("libros",data)
+      console.log("libros", data);
       setBooks(data);
       setFilteredBooks(data);
       setIsLoading(false);
@@ -74,7 +81,7 @@ function SearchBooks() {
       {activeFilter && (
         <div className="mt-4 w-full max-w-[30vw] flex flex-col">
           <label className="text-white mb-2 capitalize">
-            Valor para {filtersArray.find(f => f.key === activeFilter)?.label}:
+            Valor para {filtersArray.find((f) => f.key === activeFilter)?.label}:
           </label>
           <input
             type="text"
@@ -83,7 +90,7 @@ function SearchBooks() {
             placeholder={`Ej: 1967, Vintage, 25.99`}
             className="p-2 rounded text-black"
           />
-          <button onClick={applyFilter} className="bg-[#3B4CBF] mt-2 text-white py-2 rounded" >
+          <button onClick={applyFilter} className="bg-[#3B4CBF] mt-2 text-white py-2 rounded">
             Aplicar filtro
           </button>
         </div>
