@@ -29,9 +29,6 @@ Usuario = get_user_model()
     ),
     retrieve=extend_schema(
         description="Obtiene un usuario específico por su ID",
-        parameters=[
-            OpenApiParameter(name='id', description='ID del usuario', required=True, type=int)
-        ],
         responses={
             200: UsuarioSerializer,
             404: {"description": "Usuario no encontrado"}
