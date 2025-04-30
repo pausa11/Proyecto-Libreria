@@ -1305,3 +1305,77 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Implementar plantillas HTML para emails más atractivos
    - Configurar sistema de cola para envío asíncrono de correos
    - Añadir seguimiento de correos enviados
+
+   ## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
+
+### feat(usuarios): Implementación de la visualización de la foto de perfil en el panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se agregó la funcionalidad para mostrar la foto de perfil de los usuarios en el panel administrativo.
+  - **Implementado:** Método `mostrar_foto_perfil` en la clase `UsuarioAdmin` para renderizar la imagen de perfil en la lista de usuarios.
+  - **Configurado:** Campo `foto_perfil` en el modelo `Usuario` para almacenar imágenes de perfil.
+  - **Optimizado:** Visualización de imágenes con un tamaño fijo de 50x50 píxeles y estilo redondeado.
+
+#### Cambios en el Modelo:
+- **Modelo `Usuario`:**
+  - Campo `foto_perfil` configurado como `ImageField` con validación de formatos (`jpg`, `jpeg`, `png`, `webp`).
+  - Configuración de la carpeta de subida de imágenes en `MEDIA_ROOT`.
+
+#### Cambios en el Panel Administrativo:
+- **Clase `UsuarioAdmin`:**
+  - Se agregó el método `mostrar_foto_perfil` para mostrar la imagen de perfil en la lista de usuarios.
+  - Se añadió la columna "Foto de perfil" en la lista de usuarios.
+  - Se configuró el campo `foto_perfil` en los formularios de edición y creación de usuarios.
+
+#### Documentación API:
+- **Endpoints relacionados:**
+  - **PUT/PATCH** `/api/usuarios/actualizar_perfil/` - Permite a los usuarios actualizar su foto de perfil junto con otros datos personales.
+
+---
+
+### feat(admin): Mejoras en la configuración del panel administrativo
+
+#### Detalles del cambio:
+- **commit:** Se mejoró la configuración del panel administrativo para los modelos `Usuario` y `TokenRecuperacionPassword`.
+  - **Usuario:**
+    - Añadida la columna "Foto de perfil" en la lista de usuarios.
+    - Configurada la búsqueda por `username` y `email`.
+    - Añadidos filtros por `tipo_usuario` y `activo`.
+  - **TokenRecuperacionPassword:**
+    - Añadida la columna "¿Activo?" para mostrar el estado del token.
+    - Configurada la búsqueda por `usuario` y `email`.
+    - Añadidos filtros por estado (`usado`) y fecha de creación.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Usuarios:**
+  - Visualización de la foto de perfil en el panel administrativo.
+  - API para actualizar la foto de perfil del usuario.
+  - Modelo `Usuario` extendido con el campo `foto_perfil`.
+
+- **Panel Administrativo:**
+  - Configuración avanzada para los modelos `Usuario` y `TokenRecuperacionPassword`.
+  - Mejoras en la visualización y búsqueda.
+
+#### Mejoras en Infraestructura ✅
+- **Archivos Multimedia:**
+  - Configuración correcta para servir imágenes de perfil.
+  - Integración con `MEDIA_ROOT` y `MEDIA_URL`.
+
+---
+
+### Próximos Pasos 🚧
+1. **Completar pruebas unitarias:**
+   - Implementar pruebas para la funcionalidad de subida de imágenes.
+   - Validar el flujo completo de actualización de perfil.
+
+2. **Optimizar la gestión de imágenes:**
+   - Implementar redimensionamiento automático de imágenes al subirlas.
+   - Configurar un sistema de almacenamiento en la nube para producción.
+
+3. **Ampliar la funcionalidad del perfil de usuario:**
+   - Permitir la eliminación de la foto de perfil.
+   - Añadir validaciones adicionales para el formato y tamaño de las imágenes.

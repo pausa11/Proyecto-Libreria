@@ -7,7 +7,7 @@ from .models import Usuario, UsuarioPreferencias, TokenRecuperacionPassword
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'tipo_usuario', 'is_active')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'tipo_usuario', 'is_active', 'mostrar_foto_perfil', 'fecha_registro')
     list_filter = ('tipo_usuario', 'is_active', 'is_staff', 'fecha_registro')
     search_fields = ('username', 'first_name', 'last_name', 'email', 'numero_identificacion')
     ordering = ('-fecha_registro',)
@@ -18,7 +18,7 @@ class UsuarioAdmin(UserAdmin):
             'fields': (
                 'first_name', 'last_name', 'email', 'tipo_usuario',
                 'numero_identificacion', 'telefono', 'direccion',
-                'fecha_nacimiento'
+                'fecha_nacimiento', 'foto_perfil', 'nacionalidad'
             )
         }),
         (_('Permisos'), {
@@ -33,7 +33,11 @@ class UsuarioAdmin(UserAdmin):
             'fields': ('username', 'password1', 'password2', 'tipo_usuario', 'numero_identificacion'),
         }),
     )
-
+    def mostrar_foto_perfil(self, obj):
+        if obj.foto_perfil:
+            return '<img src="{}" style="width: 50px; height: 50px;" />'.format(obj.foto_perfil.url)
+        return '-'
+    mostrar_foto_perfil.short_description = 'Foto de perfil'
 
 @admin.register(UsuarioPreferencias)
 class UsuarioPreferenciasAdmin(admin.ModelAdmin):

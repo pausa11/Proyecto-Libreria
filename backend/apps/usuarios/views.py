@@ -327,7 +327,8 @@ El equipo de Librería Aurora
                     "last_name": "Nuevo Apellido",
                     "telefono": "+573001234567",
                     "direccion": "Nueva Dirección #123",
-                    "fecha_nacimiento": "1990-01-01"
+                    "fecha_nacimiento": "1990-01-01",
+                    "foto_perfil": "https://example.com/nueva_imagen.jpg",
                 }
             )
         ]
@@ -336,6 +337,14 @@ El equipo de Librería Aurora
     def actualizar_perfil(self, request):
         usuario = request.user
         serializer = self.get_serializer(usuario, data=request.data, partial=True)
+        
+        if 'perfil' in request.FILES:
+            # Verificar tamaño de imagen si deseas (opcional)
+            if request.FILES['foto_perfil'].size > 2 * 1024 * 1024:
+                return Response(
+                    {"error": "La imagen no debe exceder 2MB"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         if serializer.is_valid():
             serializer.save()

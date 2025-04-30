@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, FileExtensionValidator
 import uuid
 from datetime import timedelta
 from django.utils import timezone
@@ -40,7 +40,13 @@ class Usuario(AbstractUser):
         blank=True,
         null=True
     )
-    foto_perfil = models.ImageField(upload_to='fotos_perfil/', blank=True, null=True)
+    foto_perfil = models.ImageField(
+        upload_to='perfiles/',
+        validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'webp'])],
+        blank=True,
+        null=True,
+        help_text='Foto de perfil (formatos: JPG, PNG, WebP)'
+    )
     nacionalidad = models.TextField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)

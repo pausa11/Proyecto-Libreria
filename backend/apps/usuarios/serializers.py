@@ -27,6 +27,12 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
             'first_name', 'last_name', 'telefono',
             'direccion', 'fecha_nacimiento'
         )
+    
+    def get_foto_perfil_url(self, usuario):
+        """Devuelve la foto de perfil del usuario"""
+        if usuario.foto_perfil:
+            return usuario.foto_perfil.url
+        return None    
         
     def validate(self, attrs):
         # Aquí se pueden agregar validaciones específicas si es necesario
