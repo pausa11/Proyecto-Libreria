@@ -247,7 +247,7 @@ class AutenticacionViewSet(viewsets.GenericViewSet):
             token = token_obj.token
             
             # Enviar email con el token
-            frontend_url = "https://proyecto-libreria-k9xr.onrender.com/reset-password"
+            frontend_url = "https://pausa11.github.io/Proyecto-Libreria/#/reset-password"
             reset_url = f"{frontend_url}?token={token}"
             
             # Construir mensaje de correo
