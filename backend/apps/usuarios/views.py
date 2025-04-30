@@ -329,7 +329,6 @@ El equipo de Librería Aurora
                     "telefono": "+573001234567",
                     "direccion": "Nueva Dirección #123",
                     "fecha_nacimiento": "1990-01-01",
-                    "foto_perfil": "https://example.com/nueva_imagen.jpg",
                 }
             )
         ]
@@ -339,8 +338,8 @@ El equipo de Librería Aurora
         usuario = request.user
         serializer = self.get_serializer(usuario, data=request.data, partial=True)
         
-        if 'perfil' in request.FILES:
-            # Verificar tamaño de imagen si deseas (opcional)
+        if 'foto_perfil' in request.FILES:
+            # Verificar tamaño de imagen (opcional)
             if request.FILES['foto_perfil'].size > 2 * 1024 * 1024:
                 return Response(
                     {"error": "La imagen no debe exceder 2MB"}, 

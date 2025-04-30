@@ -2,10 +2,19 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator, FileExtensionValidator
 import uuid
+import os
 from datetime import timedelta
 from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField
 from apps.libros.models import Categoria, Libro
+
+def user_profile_image_path(instance, filename):
+    # Obtener la extensión del archivo original
+    ext = filename.split('.')[-1]
+    # Crear un nombre de archivo usando el username y un identificador único
+    filename = f"{instance.username}_{uuid.uuid4().hex[:8]}.{ext}"
+    # Devolver la ruta donde se guardará
+    return os.path.join('perfiles', filename)
 
 class Usuario(AbstractUser):
     TIPO_USUARIO_CHOICES = [
@@ -43,7 +52,7 @@ class Usuario(AbstractUser):
         null=True
     )
     foto_perfil = models.ImageField(
-        upload_to='perfiles/',
+        upload_to=user_profile_image_path,
         validators=[FileExtensionValidator(['jpg', 'jpeg', 'png', 'webp'])],
         blank=True,
         null=True,
@@ -70,6 +79,20 @@ class Usuario(AbstractUser):
     def nombre_completo(self):
         return self.get_full_name() or self.username
 
+    def save(self, *args, **kwargs):
+        # Si se está actualizando un objeto existente y hay una nueva foto de perfil
+        if self.pk and 'foto_perfil' in kwargs.get('update_fields', []):
+            # Obtener el objeto antiguo desde la base de datos
+            try:
+                old_instance = Usuario.objects.get(pk=self.pk)
+                # Si tenía una foto, eliminarla
+                if old_instance.foto_perfil and old_instance.foto_perfil.name != self.foto_perfil.name:
+                    if os.path.isfile(old_instance.foto_perfil.path):
+                        os.remove(old_instance.foto_perfil.path)
+            except Usuario.DoesNotExist:
+                pass
+        
+        super().save(*args, **kwargs)
 
 class UsuarioPreferencias(models.Model):
     """
