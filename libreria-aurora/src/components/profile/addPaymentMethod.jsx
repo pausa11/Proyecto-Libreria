@@ -53,7 +53,7 @@ function AddPaymentMethod({ onBack }) {
       const payload = {
         ...newCard,
         usuario_id: usuarioId,
-        usuario: usuarioId, // ✅ incluir ambos campos según error del backend
+        usuario: usuarioId, 
       };
   
       console.log("Enviando:", payload);
