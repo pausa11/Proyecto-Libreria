@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import NavBar from "./NavBar";
 
 import EditProfile from "./profile/editProfile";
+import ChangePassword from "./profile/ChangePassword";
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
@@ -12,7 +13,7 @@ function MiPerfil() {
       case 'editar perfil':
         return <EditProfile/>
       case 'cambiar contraseña':
-        return <p className="p-6 text-black text-lg">Aquí puedes cambiar tu contraseña.</p>;
+        return <ChangePassword/>;
       case 'gestion financiera':
         return <p className="p-6 text-black text-lg">Aquí ves tus movimientos financieros.</p>;
       case 'pedidos':
