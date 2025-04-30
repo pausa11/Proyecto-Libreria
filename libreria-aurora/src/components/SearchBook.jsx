@@ -7,7 +7,6 @@ import AOS from 'aos';
 
 function SearchBooks() {
   const navigate = useNavigate(); 
-
   const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
   const filtersArray = [
     { label: "Categoría", key: "categoria" },
@@ -79,7 +78,7 @@ function SearchBooks() {
       <NavBar />
 
       {activeFilter && (
-        <div className="mt-4 w-full max-w-[30vw] flex flex-col">
+        <div className="mt-4 w-full max-w-[30vw] flex flex-col p-[2vw]">
           <label className="text-white mb-2 capitalize">
             Valor para {filtersArray.find((f) => f.key === activeFilter)?.label}:
           </label>
@@ -90,8 +89,8 @@ function SearchBooks() {
             placeholder={`Ej: 1967, Vintage, 25.99`}
             className="p-2 rounded text-black"
           />
-          <button onClick={applyFilter} className="bg-[#3B4CBF] mt-2 text-white py-2 rounded">
-            Aplicar filtro
+          <button onClick={applyFilter} className="bg-[#E8BD83] mt-2 text-black py-2 rounded">
+            Buscar 
           </button>
         </div>
       )}
@@ -104,7 +103,7 @@ function SearchBooks() {
               key={key}
               onClick={() => handleFilterClick(key)}
               className={`${
-                activeFilter === key ? "bg-red-600" : "bg-[#E8BD83]"
+                activeFilter === key ? "bg-[#3B4CBF] text-white" : "bg-[#E8BD83]"
               } text-black p-2 rounded-lg transition duration-300 min-w-[7vw]`}
             >
               {label}
@@ -113,7 +112,7 @@ function SearchBooks() {
         </div>
       </div>
 
-      <div id="resultados" className="w-full flex flex-wrap gap-4 justify-between p-[2vw]">
+      <div id="resultados" className="w-full flex flex-wrap gap-4 items-left p-[2vw]">
         {filteredBooks.length === 0 ? (
           <p className="text-white">No se encontraron libros.</p>
         ) : (
