@@ -8,13 +8,13 @@ import AOS from 'aos';
 
 const Home = () => {
   const navigate = useNavigate();
+  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
+
   const [books, setBooks] = useState([]);
   const [popularBooks, setPopularBooks] = useState([]);
   const [recentBooks, setRecentBooks] = useState([]);
   const [threeRandomBooks, setThreeRandomBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
 
   useEffect(() => {
     AOS.init({
@@ -27,7 +27,6 @@ const Home = () => {
     });
   }, []);
 
-  // Fetch books from backend
   const fetchBooks = async () => {
     try {
       const response = await fetch(backendURL);
@@ -43,7 +42,6 @@ const Home = () => {
     }
   };
 
-  // Helper function to get random books
   const getRandomBooks = (sourceBooks, count) => {
     if (!sourceBooks.length) return [];
     const uniqueBooks = new Set();
@@ -94,6 +92,7 @@ const Home = () => {
 
   return (
     <div id="home" className="w-full min-h-screen overflow-auto">
+      
       <NavBar />
 
       <div id="tiendas" className="bg-[#1B2459] w-full h-[50%] p-[2vw]" data-aos="zoom-in">

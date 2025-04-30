@@ -56,7 +56,7 @@ class Carrito(models.Model):
             }
 
 class Prestamo(models.Model):
-    libro = models.ForeignKey(Libro, on_delete=models.CASCADE)
+    libros = models.ManyToManyField(Libro, blank=True, related_name='prestamos')
     fecha_prestamo = models.DateTimeField(auto_now_add=True)
     fecha_expiracion = models.DateTimeField()
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
@@ -74,16 +74,16 @@ class Prestamo(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Prestamo de {self.libro.titulo} a {self.usuario.username}"
+        return f"Prestamo de {self.libros.titulo} a {self.usuario.username}"
     
-    def ReservarLibro(libroReservado):
+    def ReservarLibro(self, libroReservado):
         librosrepetidos = 0
-        for libro in self.libros:
+        for libro in self.libros.all():
             if libroReservado.titulo == libro.titulo:
                 librosrepetidos +=1
             
         if librosrepetidos < 3 and self.libros.count() <= 5:
-            self.libro.append(libroReservado)
+            self.libros.append(libroReservado)
         else:
             return "No puedes reservar más libros de este tipo o has alcanzado el límite de libros prestados."
         
