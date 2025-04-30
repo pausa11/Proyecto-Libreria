@@ -42,7 +42,7 @@ function NavBar() {
             }
 
             const data = await response.json();
-            console.log("Datos de usuario:", data);
+            // console.log("Datos de usuario:", data);
             setUserName(data.username);
         } catch (error) {
             console.error("Error fetching user data:", error);
