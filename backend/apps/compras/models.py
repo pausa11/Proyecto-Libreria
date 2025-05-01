@@ -2,10 +2,10 @@ from django.db import models
 from apps.libros.models import Libro
 from apps.usuarios.models import Usuario
 from apps.finanzas.models import Saldo
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 class Carrito(models.Model):
-    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
     libros = models.ManyToManyField(Libro, blank=True, related_name='carritos')
     fecha = models.DateTimeField(auto_now_add=True)
     
@@ -40,7 +40,7 @@ class Carrito(models.Model):
         """Método para implementar la funcionalidad de pago"""
         # Esta es una implementación básica que se expandirá más adelante
         total = self.total()
-        saldo = Saldo.objects.get(usuario=self.user)
+        saldo = Saldo.objects.get(usuario=self.usuario)
         if saldo.mostrar_saldo() < total:
             return {
                 "estado": "error",
@@ -59,7 +59,7 @@ class Prestamo(models.Model):
     libros = models.ManyToManyField(Libro, blank=True, related_name='prestamos')
     fecha_prestamo = models.DateTimeField(auto_now_add=True)
     fecha_expiracion = models.DateTimeField()
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='prestamos')
     estado_choices = [
         ('Activa', 'Activa'),
         ('Cancelado', 'Cancelado'),
@@ -68,13 +68,12 @@ class Prestamo(models.Model):
 
     
     def save(self, *args, **kwargs):
-        # Sumar un día a la fecha de expiración antes de guardar
-        if not self.fecha_expiracion:  # Si fecha_expiracion no tiene valor
-            self.fecha_expiracion = self.fecha_prestamo + timedelta(days=1)
+        if not self.pk and not self.fecha_expiracion:  # Si es un nuevo objeto y no tiene fecha de expiración
+            self.fecha_expiracion = timezone.now() + timedelta(days=1)
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"Prestamo de {self.libros.titulo} a {self.usuario.username}"
+        return f"Préstamo #{self.id} - {self.fecha_prestamo.strftime('%Y-%m-%d')}"
     
     def ReservarLibro(self, libroReservado):
         librosrepetidos = 0
@@ -83,7 +82,8 @@ class Prestamo(models.Model):
                 librosrepetidos +=1
             
         if librosrepetidos < 3 and self.libros.count() <= 5:
-            self.libros.append(libroReservado)
+            self.libros.add(libroReservado)
+            return "Libro reservado con éxito."
         else:
             return "No puedes reservar más libros de este tipo o has alcanzado el límite de libros prestados."
         
@@ -91,8 +91,7 @@ class Prestamo(models.Model):
 
 class Historial(models.Model):
     fecha = models.DateTimeField()
-    libros = models.ManyToManyField(Libro, blank = True)
+    libros = models.ManyToManyField(Libro, blank = True, related_name='historiales')
 
-
-        
-                
+    def __str__(self):
+        return f"Historial #{self.id} - {self.fecha.strftime('%Y-%m-%d')}"

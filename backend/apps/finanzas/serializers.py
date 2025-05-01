@@ -22,5 +22,14 @@ class SaldoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saldo
         fields = '__all__'
+        
+class CambiarSaldoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Saldo
+        fields = ['saldo']
+    extra_kwargs = {
+        'saldo': {'required': True, 'allow_null': False}
+    }
+    
 
     

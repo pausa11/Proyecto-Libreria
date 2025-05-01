@@ -30,10 +30,10 @@ class Saldo(models.Model):
     saldo = models.DecimalField(max_digits=10, decimal_places=2)
 
     def modificar_saldo(self, cantidad):
-        if self.usuario.tarjeta.numero == None:
-            return "No tienes tarjeta registrada, no puedes modificar el saldo."
+        if not hasattr(self.usuario, 'tarjeta'):
+            raise ValueError("El usuario no tiene una tarjeta asociada.")
         
-        self.saldo = cantidad
+        self.saldo += int(cantidad)
         self.save()
     
     def mostrar_saldo(self):

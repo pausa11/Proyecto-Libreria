@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Tarjeta, Saldo
-from .serializers import TarjetaSerializer, SaldoSerializer
+from .serializers import CambiarSaldoSerializer, TarjetaSerializer, SaldoSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema
@@ -21,47 +21,69 @@ class TarjetaViewSet(viewsets.ModelViewSet):
     ordering_fields = ['numero']
 
     @extend_schema(
-        description="Muestra la información de la tarjeta",
+        description="Muestra la información de la tarjeta del usuario registrado",
         responses={200: TarjetaSerializer, 404: None}
     )
-    @action(detail=True, methods=['get'])
-    def mostrar_informacion(self, request, pk=None):
+    @action(detail=False, methods=['get'])
+    def mostrar_informacion(self, request):
         try:
-            tarjeta = self.get_object()
-            return Response({"informacion": tarjeta.mostrar_informacion()})
+            tarjeta = Tarjeta.objects.get(usuario=request.user)
+            return Response(TarjetaSerializer(tarjeta).data, status=status.HTTP_200_OK)
         except Tarjeta.DoesNotExist:
             return Response({"error": "Tarjeta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
     
     @extend_schema(
-        description="Actualiza la información de la tarjeta",
+        description="Actualiza la información de la tarjeta del usuario registrado",
         request=TarjetaSerializer,
         responses={200: TarjetaSerializer, 400: None}
     )
-    @action(detail=True, methods=['put'])
-    def actualizar_informacion(self, request, pk=None):
+    @action(detail=False, methods=['put'])
+    def actualizar_informacion(self, request):
         try:
-            tarjeta = self.get_object()
+            tarjeta = Tarjeta.objects.get(usuario=request.user)
             tarjeta.modificar_informacion(
                 numero=request.data.get('numero'),
                 fecha_expiracion=request.data.get('fecha_expiracion'),
                 cvv=request.data.get('cvv'),
                 titular=request.data.get('titular')
             )
-            tarjeta.save()
-            return Response(self.get_serializer(tarjeta).data, status=status.HTTP_200_OK)
-        except:
-            return Response({"error": "Error al actualizar la tarjeta"}, status=status.HTTP_400_BAD_REQUEST)
-    
-
+            return Response(TarjetaSerializer(tarjeta).data, status=status.HTTP_200_OK)
+        except Tarjeta.DoesNotExist:
+            return Response({"error": "Tarjeta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
         
 
 class SaldoViewSet(viewsets.ModelViewSet): 
     """
     API endpoint para gestionar saldos.
     """
-    queryset = Saldo.objects.all()
+    
+    permision_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = SaldoSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    filterset_fields = ['saldo']
-    search_fields = ['saldo']
-    ordering_fields = ['saldo']
+    
+    @extend_schema(
+        description="Muestra el saldo del usuario registrado",
+        responses={200: SaldoSerializer, 404: None}
+    )
+    @action(detail=False, methods=['get'])
+    def mostrar_saldo(self, request):
+        try:
+            saldo = Saldo.objects.get(usuario=request.user)
+            return Response({"saldo": saldo.mostrar_saldo()})
+        except Saldo.DoesNotExist:
+            return Response({"error": "Saldo no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @extend_schema(
+        description="Recarga el saldo del usuario registrado",
+        request=CambiarSaldoSerializer,
+        responses={200: SaldoSerializer, 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def cambiar_saldo(self, request):
+        try:
+            saldo = Saldo.objects.get(usuario=request.user)
+            saldo.modificar_saldo(request.data.get('saldo'))
+            saldo.save()
+            return Response(self.get_serializer(saldo).data, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
