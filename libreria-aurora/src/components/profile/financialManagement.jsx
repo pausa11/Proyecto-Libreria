@@ -10,10 +10,11 @@ function FinancialManagement() {
     const [saldo, setSaldo] = useState(0);
     const [historialTransacciones, setHistorialTransacciones] = useState([]);
     const [historialLoading, setHistorialLoading] = useState(false);
+    const [selectedCard, setSelectedCard] = useState(null);
     
     const baseUrl = "https://proyecto-libreria-k9xr.onrender.com/api";
     
-    // Montos predefinidos para las recargas
+    // Montos predefinidos para las recargas (solo valores enteros)
     const montosPredefinidos = [10, 25, 50, 100, 200];
 
     const fetchCard = async () => {
@@ -35,8 +36,11 @@ function FinancialManagement() {
 
             if (response.ok) {
                 const data = await response.json();
-                if (data && data.length > 0) {
-                    setCard(data[0]);
+                // Filtramos solo tarjetas activas
+                const tarjetasActivas = data.filter(tarjeta => tarjeta.activa !== false);
+                
+                if (tarjetasActivas && tarjetasActivas.length > 0) {
+                    setCard(tarjetasActivas[0]);
                 } else {
                     setCard(null);
                 }
@@ -123,6 +127,15 @@ function FinancialManagement() {
             const token = localStorage.getItem("token");
             if (!token) return;
             
+            // Aseguramos que el monto sea un número entero
+            const montoEntero = Math.floor(Number(monto));
+            
+            if (isNaN(montoEntero) || montoEntero <= 0) {
+                toast.error("El monto debe ser un número entero positivo");
+                setLoadingTransaction(false);
+                return;
+            }
+            
             const response = await fetch(`${baseUrl}/finanzas/saldos/recargar_saldo/`, {
                 method: "POST",
                 headers: {
@@ -130,7 +143,7 @@ function FinancialManagement() {
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    monto: monto
+                    monto: montoEntero // Enviamos un entero en lugar de un float
                 })
             });
             
@@ -142,8 +155,14 @@ function FinancialManagement() {
                 // Actualizar historial después de la recarga
                 fetchHistorialTransacciones();
             } else {
-                const errorData = await response.json();
-                toast.error(errorData.error || "Error al recargar el saldo");
+                // Intentamos obtener el error del servidor
+                try {
+                    const errorData = await response.json();
+                    toast.error(errorData.error || "Error al recargar el saldo");
+                } catch (e) {
+                    // Si no podemos interpretar el error, mostramos un mensaje genérico
+                    toast.error(`Error de servidor: ${response.status}`);
+                }
             }
         } catch (error) {
             console.error("Error al recargar saldo:", error);
@@ -169,18 +188,23 @@ function FinancialManagement() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
+            // Ahora usamos el soft-delete en lugar del DELETE
             const response = await fetch(`${baseUrl}/finanzas/tarjetas/${card.id}/`, {
-                method: "DELETE",
+                method: "PATCH",
                 headers: {
+                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify({
+                    activa: false
+                })
             });
 
-            if (response.status === 204) {
+            if (response.ok) {
                 setCard(null);
                 toast.success("Tarjeta eliminada exitosamente");
             } else {
-                throw new Error("No se pudo eliminar");
+                throw new Error("No se pudo eliminar la tarjeta");
             }
         } catch (error) {
             console.error("Error eliminando tarjeta:", error);
@@ -188,14 +212,24 @@ function FinancialManagement() {
         }
     };
 
+    const handleEditCard = () => {
+        setSelectedCard(card);
+        setActiveSection("addCard");
+    };
+    
+    // Función para volver desde el formulario de tarjeta y actualizar datos
+    const handleBackFromCardForm = () => {
+        setActiveSection("main");
+        setSelectedCard(null);
+        fetchCard(); // Actualizar la información de la tarjeta
+    };
+
     if (activeSection === "addCard") {
         return (
             <div className="p-6 md:p-10">
                 <AddPaymentMethod
-                    onBack={() => {
-                        setActiveSection("main");
-                        fetchCard();
-                    }}
+                    onBack={handleBackFromCardForm}
+                    cardToEdit={selectedCard}
                 />
             </div>
         );
@@ -246,24 +280,30 @@ function FinancialManagement() {
                                         <p><strong>Número:</strong> **** **** **** {card.numero?.slice(-4)}</p>
                                         <p><strong>Vencimiento:</strong> {card.fecha_expiracion}</p>
                                     </div>
-                                    <button
-                                        onClick={handleDeleteCard}
-                                        className="text-red-600 font-medium"
-                                        title="Eliminar tarjeta"
-                                    >
-                                        Eliminar
-                                    </button>
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={handleEditCard}
+                                            className="text-blue-600 font-medium block"
+                                            title="Editar tarjeta"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            onClick={handleDeleteCard}
+                                            className="text-red-600 font-medium block"
+                                            title="Eliminar tarjeta"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
                         
-                        {card && (
-                            <button 
-                                onClick={() => setActiveSection("addCard")} 
-                                className="text-[#3B4CBF] border border-[#3B4CBF] px-4 py-2 rounded w-full md:w-auto"
-                            >
-                                Actualizar tarjeta
-                            </button>
+                        {!card && (
+                            <p className="text-sm text-gray-500 mt-4">
+                                Registrar una tarjeta le permitirá recargar su saldo para realizar compras.
+                            </p>
                         )}
                     </div>
                     
@@ -275,6 +315,7 @@ function FinancialManagement() {
                             <p className="text-3xl font-bold text-[#2B388C]">
                                 ${Number(saldo).toLocaleString()}
                             </p>
+                            <p className="text-sm text-gray-500 mt-1">Saldo actual en su cuenta</p>
                         </div>
                         
                         <div>
@@ -294,7 +335,11 @@ function FinancialManagement() {
                                             key={monto}
                                             onClick={() => handleRecargarSaldo(monto)}
                                             disabled={loadingTransaction}
-                                            className="bg-[#3B4CBF] hover:bg-[#2B388C] text-white py-2 px-4 rounded-md transition-colors"
+                                            className={`py-2 px-4 rounded-md transition-colors ${
+                                                loadingTransaction 
+                                                ? "bg-gray-400 cursor-not-allowed" 
+                                                : "bg-[#3B4CBF] hover:bg-[#2B388C] text-white"
+                                            }`}
                                         >
                                             ${monto}
                                         </button>
@@ -339,13 +384,16 @@ function FinancialManagement() {
                                                     'bg-red-100 text-red-800'
                                                 }`}
                                             >
-                                                {transaccion.tipo_transaccion_display}
+                                                {transaccion.tipo_transaccion_display || 
+                                                 (transaccion.tipo_transaccion === 'RECARGA' ? 'Recarga' : 
+                                                  transaccion.tipo_transaccion === 'COMPRA' ? 'Compra' : 
+                                                  'Ajuste')}
                                             </span>
                                         </td>
                                         <td className={`py-3 px-3 font-medium ${
                                             transaccion.tipo_transaccion === 'RECARGA' ? 'text-green-600' : 'text-red-600'
                                         }`}>
-                                            {transaccion.tipo_transaccion === 'RECARGA' ? '+' : '-'}${Number(transaccion.monto).toLocaleString()}
+                                            {transaccion.tipo_transaccion === 'RECARGA' ? '+' : '-'}${Number(transaccion.monto).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                         </td>
                                         <td className="py-3 px-3">${Number(transaccion.saldo_resultante).toLocaleString()}</td>
                                     </tr>
