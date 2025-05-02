@@ -1,12 +1,15 @@
 from rest_framework import viewsets, status
-from .models import Tarjeta, Saldo
-from .serializers import CambiarSaldoSerializer, TarjetaSerializer, SaldoSerializer
+from .models import Tarjeta, Saldo, HistorialSaldo
+from .serializers import (
+    CambiarSaldoSerializer, TarjetaSerializer, SaldoSerializer, 
+    RecargaSaldoSerializer, DescontarSaldoSerializer, HistorialSaldoSerializer
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from rest_framework.response import Response
-
-# Create your views here.
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 class TarjetaViewSet(viewsets.ModelViewSet):
     """
@@ -120,31 +123,95 @@ class SaldoViewSet(viewsets.ModelViewSet):
             return Response({"saldo": saldo.mostrar_saldo()})
     
     @extend_schema(
-        description="Recarga el saldo del usuario registrado",
-        request=CambiarSaldoSerializer,
-        responses={200: SaldoSerializer, 400: None}
+        description="Recarga el saldo del usuario con un monto específico",
+        request=RecargaSaldoSerializer,
+        responses={200: {"properties": {"saldo": {"type": "number"}, "mensaje": {"type": "string"}}}, 400: None, 404: None}
     )
     @action(detail=False, methods=['post'])
-    def cambiar_saldo(self, request):
+    def recargar_saldo(self, request):
         try:
+            # Primero verificamos si el usuario tiene una tarjeta registrada
+            if not Tarjeta.objects.filter(usuario=request.user).exists():
+                return Response({
+                    "error": "Debe registrar una tarjeta antes de poder recargar saldo"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Validamos los datos con el serializer
+            serializer = RecargaSaldoSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            monto = serializer.validated_data['monto']
+            
             # Intentamos obtener el saldo existente
             try:
                 saldo = Saldo.objects.get(usuario=request.user)
             except Saldo.DoesNotExist:
                 # Si no existe, creamos uno nuevo con saldo cero
                 saldo = Saldo.objects.create(usuario=request.user, saldo=0)
-            
-            monto = request.data.get('saldo')
-            
-            if monto is None:
-                return Response({"error": "Debe proporcionar un monto"}, status=status.HTTP_400_BAD_REQUEST)
                 
+            # Recargamos el saldo utilizando el método que valida y registra
             try:
-                monto = float(monto)  # Convertir a número
-                saldo.saldo += monto  # Sumamos el monto al saldo actual
-                saldo.save()
-                return Response({"saldo": saldo.saldo}, status=status.HTTP_200_OK)
-            except ValueError as e:
+                nuevo_saldo = saldo.recargar_saldo(monto)
+                return Response({
+                    "saldo": nuevo_saldo,
+                    "mensaje": f"Se ha recargado ${monto} a su saldo correctamente"
+                }, status=status.HTTP_200_OK)
+            except ValidationError as e:
                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @extend_schema(
+        description="Descuenta saldo del usuario (para compras)",
+        request=DescontarSaldoSerializer,
+        responses={200: {"properties": {"saldo": {"type": "number"}, "mensaje": {"type": "string"}}}, 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def descontar_saldo(self, request):
+        try:
+            # Validamos los datos con el serializer
+            serializer = DescontarSaldoSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            monto = serializer.validated_data['monto']
+            
+            # Intentamos obtener el saldo existente
+            try:
+                saldo = Saldo.objects.get(usuario=request.user)
+            except Saldo.DoesNotExist:
+                return Response({
+                    "error": "No tiene saldo disponible"
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Descontamos el saldo utilizando el método que valida
+            try:
+                nuevo_saldo = saldo.descontar_saldo(monto)
+                return Response({
+                    "saldo": nuevo_saldo,
+                    "mensaje": f"Se ha descontado ${monto} de su saldo correctamente"
+                }, status=status.HTTP_200_OK)
+            except ValidationError as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+                
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class HistorialSaldoViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint para consultar el historial de transacciones de saldo.
+    """
+    serializer_class = HistorialSaldoSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Limita el historial al del usuario autenticado
+        """
+        # Si es superuser, puede ver todas las transacciones
+        if self.request.user.is_superuser:
+            return HistorialSaldo.objects.all()
+        # Si es usuario normal, solo ve sus transacciones
+        return HistorialSaldo.objects.filter(usuario=self.request.user)

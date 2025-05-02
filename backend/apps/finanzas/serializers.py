@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from apps.usuarios.models import Usuario
-from .models import Tarjeta, Saldo
+from .models import Tarjeta, Saldo, HistorialSaldo
 
 class TarjetaSerializer(serializers.ModelSerializer):
     # Eliminamos el campo usuario_id para evitar conflictos
@@ -41,7 +41,21 @@ class SaldoSerializer(serializers.ModelSerializer):
             if 'usuario' not in validated_data:
                 validated_data['usuario'] = request.user
         return super().create(validated_data)
-        
+
+class RecargaSaldoSerializer(serializers.Serializer):
+    monto = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0.01)
+
+class DescontarSaldoSerializer(serializers.Serializer):
+    monto = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0.01)
+
+class HistorialSaldoSerializer(serializers.ModelSerializer):
+    tipo_transaccion_display = serializers.CharField(source='get_tipo_transaccion_display', read_only=True)
+    
+    class Meta:
+        model = HistorialSaldo
+        fields = ['id', 'fecha', 'tipo_transaccion', 'tipo_transaccion_display', 'monto', 'saldo_resultante', 'descripcion']
+        read_only_fields = ('fecha', 'tipo_transaccion', 'monto', 'saldo_resultante')
+
 class CambiarSaldoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saldo

@@ -1544,3 +1544,97 @@ Anteriormente, el sistema presentaba los siguientes problemas:
 La solución implementó una autenticación simplificada basada en tokens JWT, similar a la usada en el componente `ChangePassword.jsx`. Esta aproximación es más segura, simple y confiable, permitiendo al backend extraer automáticamente la identidad del usuario del token sin necesidad de enviar IDs explícitamente.
 
 También se realizó una migración desde endpoints personalizados a endpoints estándar RESTful, garantizando una integración más robusta entre frontend y backend.
+
+
+# [2025-05-02] Reestructuración y Optimización del Sistema de Gestión de Saldos
+
+## Commit: Implementación de un sistema de gestión de saldos robusto y mejorado
+
+## Resumen
+Se ha realizado una reestructuración completa del sistema de gestión de saldos para corregir problemas críticos, mejorar la lógica de negocio y proporcionar una experiencia de usuario más intuitiva. Los cambios principales incluyen la separación clara entre gestión de tarjetas y saldos, implementación de botones de montos predefinidos, validación de tipos de datos y registro de transacciones.
+
+## Problemas resueltos
+1. **Errores de tipo en backend**: Se solucionó el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" mediante conversión explícita de tipos
+2. **Saldos negativos**: Se implementó validación para impedir la introducción de valores negativos
+3. **Operaciones sin tarjeta**: Se añadió verificación de tarjeta registrada antes de permitir recargas
+4. **Interfaz confusa**: Se separó visualmente la gestión de tarjetas y saldos
+5. **Entrada manual propensa a errores**: Se reemplazaron los campos libres por botones con montos predefinidos
+6. **Falta de registro**: Se implementó un historial de transacciones completo
+
+## Cambios en Backend
+
+### Modelos
+- **Nuevo modelo `HistorialSaldo`**: Se creó para registrar todas las transacciones con metadatos
+- **Mejora del modelo `Saldo`**: 
+  - Nuevo método `recargar_saldo()` que valida montos positivos y registra la transacción
+  - Nuevo método `descontar_saldo()` que verifica saldo suficiente antes de procesar
+  - Conversión robusta de tipos utilizando `Decimal` para evitar errores de operaciones matemáticas
+  - Validación y redondeo de valores a números enteros
+
+### Serializers
+- **Nuevos serializers**:
+  - `RecargaSaldoSerializer`: Validación de montos positivos
+  - `DescontarSaldoSerializer`: Validación de operaciones de compra
+  - `HistorialSaldoSerializer`: Exposición de historial de transacciones
+
+### Endpoints
+- **Nuevos endpoints**:
+  - `/api/finanzas/saldos/recargar_saldo/`: Para recargas seguras de saldo
+  - `/api/finanzas/saldos/descontar_saldo/`: Para realizar compras
+  - `/api/finanzas/historial/`: Acceso al historial de transacciones
+- **Validaciones de seguridad**:
+  - Verificación de tarjeta registrada antes de permitir recargas
+  - Prevención de montos negativos
+  - Verificación de saldo suficiente para compras
+
+## Cambios en Frontend
+
+### financialManagement.jsx
+- **Interfaz rediseñada**:
+  - Separación visual entre gestión de tarjetas y gestión de saldo
+  - Diseño moderno con tarjetas independientes para cada sección
+  - Visualización mejorada del saldo actual
+- **Botones de monto predefinido**:
+  - Implementación de botones con montos fijos ($10, $25, $50, $100, $200)
+  - Eliminación del campo de texto libre propenso a errores
+  - Conversión explícita a enteros mediante `Math.floor()` para evitar decimales
+- **Historial de transacciones**:
+  - Nueva sección que muestra todas las transacciones realizadas
+  - Formato tabular con fecha, tipo, monto y saldo resultante
+  - Diferenciación visual por tipo de transacción (recarga/compra)
+- **Manejo de errores robusto**:
+  - Validación local antes de enviar datos al servidor
+  - Captura y visualización clara de errores del servidor
+  - Estados de carga para mejorar experiencia de usuario
+
+## Beneficios principales
+1. **Mayor coherencia**: El sistema ahora requiere una tarjeta antes de poder recargar saldo
+2. **Proceso simplificado**: Recargas rápidas con montos predefinidos que elimina errores de entrada
+3. **Transparencia**: Historial completo de todas las operaciones realizadas
+4. **Seguridad**: Validaciones en frontend y backend para prevenir operaciones inválidas
+5. **Experiencia de usuario**: Interfaz más clara con secciones bien definidas
+6. **Previsibilidad**: Solo se permiten montos enteros y positivos para recargas
+
+## Implementación técnica
+- **Defensa en profundidad**: Validación en cliente y servidor para máxima robustez
+- **Manejo de tipos**: Conversión explícita entre float y Decimal para evitar errores de tipo
+- **Patrón de diseño**: Separación clara de responsabilidades entre modelos, vistas y componentes
+- **Registro de transacciones**: Modelo dedicado para auditoría y seguimiento de operaciones
+
+## Estado actual del sistema ✅
+- **Gestión de tarjetas**: Completamente funcional con validaciones
+- **Recargas de saldo**: Implementadas con botones de montos predefinidos
+- **Historial de transacciones**: Registro completo de todas las operaciones
+- **Integración**: Sistema interconectado con el módulo de usuarios
+- **Seguridad**: Validaciones robustas en todos los niveles
+
+## Próximos pasos 🚧
+1. Integrar completamente con el módulo de compras para procesar pagos
+2. Implementar notificaciones por email para transacciones importantes
+3. Añadir funcionalidad de exportación del historial de transacciones
+4. Desarrollar dashboard con estadísticas de uso del saldo
+
+## Notas técnicas
+- La solución implementada resuelve específicamente el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" mediante conversión explícita de tipos
+- Se ha implementado un sistema de redondeo para asegurar valores enteros en las transacciones
+- Todas las transacciones quedan registradas con su respectivo tipo, monto y saldo resultante
