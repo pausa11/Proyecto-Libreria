@@ -111,15 +111,14 @@ python manage.py makemigrations mensajeria
 # Aplicar migraciones
 python manage.py migrate
 
-🔁 1. Deshacer migraciones marcándolas como "falsamente deshechas"
+#🔁 1. Deshacer migraciones marcándolas como "falsamente deshechas"
 
 python manage.py migrate compras zero --fake
-¿Qué hace?: Marca la migración de la app compras como no aplicada, sin intentar deshacer cambios reales en la base de datos. Útil cuando hay migraciones aplicadas "lógicamente", pero las tablas no existen físicamente por algún error anterior.
+#¿Qué hace?: Marca la migración de la app compras como no aplicada, sin intentar deshacer cambios reales en la base de datos. Útil cuando hay migraciones aplicadas "lógicamente", pero las tablas no existen físicamente por algún error anterior.
 
-2. Deshacer todas las migraciones de una app
+# 2. Deshacer todas las migraciones de una app
 python manage.py migrate compras zero
-¿Qué hace?:Deshace todas las migraciones aplicadas a la app compras de manera real, eliminando las tablas que se hayan creado por esas migraciones en la base de datos.
-Esto es útil si quieres limpiar completamente las migraciones de una app y empezar desde cero, pero elimina las tablas de la base de datos.
+#¿Qué hace?:Deshace todas las migraciones aplicadas a la app compras de manera real, eliminando las tablas que se hayan creado por esas migraciones en la base de datos. Esto es útil si quieres limpiar completamente las migraciones de una app y empezar desde cero, pero elimina las tablas de la base de datos.
 ```
 
 #### Gestión de Datos

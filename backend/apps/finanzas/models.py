@@ -27,14 +27,17 @@ class Tarjeta(models.Model):
     
 class Saldo(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    saldo = models.DecimalField(max_digits=10, decimal_places=2)
+    saldo = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def modificar_saldo(self, cantidad):
-        if not hasattr(self.usuario, 'tarjeta'):
-            raise ValueError("El usuario no tiene una tarjeta asociada.")
-        
-        self.saldo += int(cantidad)
+        """
+        Modifica el saldo sumando la cantidad dada.
+        La cantidad puede ser positiva o negativa.
+        """
+        cantidad_float = float(cantidad)
+        self.saldo += cantidad_float
         self.save()
+        return self.saldo
     
     def mostrar_saldo(self):
         return self.saldo

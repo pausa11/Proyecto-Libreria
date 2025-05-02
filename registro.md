@@ -1306,7 +1306,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Configurar sistema de cola para envío asíncrono de correos
    - Añadir seguimiento de correos enviados
 
-   ## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
+## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
 
 ### feat(usuarios): Implementación de la visualización de la foto de perfil en el panel administrativo
 
@@ -1381,7 +1381,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
 
 
-   ## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
+## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
 
 ### feat(usuarios): Implementación y mejora de la gestión de preferencias de usuario
 
@@ -1474,96 +1474,73 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Permitir la eliminación de la foto de perfil.
    - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
 
-  [2025-05-01] Corrección y Mejora de los Módulos de Finanzas y Compras
-feat(finanzas): Mejora en la gestión de saldos y tarjetas
-Detalles del cambio:
-commit: Se corrigieron y optimizaron los métodos en los modelos Saldo y Tarjeta para mejorar la funcionalidad y la integración con el sistema de usuarios.
-Modificado: Método modificar_saldo en el modelo Saldo para validar correctamente la existencia de una tarjeta antes de modificar el saldo.
-Implementado: Manejo de excepciones en el método modificar_saldo para devolver mensajes de error claros.
-Optimizado: Serializador SaldoSerializer para exponer correctamente el campo usuario_id.
-Mejoras en la API:
-SaldoViewSet:
 
-Implementado manejo de errores en el método cambiar_saldo para capturar excepciones del modelo y devolver mensajes claros.
-Documentación mejorada con drf-spectacular para los endpoints relacionados con saldos.
-TarjetaViewSet:
+# [2025-05-01] Corrección y Mejora de los Módulos de Finanzas y Compras
 
-Implementado endpoint mostrar_informacion para obtener los datos de la tarjeta del usuario autenticado.
-Añadido manejo de errores para usuarios no autenticados o sin tarjeta asociada.
-Documentación API:
-Endpoints Disponibles:
+## Commit: Corrección y optimización del módulo de Finanzas
 
-GET /api/finanzas/tarjetas/mostrar_informacion/ - Muestra la información de la tarjeta del usuario autenticado.
-POST /api/finanzas/saldos/cambiar_saldo/ - Modifica el saldo del usuario autenticado.
-Swagger/OpenAPI:
+## Resumen
+Se han realizado correcciones significativas en el módulo de Finanzas para resolver problemas de recursión infinita, manejo de errores, y mejoras en la integración entre el frontend y backend. Los cambios optimizan el flujo de trabajo para la gestión de tarjetas y saldos, eliminando ambigüedades en los serializers y simplificando los modelos.
 
-Documentación completa de los endpoints con ejemplos de uso.
-Respuestas documentadas con códigos de estado y mensajes de error.
-fix(compras): Corrección del modelo Carrito y mejoras en la API
-Detalles del cambio:
-commit: Se corrigieron errores en el modelo Carrito y se mejoraron los métodos relacionados con la gestión de libros.
-Corregido: Campo usuario en el modelo Carrito para usar OneToOneField en lugar de ForeignKey.
-Implementado: Métodos agregar_libro, quitar_libro y limpiar_carrito para gestionar los libros en el carrito.
-Optimizado: Método pagar para validar el saldo del usuario antes de procesar el pago.
-Mejoras en la API:
-CarritoViewSet:
-Implementado manejo de errores en el método pagar para devolver mensajes claros en caso de saldo insuficiente.
-Documentación mejorada con drf-spectacular para los endpoints relacionados con el carrito.
-Documentación API:
-Endpoints Disponibles:
+## Cambios en Backend
 
-POST /api/compras/carrito/pagar/ - Procesa el pago del carrito del usuario autenticado.
-Swagger/OpenAPI:
+### Serializers
+- Se eliminó la ambigüedad entre los campos `usuario` y `usuario_id` en `TarjetaSerializer` y `SaldoSerializer`
+- Se configuró el campo `usuario` como opcional, permitiendo su asignación automática desde el token de autenticación
+- Se implementó el método `create()` para asignar automáticamente el usuario autenticado al crear objetos
 
-Documentación detallada del endpoint pagar con ejemplos de uso.
-Respuestas documentadas con códigos de estado y mensajes de error.
-fix(usuarios): Manejo de señales para la creación de saldos y carritos
-Detalles del cambio:
-commit: Se corrigieron y optimizaron las señales para la creación automática de saldos y carritos al registrar un nuevo usuario.
-Implementado: Validación del tipo de usuario antes de crear el saldo o el carrito.
-Optimizado: Manejo de excepciones para evitar errores en la creación de objetos relacionados.
-Mejoras en la API:
-Señales:
-crear_saldo_para_usuario: Crea un saldo inicial de 0 para usuarios del tipo LECTOR.
-crear_carrito_para_usuario: Crea un carrito vacío para usuarios del tipo LECTOR.
-Estado Actual del Sistema
-Módulos Completamente Funcionales ✅
-Finanzas:
+### Views
+- Se optimizaron los ViewSets para Tarjeta y Saldo con manejo adecuado de permisos 
+- Se implementó lógica para actualizar tarjetas existentes en lugar de fallar si ya existe una
+- Se añadió soporte para filtrar elementos por el usuario autenticado
+- Se mejoró el manejo de errores para devolver respuestas HTTP apropiadas
+- Se corrigió el endpoint `cambiar_saldo` para soportar la creación automática cuando no existe un saldo
 
-Modelos Tarjeta y Saldo completamente funcionales.
-API REST funcional con endpoints para tarjetas y saldos.
-Manejo de errores mejorado en los métodos del modelo y la API.
-Compras:
+### Models
+- Se simplificó el modelo `Saldo`, eliminando restricciones innecesarias
+- Se mejoró el método `modificar_saldo()` para un funcionamiento más robusto
+- Se agregaron valores por defecto para evitar errores con saldos nuevos
 
-Modelo Carrito completamente funcional.
-Métodos para gestionar libros en el carrito (agregar_libro, quitar_libro, limpiar_carrito).
-Método pagar implementado con validaciones de saldo.
-Usuarios:
+## Cambios en Frontend
 
-Señales para la creación automática de saldos y carritos al registrar un nuevo usuario.
-Mejoras en Infraestructura ✅
-Documentación API:
+### financialManagement.jsx
+- Se implementó un contador para limitar intentos de creación de saldo y evitar bucles infinitos
+- Se mejoró el manejo de errores para mostrar saldos por defecto (0) cuando no existe uno
+- Se optimizaron las peticiones al servidor para evitar llamadas recursivas infinitas
+- Se implementó un método más robusto `crearSaldoConValor()` para manejar errores 400 (Bad Request)
 
-Documentación completa de los endpoints en Swagger/OpenAPI.
-Ejemplos de uso incluidos para todos los endpoints.
-Manejo de Errores:
+### addPaymentMethod.jsx
+- Se añadió validación detallada para los datos de tarjeta antes de enviarlos al backend
+- Se corrigió el flujo para obtener explícitamente el ID del usuario antes de crear la tarjeta
+- Se implementó mejor manejo de errores para mostrar mensajes específicos al usuario
 
-Mensajes de error claros y específicos en los endpoints de finanzas y compras.
-Validaciones implementadas en los modelos y vistas.
-Próximos Pasos 🚧
-Completar pruebas unitarias:
+## Mejoras generales
+- Se implementaron mensajes de error más descriptivos y claros
+- Se optimizó la experiencia de usuario al mostrar valores por defecto en lugar de fallar
+- Se eliminó el spam de errores relacionados con la falta de tarjeta (comportamiento normal)
+- Se añadió manejo más resiliente de situaciones donde no hay tarjeta o saldo
+- Se simplificaron las peticiones al servidor para reducir la carga y evitar errores
 
-Implementar pruebas para los métodos del modelo Carrito.
-Validar el flujo completo de pago en el carrito.
-Optimizar consultas en la API:
+## Impacto
+Estos cambios solucionan el problema crítico de recursión infinita en `fetchSaldo()` y `crearSaldoInicial()`, así como los errores 400 Bad Request al crear tarjetas. El módulo de finanzas ahora funciona de manera robusta, permitiendo a los usuarios ver y gestionar su saldo correctamente incluso cuando no tienen una tarjeta registrada.
 
-Reducir el número de consultas a la base de datos en los ViewSets.
-Implementar select_related y prefetch_related donde sea necesario.
-Ampliar la funcionalidad del carrito:
+La interfaz ahora muestra un valor por defecto de $0 para el saldo cuando no existe uno, y maneja de forma elegante los escenarios donde el usuario aún no ha registrado una tarjeta.
 
-Implementar un sistema de reservas temporales para libros en el carrito.
-Añadir validaciones para evitar duplicados en el carrito.
-Mejorar la integración entre Finanzas y Compras:
+## Pruebas realizadas
+- Verificada la gestión correcta de saldos sin spamear errores
+- Comprobado el flujo de añadir tarjeta de pago
+- Validado el comportamiento de modificación de saldo
+- Confirmado que no se producen loops infinitos ni errores 400 (Bad Request)
 
-Implementar un sistema de transacciones para registrar los pagos realizados.
-Añadir un historial de compras para los usuarios.
+## Detalles técnicos
+
+### Problema anterior
+Anteriormente, el sistema presentaba los siguientes problemas:
+1. Recursión infinita entre `fetchSaldo()` y `crearSaldoInicial()`
+2. Errores 400 (Bad Request) al crear tarjetas debido a problemas con campos de usuario
+3. Uso de endpoints obsoletos o mal configurados (/mostrar_informacion/ y /mostrar_saldo/)
+
+### Solución implementada
+La solución implementó una autenticación simplificada basada en tokens JWT, similar a la usada en el componente `ChangePassword.jsx`. Esta aproximación es más segura, simple y confiable, permitiendo al backend extraer automáticamente la identidad del usuario del token sin necesidad de enviar IDs explícitamente.
+
+También se realizó una migración desde endpoints personalizados a endpoints estándar RESTful, garantizando una integración más robusta entre frontend y backend.
