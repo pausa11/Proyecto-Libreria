@@ -2,6 +2,7 @@ from django.db import models
 from apps.usuarios.models import Usuario
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from django.utils import timezone
 
 class Tarjeta(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
@@ -9,14 +10,21 @@ class Tarjeta(models.Model):
     fecha_expiracion = models.DateField()
     cvv = models.CharField(max_length=3)
     titular = models.CharField(max_length=100)
+    activa = models.BooleanField(default=True, help_text="Indica si la tarjeta está activa o ha sido 'eliminada'")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
     
     def mostrar_informacion(self):
+        """Muestra información básica de la tarjeta"""
         return f'{self.numero} - {self.titular}'
 
     def __str__(self):
         return self.mostrar_informacion()
     
     def modificar_informacion(self, numero=None, fecha_expiracion=None, cvv=None, titular=None):
+        """
+        Modifica la información de la tarjeta con los nuevos valores proporcionados
+        """
         if numero:
             self.numero = numero
         if fecha_expiracion:
@@ -25,7 +33,47 @@ class Tarjeta(models.Model):
             self.cvv = cvv
         if titular:
             self.titular = titular
+        
         self.save()
+        
+    def desactivar(self):
+        """
+        Desactiva la tarjeta en lugar de eliminarla físicamente
+        """
+        self.activa = False
+        self.save()
+    
+    def activar(self):
+        """
+        Reactiva una tarjeta previamente desactivada
+        """
+        self.activa = True
+        self.save()
+    
+    def clean(self):
+        """
+        Validaciones adicionales antes de guardar
+        """
+        # Validar formato del número de tarjeta
+        if self.numero and (len(self.numero) != 16 or not self.numero.isdigit()):
+            raise ValidationError({'numero': 'El número de tarjeta debe contener exactamente 16 dígitos'})
+            
+        # Validar formato del CVV
+        if self.cvv and (len(self.cvv) != 3 or not self.cvv.isdigit()):
+            raise ValidationError({'cvv': 'El CVV debe contener exactamente 3 dígitos'})
+            
+        # Validar que la fecha de expiración sea futura
+        if self.fecha_expiracion and self.fecha_expiracion < timezone.now().date():
+            raise ValidationError({'fecha_expiracion': 'La fecha de expiración debe ser futura'})
+    
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = "Tarjeta"
+        verbose_name_plural = "Tarjetas"
+        ordering = ['-fecha_registro']
     
 class Saldo(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
@@ -117,6 +165,10 @@ class Saldo(models.Model):
     
     def __str__(self):
         return f"Saldo de {self.usuario}: ${self.saldo}"
+    
+    class Meta:
+        verbose_name = "Saldo"
+        verbose_name_plural = "Saldos"
 
 class HistorialSaldo(models.Model):
     """
@@ -137,6 +189,8 @@ class HistorialSaldo(models.Model):
     
     class Meta:
         ordering = ['-fecha']
+        verbose_name = "Historial de saldo"
+        verbose_name_plural = "Historiales de saldo"
         
     def __str__(self):
         return f"{self.tipo_transaccion}: {self.monto} - Usuario: {self.usuario} - Fecha: {self.fecha}"

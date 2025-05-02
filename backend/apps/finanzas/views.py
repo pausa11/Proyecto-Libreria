@@ -33,15 +33,53 @@ class TarjetaViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Asigna el usuario actual a la tarjeta al crearla
+        Asigna el usuario actual a la tarjeta al crearla.
+        Si ya existe una tarjeta para el usuario, la actualiza en lugar de crear una nueva.
         """
-        # Verificamos si ya existe una tarjeta para este usuario
-        if Tarjeta.objects.filter(usuario=self.request.user).exists():
-            # En lugar de fallar, actualizamos la tarjeta existente
-            old_tarjeta = Tarjeta.objects.get(usuario=self.request.user)
-            old_tarjeta.delete()
-            
-        serializer.save(usuario=self.request.user)
+        try:
+            # Verificamos si ya existe una tarjeta para este usuario
+            if Tarjeta.objects.filter(usuario=self.request.user).exists():
+                # En lugar de fallar, actualizamos la tarjeta existente
+                tarjeta_existente = Tarjeta.objects.get(usuario=self.request.user)
+                
+                # Actualizamos los campos con los nuevos valores
+                for attr, value in serializer.validated_data.items():
+                    setattr(tarjeta_existente, attr, value)
+                
+                tarjeta_existente.save()
+                return tarjeta_existente
+            else:
+                # Si no existe, creamos una nueva
+                serializer.save(usuario=self.request.user)
+        except Exception as e:
+            raise ValidationError(f"Error al gestionar la tarjeta: {str(e)}")
+
+    def update(self, request, *args, **kwargs):
+        """
+        Sobreescribe el método update para manejar la actualización de tarjetas.
+        Asegura que un usuario solo pueda actualizar su propia tarjeta.
+        """
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Verificar que el usuario sea el propietario de la tarjeta
+        if instance.usuario != self.request.user and not self.request.user.is_superuser:
+            return Response(
+                {"error": "No tienes permiso para actualizar esta tarjeta"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        """
+        Realiza la actualización de la tarjeta asegurando que el usuario sea correcto.
+        """
+        serializer.save()
 
     @extend_schema(
         description="Muestra la información de la tarjeta del usuario registrado",
@@ -58,22 +96,66 @@ class TarjetaViewSet(viewsets.ModelViewSet):
     @extend_schema(
         description="Actualiza la información de la tarjeta del usuario registrado",
         request=TarjetaSerializer,
-        responses={200: TarjetaSerializer, 400: None}
+        responses={200: TarjetaSerializer, 400: None, 404: None}
     )
-    @action(detail=False, methods=['put'])
+    @action(detail=False, methods=['put', 'patch'])
     def actualizar_informacion(self, request):
         try:
             tarjeta = Tarjeta.objects.get(usuario=request.user)
-            tarjeta.modificar_informacion(
-                numero=request.data.get('numero'),
-                fecha_expiracion=request.data.get('fecha_expiracion'),
-                cvv=request.data.get('cvv'),
-                titular=request.data.get('titular')
-            )
-            return Response(TarjetaSerializer(tarjeta).data, status=status.HTTP_200_OK)
+            
+            # Versión mejorada que usa el serializer para validación
+            serializer = self.get_serializer(tarjeta, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                
         except Tarjeta.DoesNotExist:
-            return Response({"error": "Tarjeta no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+            # Si no existe una tarjeta, intentamos crearla
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(usuario=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="Verifica si un número de tarjeta ya está registrado en el sistema",
+        parameters=[
+            OpenApiParameter(name='numero', description='Número de tarjeta a verificar', required=True, type=str)
+        ],
+        responses={
+            200: {"type": "object", "properties": {
+                "exists": {"type": "boolean", "description": "Indica si la tarjeta ya está registrada"},
+                "is_own": {"type": "boolean", "description": "Indica si la tarjeta pertenece al usuario actual"}
+            }}
+        }
+    )
+    @action(detail=False, methods=['get'])
+    def verificar_tarjeta(self, request):
+        numero = request.query_params.get('numero')
+        if not numero:
+            return Response(
+                {"error": "Debe proporcionar un número de tarjeta"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
+        # Verificamos si la tarjeta existe
+        tarjeta_existe = Tarjeta.objects.filter(numero=numero).exists()
+        
+        # Verificamos si la tarjeta pertenece al usuario actual
+        es_propia = False
+        if tarjeta_existe:
+            es_propia = Tarjeta.objects.filter(
+                numero=numero, usuario=request.user
+            ).exists()
+        
+        return Response({
+            "existe": tarjeta_existe,
+            "es_propia": es_propia
+        })
+
 
 class SaldoViewSet(viewsets.ModelViewSet): 
     """
