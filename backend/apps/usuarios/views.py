@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from django.core.mail import send_mail
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from .serializers import (
+    ListaPreferenciasSerializer,
     PreferenciasUsuarioPorCategoriauAutorSerializer,
     UsuarioSerializer,
     UsuarioRegistroSerializer,
@@ -17,7 +18,7 @@ from .serializers import (
     ValidarTokenSerializer,
     RestablecerContraseñaSerializer
 )
-from .models import UsuarioPreferencias, TokenRecuperacionPassword
+from .models import UsuarioPreferencias, TokenRecuperacionPassword, Libro, Categoria
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter, OpenApiExample
 from django.utils.http import urlencode
 
@@ -105,6 +106,8 @@ class UsuarioViewSet(viewsets.ModelViewSet):
             return ValidarTokenSerializer
         elif self.action == 'restablecer_contraseña':
             return RestablecerContraseñaSerializer
+        elif self.action == 'preferencias_libros':  # 👈 ¡ESTO ES LO QUE FALTABA!
+            return ListaPreferenciasSerializer
         return self.serializer_class
 
     @extend_schema(
@@ -497,3 +500,38 @@ El equipo de Librería Aurora
             return Response(serializer.data, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    @extend_schema(
+        description="GET: Lista las preferencias de libros. PUT: Reemplaza toda la lista.",
+        request=ListaPreferenciasSerializer,
+        responses={200: ListaPreferenciasSerializer}
+    )
+    @action(detail=False, methods=['get', 'put'], url_path='preferencias_libros')
+    def preferencias_libros(self, request):
+        usuario = request.user
+        preferencias_obj, _ = UsuarioPreferencias.objects.get_or_create(usuario=usuario)
+
+        if request.method == 'GET':
+            serializer = ListaPreferenciasSerializer(preferencias_obj)
+            return Response(serializer.data)
+
+        elif request.method == 'PUT':
+            serializer = ListaPreferenciasSerializer(data=request.data)
+            if serializer.is_valid():
+                nuevas_preferencias = serializer.validated_data['preferencias']
+                autores = set(Libro.objects.values_list('autor', flat=True))
+                categorias = set(Categoria.objects.values_list('nombre', flat=True))
+
+                for pref in nuevas_preferencias:
+                    if pref not in autores and pref not in categorias:
+                        return Response(
+                            {"error": f"'{pref}' no es un autor ni una categoría válida."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+
+                preferencias_obj.preferencias = nuevas_preferencias
+                preferencias_obj.save()
+                return Response(serializer.data)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
