@@ -79,7 +79,7 @@ function SearchBooks() {
       <NavBar />
 
       {activeFilter && (
-        <div className="mt-4 w-full max-w-[30vw] flex flex-col">
+        <div className="mt-4 w-full max-w-[30vw] flex flex-col p-[2vw]">
           <label className="text-white mb-2 capitalize">
             Valor para {filtersArray.find((f) => f.key === activeFilter)?.label}:
           </label>
@@ -104,7 +104,7 @@ function SearchBooks() {
               key={key}
               onClick={() => handleFilterClick(key)}
               className={`${
-                activeFilter === key ? "bg-red-600" : "bg-[#E8BD83]"
+                activeFilter === key ? "bg-[#3B4CBF] text-white" : "bg-[#E8BD83]"
               } text-black p-2 rounded-lg transition duration-300 min-w-[7vw]`}
             >
               {label}
