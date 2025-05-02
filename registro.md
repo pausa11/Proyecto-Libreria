@@ -1638,3 +1638,92 @@ Se ha realizado una reestructuración completa del sistema de gestión de saldos
 - La solución implementada resuelve específicamente el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" mediante conversión explícita de tipos
 - Se ha implementado un sistema de redondeo para asegurar valores enteros en las transacciones
 - Todas las transacciones quedan registradas con su respectivo tipo, monto y saldo resultante
+
+
+# [2025-05-03] Anexo: Documentación Técnica del Sistema de Saldos y Métodos de Pago
+
+## Estado Actual del Sistema de Gestión de Saldos y Métodos de Pago
+
+Este anexo complementa la documentación existente, proporcionando detalles específicos sobre el funcionamiento del sistema de saldos y su interacción con los métodos de pago.
+
+### Flujo Detallado de Actualización de Métodos de Pago
+
+El proceso de actualización de tarjeta (método de pago) sigue el siguiente flujo:
+
+1. **Verificación inicial:**
+   - El componente `financialManagement.jsx` verifica si el usuario tiene una tarjeta registrada mediante una llamada a `GET /api/finanzas/tarjetas/`
+   - Si existe una tarjeta, se muestra con los últimos 4 dígitos visibles y la opción "Actualizar tarjeta"
+   - Si no existe, se ofrece la opción "Agregar método de pago"
+
+2. **Proceso de actualización:**
+   - Al hacer clic en "Actualizar tarjeta", se carga el componente `addPaymentMethod.jsx`
+   - Este componente extrae los datos de la tarjeta actual y los pre-carga en el formulario
+   - La actualización se realiza mediante una solicitud `PUT /api/finanzas/tarjetas/{id}/`
+   - El backend utiliza la lógica optimizada implementada el 01/05/2025 para evitar conflictos
+
+3. **Validación de datos:**
+   - El frontend valida el formato del número de tarjeta (solo dígitos)
+   - Se verifica el formato de fecha de expiración (MM/YY)
+   - El campo CVV se valida para contener exactamente 3 dígitos
+   - El campo titular debe contener al menos nombre y apellido
+
+4. **Manejo de respuestas:**
+   - Éxito: Se muestra una notificación de éxito y se actualiza la visualización de la tarjeta
+   - Error: Se muestra un mensaje específico basado en el tipo de error recibido
+
+### Integración entre Sistema de Tarjetas y Saldo
+
+La integración entre el sistema de tarjetas y saldo funciona de la siguiente manera:
+
+1. **Verificación de tarjeta para operaciones de saldo:**
+   - Antes de realizar cualquier recarga, el endpoint `recargar_saldo` verifica la existencia de una tarjeta asociada al usuario
+   - Esta validación se implementa tanto en frontend como en backend para mayor seguridad
+   - Si no existe tarjeta, se muestra un mensaje indicando que debe registrarse una tarjeta primero
+
+2. **Flujo de recarga:**
+   - El usuario selecciona un monto predefinido ($10, $25, $50, $100 o $200)
+   - El frontend convierte el valor a entero mediante `Math.floor()`
+   - Se envía una solicitud `POST /api/finanzas/saldos/recargar_saldo/`
+   - El backend procesa la solicitud con el método `recargar_saldo()` del modelo `Saldo`
+   - Se registra la transacción en el historial con el tipo "RECARGA"
+
+3. **Flujo de descuento (pago):**
+   - Cuando se realiza una compra, se llama al método `pagar()` del modelo `Carrito`
+   - Este método obtiene el saldo del usuario y verifica si es suficiente
+   - Si hay fondos suficientes, llama al método `descontar_saldo()` del modelo `Saldo`
+   - Se registra la transacción en el historial con el tipo "COMPRA"
+
+### Detalles Técnicos Adicionales sobre Manejo de Tipos
+
+Un aspecto crucial de la implementación es la conversión robusta entre tipos de datos:
+
+```python
+# Fragmento de código del método recargar_saldo() que maneja la conversión de tipos
+if isinstance(cantidad, float) or isinstance(cantidad, int) or isinstance(cantidad, str):
+    cantidad_decimal = Decimal(str(cantidad))
+elif isinstance(cantidad, Decimal):
+    cantidad_decimal = cantidad
+else:
+    raise ValidationError(f"Tipo de dato no soportado: {type(cantidad)}")
+```
+
+Esta implementación resuelve específicamente el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" que ocurría anteriormente cuando se intentaba sumar un valor float al campo saldo que es de tipo Decimal.
+
+### Sistema de Auditoría y Registro de Transacciones
+
+El modelo `HistorialSaldo` implementa un sistema completo de auditoría que registra:
+
+1. **Metadatos de cada transacción:**
+   - Usuario que realizó la transacción
+   - Fecha y hora exacta
+   - Tipo de transacción (RECARGA, COMPRA, AJUSTE)
+   - Monto de la operación
+   - Saldo resultante tras la operación
+   - Descripción opcional para detalles adicionales
+
+2. **Consulta eficiente del historial:**
+   - Ordenamiento por fecha descendente (transacciones más recientes primero)
+   - Filtrado por usuario para obtener solo las transacciones propias
+   - Representación visual diferenciada por tipo de transacción
+
+Este sistema garantiza transparencia total en las operaciones financieras y permite tanto a usuarios como administradores verificar el estado y evolución del saldo.

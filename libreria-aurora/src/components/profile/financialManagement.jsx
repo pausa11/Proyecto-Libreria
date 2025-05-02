@@ -10,7 +10,6 @@ function FinancialManagement() {
     const [saldo, setSaldo] = useState(0);
     const [historialTransacciones, setHistorialTransacciones] = useState([]);
     const [historialLoading, setHistorialLoading] = useState(false);
-    const [selectedCard, setSelectedCard] = useState(null);
     
     const baseUrl = "https://proyecto-libreria-k9xr.onrender.com/api";
     
@@ -36,11 +35,8 @@ function FinancialManagement() {
 
             if (response.ok) {
                 const data = await response.json();
-                // Filtramos solo tarjetas activas
-                const tarjetasActivas = data.filter(tarjeta => tarjeta.activa !== false);
-                
-                if (tarjetasActivas && tarjetasActivas.length > 0) {
-                    setCard(tarjetasActivas[0]);
+                if (data && data.length > 0) {
+                    setCard(data[0]);
                 } else {
                     setCard(null);
                 }
@@ -188,23 +184,18 @@ function FinancialManagement() {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            // Ahora usamos el soft-delete en lugar del DELETE
             const response = await fetch(`${baseUrl}/finanzas/tarjetas/${card.id}/`, {
-                method: "PATCH",
+                method: "DELETE",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    activa: false
-                })
+                }
             });
 
-            if (response.ok) {
+            if (response.status === 204) {
                 setCard(null);
                 toast.success("Tarjeta eliminada exitosamente");
             } else {
-                throw new Error("No se pudo eliminar la tarjeta");
+                throw new Error("No se pudo eliminar");
             }
         } catch (error) {
             console.error("Error eliminando tarjeta:", error);
@@ -212,24 +203,14 @@ function FinancialManagement() {
         }
     };
 
-    const handleEditCard = () => {
-        setSelectedCard(card);
-        setActiveSection("addCard");
-    };
-    
-    // Función para volver desde el formulario de tarjeta y actualizar datos
-    const handleBackFromCardForm = () => {
-        setActiveSection("main");
-        setSelectedCard(null);
-        fetchCard(); // Actualizar la información de la tarjeta
-    };
-
     if (activeSection === "addCard") {
         return (
             <div className="p-6 md:p-10">
                 <AddPaymentMethod
-                    onBack={handleBackFromCardForm}
-                    cardToEdit={selectedCard}
+                    onBack={() => {
+                        setActiveSection("main");
+                        fetchCard();
+                    }}
                 />
             </div>
         );
@@ -280,30 +261,24 @@ function FinancialManagement() {
                                         <p><strong>Número:</strong> **** **** **** {card.numero?.slice(-4)}</p>
                                         <p><strong>Vencimiento:</strong> {card.fecha_expiracion}</p>
                                     </div>
-                                    <div className="space-y-2">
-                                        <button
-                                            onClick={handleEditCard}
-                                            className="text-blue-600 font-medium block"
-                                            title="Editar tarjeta"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={handleDeleteCard}
-                                            className="text-red-600 font-medium block"
-                                            title="Eliminar tarjeta"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={handleDeleteCard}
+                                        className="text-red-600 font-medium"
+                                        title="Eliminar tarjeta"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </div>
                             </div>
                         )}
                         
-                        {!card && (
-                            <p className="text-sm text-gray-500 mt-4">
-                                Registrar una tarjeta le permitirá recargar su saldo para realizar compras.
-                            </p>
+                        {card && (
+                            <button 
+                                onClick={() => setActiveSection("addCard")} 
+                                className="text-[#3B4CBF] border border-[#3B4CBF] px-4 py-2 rounded w-full md:w-auto"
+                            >
+                                Actualizar tarjeta
+                            </button>
                         )}
                     </div>
                     
@@ -315,7 +290,6 @@ function FinancialManagement() {
                             <p className="text-3xl font-bold text-[#2B388C]">
                                 ${Number(saldo).toLocaleString()}
                             </p>
-                            <p className="text-sm text-gray-500 mt-1">Saldo actual en su cuenta</p>
                         </div>
                         
                         <div>
@@ -335,11 +309,7 @@ function FinancialManagement() {
                                             key={monto}
                                             onClick={() => handleRecargarSaldo(monto)}
                                             disabled={loadingTransaction}
-                                            className={`py-2 px-4 rounded-md transition-colors ${
-                                                loadingTransaction 
-                                                ? "bg-gray-400 cursor-not-allowed" 
-                                                : "bg-[#3B4CBF] hover:bg-[#2B388C] text-white"
-                                            }`}
+                                            className="bg-[#3B4CBF] hover:bg-[#2B388C] text-white py-2 px-4 rounded-md transition-colors"
                                         >
                                             ${monto}
                                         </button>
@@ -384,10 +354,7 @@ function FinancialManagement() {
                                                     'bg-red-100 text-red-800'
                                                 }`}
                                             >
-                                                {transaccion.tipo_transaccion_display || 
-                                                 (transaccion.tipo_transaccion === 'RECARGA' ? 'Recarga' : 
-                                                  transaccion.tipo_transaccion === 'COMPRA' ? 'Compra' : 
-                                                  'Ajuste')}
+                                                {transaccion.tipo_transaccion_display}
                                             </span>
                                         </td>
                                         <td className={`py-3 px-3 font-medium ${
