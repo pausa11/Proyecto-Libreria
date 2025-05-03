@@ -1159,7 +1159,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 
 ### **Estado Actual del Sistema**
 
-#### **Módulos Completamente Funcionales ✅**
+#### **Funcionalidades Implementadas ✅**
 - **Usuarios:**
   - Modelo extendido con nuevos campos (`foto_perfil`, `nacionalidad`).
   - API REST funcional con endpoints para perfil y preferencias.
@@ -1825,3 +1825,110 @@ useProductionBackend: false,
 ```
 
 Esta mejora agiliza significativamente el proceso de desarrollo y pruebas, reduciendo el tiempo necesario para alternar entre entornos y eliminando una fuente común de errores.
+
+# [2025-05-10] Optimización del Sistema de Catálogo y Búsqueda
+
+## Commit: Implementación unificada y optimizada del sistema de búsqueda y catálogo
+
+## Resumen
+Se ha reestructurado completamente el sistema de catálogo y búsqueda para resolver problemas críticos de experiencia de usuario, duplicación de código y rendimiento. Los cambios principales incluyen la unificación de la funcionalidad de búsqueda dentro del catálogo, eliminación del requisito de autenticación para visualizar libros, y la implementación de una interfaz más intuitiva y eficiente.
+
+## Problemas resueltos
+1. **Requisito de autenticación innecesario**: Anteriormente, solo usuarios autenticados podían acceder al catálogo y búsqueda
+2. **Recargas innecesarias**: Al navegar entre catálogo y búsqueda se recargaban los libros repetidamente
+3. **Interfaz confusa**: El sistema de filtros era poco intuitivo y difícil de utilizar
+4. **Duplicación de componentes**: Existía código redundante entre el catálogo y la búsqueda
+5. **Experiencia fragmentada**: La búsqueda y el catálogo parecían funcionalidades desconectadas
+
+## Cambios en Backend
+
+### LibroViewSet
+- **Eliminación de restricciones de autenticación:**
+  - Reemplazo de `IsAuthenticatedOrReadOnly` por `AllowAny` para permitir acceso público
+  - Configuración adecuada de permisos para mantener seguridad en operaciones de escritura
+- **Mejora de filtros y ordenamiento:**
+  - Ampliación de los campos disponibles para filtrado incluyendo `categoria`, `editorial`, `año_publicacion`
+  - Optimización de campos de búsqueda para incluir `descripcion` y `editorial`
+  - Adición de nuevos campos para ordenamiento incluyendo `titulo` y `autor`
+
+### Nuevo ViewSet para Categorías
+- **Implementación de CategoriaViewSet:**
+  - Endpoint dedicado para consultar todas las categorías disponibles
+  - Configurado con permisos públicos para acceso sin autenticación
+  - Serialización optimizada para su uso en filtros
+
+### SearchView
+- **Eliminación de restricciones:**
+  - Reemplazo de validaciones que requerían al menos un criterio de búsqueda
+  - Configuración para mostrar todos los libros cuando no hay filtros
+  - Implementación de ordenamiento flexible por múltiples campos
+
+## Cambios en Frontend
+
+### Unificación de componentes
+- **Componente `SearchBook.jsx` optimizado:**
+  - Simplificado para redirigir al catálogo con parámetros de búsqueda
+  - Eliminación de lógica duplicada
+  - Utilización de parámetros URL para mantener estado de búsqueda
+
+### Catálogo mejorado
+- **Componente `catalogo.jsx` reestructurado:**
+  - Implementación de interfaz de búsqueda condicional (visible/oculta)
+  - Sistema de filtros intuitivo con categorías, rango de precios y ordenamiento
+  - Funcionalidad para mostrar/ocultar la interfaz de búsqueda
+  - Conservación del estado de búsqueda mediante URL params
+
+### NavBar optimizado
+- **Mejoras en `NavBar.jsx`:**
+  - Comportamiento inteligente para el icono de búsqueda
+  - Si está en catálogo: alterna la visualización de la interfaz de búsqueda
+  - Si está en otra página: navega al catálogo con la interfaz de búsqueda visible
+
+## Beneficios principales
+1. **Eliminación de recargas innecesarias**: La navegación entre catálogo y búsqueda ya no provoca recargas
+2. **Acceso público mejorado**: Cualquier visitante puede explorar el catálogo sin necesidad de registro
+3. **Interfaz unificada**: Una única interfaz coherente para consultar todos los libros
+4. **Experiencia de usuario mejorada**: Filtros intuitivos y ordenamiento sencillo
+5. **Optimización de código**: Eliminación de duplicaciones y mejora de la estructura
+6. **Mantenimiento simplificado**: Concentración de la lógica de búsqueda en un solo componente
+
+## Implementación técnica
+- **Enfoque basado en estado**: Uso de estados React para controlar la visualización de interfaces
+- **URL con parámetros**: Utilización de parámetros en URL para preservar el estado de búsqueda
+- **Interacción contextual**: Comportamiento del icono de búsqueda adaptado al contexto actual
+- **Filtrado eficiente**: Implementación de filtros en el cliente para respuesta instantánea
+- **Ordenamiento flexible**: Sistema de ordenación por múltiples campos con dirección configurable
+
+## Estado actual del sistema ✅
+- **Catálogo público**: Accesible para todos los usuarios, autenticados o no
+- **Búsqueda integrada**: Completamente funcional dentro del catálogo
+- **Filtros avanzados**: Por categoría, rango de precios y otros campos
+- **Ordenamiento**: Implementado para título, precio y año de publicación
+- **Navegación optimizada**: Sin recargas innecesarias entre vistas relacionadas
+
+## Mejoras específicas de interfaz
+1. **Botón de alternar búsqueda**: Permite mostrar/ocultar la interfaz de búsqueda según necesidad
+2. **Filtros intuitivos**: Controles claros para cada tipo de filtrado
+3. **Indicadores visuales**: Resaltado de filtros activos y dirección de ordenamiento
+4. **Mensajes informativos**: Retroalimentación clara cuando no hay resultados
+5. **Barra de búsqueda mejorada**: Busca en múltiples campos (título, autor, ISBN, año)
+
+## Proceso de búsqueda actual
+1. **Usuario accede al catálogo**: Ve todos los libros disponibles
+2. **Usuario activa la búsqueda**: Desde el navbar o con el botón "Mostrar búsqueda"
+3. **Usuario configura filtros**: Selecciona categoría, rango de precios y/o término de búsqueda
+4. **Usuario ordena resultados**: Selecciona campo y dirección (ascendente/descendente)
+5. **Sistema muestra resultados**: Filtrados y ordenados según los criterios especificados
+
+## Próximos pasos 🚧
+1. Implementar sistema de paginación para grandes colecciones de libros
+2. Añadir filtros adicionales como popularidad o valoración
+3. Implementar búsqueda por características avanzadas (número de páginas, idioma)
+4. Desarrollar sistema de búsqueda predictiva con sugerencias
+5. Integrar con el sistema de recomendaciones
+
+## Notas técnicas
+- La implementación actual utiliza filtrado en el cliente para mayor velocidad
+- Todos los componentes ahora utilizan el sistema centralizado de configuración de API
+- Se ha mejorado el manejo de tipos de datos para prevenir errores en las operaciones de filtrado
+- La estructura del código permite fácil expansión para nuevos tipos de filtros en el futuro

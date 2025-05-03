@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework import viewsets, status, filters
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from .models import Libro
-from .serializers import LibroSerializer
+from rest_framework.decorators import action
+from .models import Libro, Categoria
+from .serializers import LibroSerializer, CategoriaSerializer
 
 # Create your views here.
 
@@ -14,10 +15,10 @@ class LibroViewSet(viewsets.ModelViewSet):
     """
     queryset = Libro.objects.all()
     serializer_class = LibroSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    filterset_fields = ['autor', 'titulo']
-    search_fields = ['autor', 'titulo', 'isbn']
-    ordering_fields = ['precio', 'fecha_creacion']
+    permission_classes = [AllowAny]  # Permitir acceso público a la lista de libros
+    filterset_fields = ['autor', 'titulo', 'categoria', 'editorial', 'año_publicacion']
+    search_fields = ['autor', 'titulo', 'isbn', 'descripcion', 'editorial']
+    ordering_fields = ['precio', 'fecha_creacion', 'titulo', 'autor', 'año_publicacion']
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     
     # Si necesitas lógica personalizada para la subida de imágenes:
@@ -30,3 +31,18 @@ class LibroViewSet(viewsets.ModelViewSet):
             )
             
         return super().create(request, *args, **kwargs)
+    
+    @action(detail=False, methods=['get'])
+    def categorias(self, request):
+        """Retorna todas las categorías disponibles"""
+        categorias = Categoria.objects.all()
+        serializer = CategoriaSerializer(categorias, many=True)
+        return Response(serializer.data)
+
+class CategoriaViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint para consultar categorías disponibles.
+    """
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    permission_classes = [AllowAny]
