@@ -2,9 +2,114 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## If you will develop with both the backend and frontend, keep in mind: 
+### Switching between environments in [`libreria-aurora\src\api\config.js`]
+```javascript
+const config = {
+    // Set to false to use the local backend during development
+    useProductionBackend: true,
+    
+    // Additional configuration settings...
+};
+```
+
+## Connecting to Existing API Modules
+
+### Configuration Workflow
+
+#### 1. Determine which backend module you need to connect to
+
+First, identify which API endpoint you need to access:
+
+- Check `backend/config/urls.py` to see all registered API modules:
+  ```python
+  urlpatterns = [
+      # ...
+      path('api/libros/', include('apps.libros.urls')),
+      path('api/usuarios/', include('apps.usuarios.urls')),
+      path('api/finanzas/', include('apps.finanzas.urls')),
+      # ...
+  ]
+  ```
+
+#### 2. Choose your API connection approach
+
+The project supports two methods of connecting to APIs:
+
+**Method 1: Direct URL approach** (more flexible)
+```jsx
+import { getApiUrl } from "../api/config";
+
+// Inside your component:
+const apiUrl = getApiUrl("/api/libros/");
+
+// Use in fetch calls:
+fetch(apiUrl, {
+  // options...
+})
+```
+
+**Method 2: Predefined endpoint key** (more maintainable)
+```jsx
+import { getApiUrlByKey } from "../api/config";
+
+// Inside your component:
+const apiUrl = getApiUrlByKey("libros");
+
+// Use in fetch calls:
+fetch(apiUrl, {
+  // options...
+})
+```
+
+#### 3. Add new endpoints when needed
+
+If you need to connect to a new endpoint not yet in the configuration:
+
+1. Open `src/api/config.js`
+2. Add your endpoint to the `endpoints` object:
+   ```javascript
+   endpoints: {
+     // existing endpoints...
+     
+     // Add your new endpoint
+     miNuevoEndpoint: "/api/mi-modulo/mi-endpoint/",
+   }
+   ```
+3. Use it in your components with `getApiUrlByKey("miNuevoEndpoint")`
+
+#### 4. Authentication for protected endpoints
+
+Most API endpoints require authentication:
+
+```jsx
+// Inside an async function:
+const token = localStorage.getItem("token");
+if (!token) {
+  // Handle unauthenticated state
+  return;
+}
+
+const response = await fetch(apiUrl, {
+  method: "GET", // or POST, PUT, DELETE
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+  },
+  // body: JSON.stringify(data) // for POST/PUT requests
+});
+```
+
+#### 5. Testing different environments
+
+- Switch between local and production backends by changing `useProductionBackend` in `src/api/config.js`
+- This allows testing against local backend during development and production backend for final testing
+
 ## Available Scripts
 
 In the project directory, you can run:
+
+## `cd libreria-aurora`
 
 ### `npm start`
 

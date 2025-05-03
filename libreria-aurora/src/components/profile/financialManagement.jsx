@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AddPaymentMethod from "./addPaymentMethod";
 import { Toaster, toast } from "sonner";
+import { getApiUrl } from "../../api/config";
 
 function FinancialManagement() {
     const [card, setCard] = useState(null);
@@ -11,7 +12,7 @@ function FinancialManagement() {
     const [historialTransacciones, setHistorialTransacciones] = useState([]);
     const [historialLoading, setHistorialLoading] = useState(false);
     
-    const baseUrl = "https://proyecto-libreria-k9xr.onrender.com/api";
+    const baseUrl = getApiUrl("/api");
     
     // Montos predefinidos para las recargas (solo valores enteros)
     const montosPredefinidos = [10, 25, 50, 100, 200];

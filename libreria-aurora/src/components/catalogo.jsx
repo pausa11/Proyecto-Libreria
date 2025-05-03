@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import BookCard from "./home/bookCard";
 import 'aos/dist/aos.css';
+import { getApiUrl } from "../api/config";
 
 function Catalogo() {
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
+  const backendURL = getApiUrl("/api/libros/");
 
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);

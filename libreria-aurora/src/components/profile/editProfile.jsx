@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import EditContentPreferences from "./editContentPreference";
 import HandleNewsSubscription from "./handleNewsSubscription";
+import { getApiUrl } from "../../api/config";
 
 function EditProfile() {
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/perfil/";
+  const backendURL = getApiUrl("/api/usuarios/perfil/");
+  const updateProfileUrl = getApiUrl("/api/usuarios/actualizar_perfil/");
   const [userImageExists, setUserImageExists] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const [activeSection, setActiveSection] = useState("main"); 
@@ -92,7 +94,7 @@ function EditProfile() {
         throw new Error("No se encontró el token de autenticación");
       }
 
-      const response = await fetch("https://proyecto-libreria-k9xr.onrender.com/api/usuarios/actualizar_perfil/", {
+      const response = await fetch(updateProfileUrl, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,

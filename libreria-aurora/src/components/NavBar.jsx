@@ -4,12 +4,13 @@ import { User, ShoppingCart, Search , LogOut} from "lucide-react";
 import logo from "../images/Logo.svg";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { getApiUrl } from "../api/config";
 
 function NavBar() {
 
     const navigate = useNavigate();
     const [userName, setUserName] = useState(null);
-    const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/perfil/";
+    const backendURL = getApiUrl("/api/usuarios/perfil/");
 
     useEffect(() => {
         AOS.init({

@@ -4,10 +4,11 @@ import InputAuora from "./ui/input";
 import ButtonA from "./ui/buttonA";
 import AuthFrame from "./ui/authFrame";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "lucide-react"; // Asegúrate de tener esta dependencia
+import { Loader } from "lucide-react";
+import { getApiUrl } from "../api/config";
 
 function Login() {
-    const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/token/";
+    const backendURL = getApiUrl("/api/token/");
     const navigate = useNavigate();
     
     const [loginData, setLoginData] = useState({

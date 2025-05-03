@@ -4,11 +4,12 @@ import NavBar from "./NavBar";
 import BookCard from "./home/bookCard";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
+import { getApiUrl } from "../api/config";
 
 function SearchBooks() {
   const navigate = useNavigate(); 
 
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
+  const backendURL = getApiUrl("/api/libros/");
   const filtersArray = [
     { label: "Categoría", key: "categoria" },
     { label: "Año de publicación", key: "año_publicacion" },

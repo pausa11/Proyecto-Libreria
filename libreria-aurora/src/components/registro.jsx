@@ -9,10 +9,11 @@ import AuthFrame from "./ui/authFrame";
 
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import { getApiUrl } from "../api/config";
 
 function Registro() {
   const [value, setValue] = useState("");
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/";
+  const backendURL = getApiUrl("/api/usuarios/");
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState({

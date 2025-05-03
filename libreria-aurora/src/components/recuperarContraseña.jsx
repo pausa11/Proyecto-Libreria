@@ -5,11 +5,11 @@ import ButtonA from "./ui/buttonA";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { Loader } from "lucide-react";
-
 import NavBar from "./NavBar";
+import { getApiUrl } from "../api/config";
 
 function RecuperarContraseña() {
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/recuperar_contraseña/";
+  const backendURL = getApiUrl("/api/usuarios/recuperar_contraseña/");
   const navigate = useNavigate();
   
   const [email, setEmail] = useState("");

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Toaster, toast } from "sonner";
 import InputAuora from "../ui/input";
 import ButtonA from "../ui/buttonA";
+import { getApiUrl } from "../../api/config";
 
 function AddPaymentMethod({ onBack }) {
   const [newCard, setNewCard] = useState({
@@ -11,7 +12,7 @@ function AddPaymentMethod({ onBack }) {
     cvv: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const baseUrl = "https://proyecto-libreria-k9xr.onrender.com/api";
+  const baseUrl = getApiUrl("/api");
 
   const handleChange = (e) => {
     setNewCard({

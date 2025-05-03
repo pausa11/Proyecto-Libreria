@@ -1727,3 +1727,101 @@ El modelo `HistorialSaldo` implementa un sistema completo de auditoría que regi
    - Representación visual diferenciada por tipo de transacción
 
 Este sistema garantiza transparencia total en las operaciones financieras y permite tanto a usuarios como administradores verificar el estado y evolución del saldo.
+
+# [2025-05-05] Implementación de Configuración Centralizada para API URLs
+
+## Commit: Centralización de endpoints API para facilitar desarrollo y despliegue
+
+## Resumen
+Se ha implementado un sistema centralizado para la gestión de URLs de API que permite alternar fácilmente entre entornos de desarrollo (local) y producción. Esta mejora elimina la necesidad de modificar manualmente las URLs de API en múltiples componentes, facilitando el desarrollo, las pruebas y el despliegue.
+
+## Problemas resueltos
+1. **URLs hardcodeadas**: Anteriormente, las URLs de la API estaban codificadas directamente en cada componente
+2. **Cambios tediosos**: Cambiar entre desarrollo local y producción requería modificar múltiples archivos
+3. **Inconsistencias**: Posibilidad de errores al actualizar solo algunas URLs y no todas
+4. **Falta de estandarización**: Cada componente podía implementar las llamadas a la API de manera diferente
+5. **Dificultad para pruebas**: Complicaciones para probar integraciones con el backend local
+
+## Cambios en Frontend
+
+### Nuevo archivo de configuración
+- **Creación de archivo config.js**: Centraliza toda la configuración relacionada con la API
+- **Implementación de conmutador**: Variable `useProductionBackend` que determina el entorno
+- **Definición de URLs base**: URLs configurables para entornos de producción y desarrollo local
+- **Catálogo de endpoints**: Lista completa de todos los endpoints disponibles en la API
+- **Funciones auxiliares**: 
+  - `getApiUrl()`: Para construcción de URLs completas usando la ruta directa
+  - `getApiUrlByKey()`: Para usar endpoints predefinidos por nombre
+
+### Modificación de componentes
+- **Refactorización de 14 componentes**: Todos los componentes ahora utilizan el sistema centralizado
+- **Eliminación de URLs hardcodeadas**: Reemplazo por llamadas a `getApiUrl()`
+- **Estandarización de llamadas API**: Patrón consistente de uso en toda la aplicación
+- **Importaciones optimizadas**: Inclusión del módulo de configuración donde sea necesario
+
+## Beneficios principales
+1. **Desarrollo simplificado**: Cambio entre entornos con solo modificar una variable
+2. **Mayor consistencia**: Todas las llamadas a la API siguen el mismo patrón
+3. **Pruebas facilitadas**: Sencillo testeo de cambios en el backend local
+4. **Mantenibilidad mejorada**: Actualizaciones de ruta en un solo lugar
+5. **Documentación implícita**: La lista de endpoints sirve como documentación viva de la API
+6. **Reducción de errores**: Previene discrepancias en URLs entre componentes
+
+## Implementación técnica
+- **Patrón Configuración Centralizada**: Todos los ajustes relacionados con la API en un solo lugar
+- **Funciones helper**: Métodos utilitarios para construir URLs completas
+- **Flexible y adaptable**: Dos métodos de uso (ruta directa o por clave) según necesidad
+- **Previsibilidad**: Comportamiento coherente en toda la aplicación
+
+## Estado actual del sistema ✅
+- **Archivo de configuración**: Implementado completamente con todas las URLs de la API
+- **Componentes adaptados**: Los 14 componentes principales ahora usan el sistema centralizado
+- **Endpoints predefinidos**: Todos los endpoints están documentados y disponibles como claves
+- **Cambio de entorno**: Funcional a través de una única variable en config.js
+
+## Cómo usar el sistema
+
+### Cambiar entre entornos
+```javascript
+// En src/api/config.js
+const config = {
+  // Cambiar a false para usar backend local
+  useProductionBackend: true,
+  
+  // Resto de la configuración...
+};
+```
+
+### Usar en componentes (dos opciones)
+```javascript
+// Opción 1: Usando ruta directa
+import { getApiUrl } from "../api/config";
+const backendURL = getApiUrl("/api/usuarios/perfil/");
+
+// Opción 2: Usando clave predefinida
+import { getApiUrlByKey } from "../api/config";
+const backendURL = getApiUrlByKey("usuariosPerfil");
+```
+
+## Próximos pasos 🚧
+1. Implementar detección automática de entorno basada en variables de entorno
+2. Añadir sistema de manejo de errores específico por entorno
+3. Implementar interceptores de peticiones para manejo de tokens y autenticación
+4. Ampliar documentación de endpoints con ejemplos de uso y parámetros
+5. Crear sistema de pruebas automáticas para verificar disponibilidad de endpoints
+
+## Notas técnicas
+- La solución es compatible con el flujo actual de trabajo y no requiere cambios en el backend
+- Se mantiene retrocompatibilidad con componentes que aún no hayan sido actualizados
+- El sistema permite extensión futura para incluir nuevos endpoints o entornos adicionales
+- Todo el código ha sido probado tanto con el backend local como con el de producción
+
+## Ejemplo de beneficios
+Antes, para cambiar del entorno de producción al local, era necesario modificar manualmente más de 20 URLs en 14 archivos diferentes. Ahora, solo se requiere cambiar una línea en config.js:
+
+```javascript
+// Cambiar esto de true a false
+useProductionBackend: false,
+```
+
+Esta mejora agiliza significativamente el proceso de desarrollo y pruebas, reduciendo el tiempo necesario para alternar entre entornos y eliminando una fuente común de errores.

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "../../api/config";
 
 function EditBookPreferences() {
   const categoriesArray = ['Académico', 'Ficción', 'No Ficción'];
@@ -9,6 +10,7 @@ function EditBookPreferences() {
   const [saving, setSaving] = useState(false);
 
   const token = localStorage.getItem("token");
+  const preferencesUrl = getApiUrl("/api/usuarios/preferencias_libros/");
 
   // Obtener preferencias actuales
   useEffect(() => {
@@ -16,7 +18,7 @@ function EditBookPreferences() {
       try {
         if (!token) return;
 
-        const response = await fetch("https://proyecto-libreria-k9xr.onrender.com/api/usuarios/preferencias_libros/", {
+        const response = await fetch(preferencesUrl, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -37,14 +39,14 @@ function EditBookPreferences() {
     };
 
     fetchPreferencias();
-  }, [token]);
+  }, [token, preferencesUrl]);
 
   const updatePreferencias = async (nuevasPreferencias) => {
     try {
       setSaving(true);
       setMensaje(null);
 
-      const response = await fetch("https://proyecto-libreria-k9xr.onrender.com/api/usuarios/preferencias_libros/", {
+      const response = await fetch(preferencesUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
