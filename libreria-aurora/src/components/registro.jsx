@@ -2,14 +2,27 @@ import React, { useState } from "react";
 import NavBar from "./NavBar";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
+import { Flag } from "lucide-react";
 
 import InputText from "./ui/input";
 import ButtonA from "./ui/buttonA";
 import AuthFrame from "./ui/authFrame";
 
-import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
 import { getApiUrl } from "../api/config";
+import 'react-phone-number-input/style.css'
+
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+import countries from "i18n-iso-countries";
+import es from "i18n-iso-countries/langs/es.json";
+
+countries.registerLocale(es); // para español
+
+// Función para obtener código ISO2 del país
+const getCountryCode = (countryName) => {
+  const code = countries.getAlpha2Code(countryName, "es") || countries.getAlpha2Code(countryName, "en");
+  return code?.toLowerCase();
+};
 
 function Registro() {
   const [value, setValue] = useState("");
@@ -28,7 +41,8 @@ function Registro() {
     telefono: "",
     direccion: "",
     fecha_nacimiento: "",
-    nacionalidad: ""
+    nacionalidad: "",
+    estado: ""
   });
 
   const handleChange = (e) => {
@@ -38,33 +52,18 @@ function Registro() {
     });
   };
 
-  // Función que mapea los errores del backend a mensajes amigables y muestra un toast por cada error
   const showErrorNotifications = (errors) => {
-    // Toma el objeto de errores y lo convierte en un array de strings
-    const errorArray = Object.entries(errors).map(([key, value]) => {
-      return `${key}: ${value}`;
-    });
-
-    errorArray.forEach((error) => {
-      toast.error(error);
-    });
+    const errorArray = Object.entries(errors).map(([key, value]) => `${key}: ${value}`);
+    errorArray.forEach((error) => toast.error(error));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar que ningún campo obligatorio esté vacío
     const requiredFields = [
-      "email",
-      "username",
-      "password",
-      "password2",
-      "first_name",
-      "last_name",
-      "numero_identificacion",
-      "direccion",
-      "fecha_nacimiento",
-      "nacionalidad"
+      "email", "username", "password", "password2",
+      "first_name", "last_name", "numero_identificacion",
+      "direccion", "fecha_nacimiento", "nacionalidad", "estado"
     ];
 
     for (let field of requiredFields) {
@@ -73,6 +72,7 @@ function Registro() {
         return;
       }
     }
+
     if (!value || value.trim() === "") {
       toast.error("El teléfono es obligatorio");
       return;
@@ -86,34 +86,17 @@ function Registro() {
     try {
       const response = await fetch(backendURL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: userData.email,
-          username: userData.username,
-          password: userData.password,
-          password2: userData.password2,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-          tipo_usuario: userData.tipo_usuario,
-          numero_identificacion: userData.numero_identificacion,
-          telefono: value, // Se utiliza el estado "value" del PhoneInput
-          direccion: userData.direccion,
-          fecha_nacimiento: userData.fecha_nacimiento,
-          nacionalidad: userData.nacionalidad
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...userData, telefono: value })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Detalles del error:", errorData);
         showErrorNotifications(errorData);
         throw new Error("Error en la petición");
       }
 
       const data = await response.json();
-      console.log("Usuario registrado:", data);
       toast.success("Usuario registrado exitosamente");
       navigate("/login");
     } catch (error) {
@@ -128,85 +111,69 @@ function Registro() {
       <AuthFrame>
         <form onSubmit={handleSubmit} className="w-full flex flex-col items-center gap-[1vw] overflow-auto p-2">
           <p className="text-[3vw] font-[500] w-[60%]">Crear una cuenta</p>
-          <InputText
-            type="text"
-            placeholder="Correo electrónico"
-            value={userData.email}
-            onChange={handleChange}
-            name="email"
-          />
-          <InputText
-            type="text"
-            placeholder="Crea tu usuario"
-            value={userData.username}
-            onChange={handleChange}
-            name="username"
-          />
-          <InputText
-            type="password"
-            placeholder="Contraseña"
-            value={userData.password}
-            onChange={handleChange}
-            name="password"
-          />
-          <InputText
-            type="password"
-            placeholder="Confirmar contraseña"
-            value={userData.password2}
-            onChange={handleChange}
-            name="password2"
-          />
-          <InputText
-            type="text"
-            placeholder="Nombre"
-            value={userData.first_name}
-            onChange={handleChange}
-            name="first_name" 
-          />
-          <InputText
-            type="text"
-            placeholder="Apellido"
-            value={userData.last_name}
-            onChange={handleChange}
-            name="last_name"
-          />
-          <InputText
-            type="text"
-            placeholder="Número de identificación"
-            value={userData.numero_identificacion}
-            onChange={handleChange}
-            name="numero_identificacion"
-          />
+          <InputText type="text" placeholder="Correo electrónico" value={userData.email} onChange={handleChange} name="email" />
+          <InputText type="text" placeholder="Crea tu usuario" value={userData.username} onChange={handleChange} name="username" />
+          <InputText type="password" placeholder="Contraseña" value={userData.password} onChange={handleChange} name="password" />
+          <InputText type="password" placeholder="Confirmar contraseña" value={userData.password2} onChange={handleChange} name="password2" />
+          <InputText type="text" placeholder="Nombre" value={userData.first_name} onChange={handleChange} name="first_name" />
+          <InputText type="text" placeholder="Apellido" value={userData.last_name} onChange={handleChange} name="last_name" />
+          <InputText type="text" placeholder="Número de identificación" value={userData.numero_identificacion} onChange={handleChange} name="numero_identificacion" />
+
           <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
             <PhoneInput
-              placeholder="Enter phone number"
+              placeholder="Número de teléfono"
               value={value}
               onChange={setValue}
               className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
             />
           </div>
-          <InputText
-            type="text"
-            placeholder="Dirección"
-            value={userData.direccion}
-            onChange={handleChange}
-            name="direccion"
-          />
+
+          <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
+            {userData.nacionalidad ? (
+              <img
+                src={`https://flagcdn.com/w40/${getCountryCode(userData.nacionalidad)}.png`}
+                alt={userData.nacionalidad}
+                className="w-[20px] h-[15px]"
+              />
+            ) : (
+              <Flag className="text-[#787767]" />
+            )}
+
+            <CountryDropdown
+              value={userData.nacionalidad}
+              onChange={(val) => setUserData({ ...userData, nacionalidad: val, estado: "" })}
+              defaultOptionLabel="Selecciona tu país"
+              labelType="full"
+              valueType="full"
+              className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
+            />
+          </div>
+
+
+          {/* RegionDropdown */}
+          {userData.nacionalidad && (
+          <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
+              <RegionDropdown
+                country={userData.nacionalidad}
+                value={userData.estado}
+                onChange={(val) => setUserData({ ...userData, estado: val })}
+                classes="w-full h-[5vh] border border-black rounded px-2 text-[1vw] bg-white mt-2"
+                defaultOptionLabel="Selecciona tu estado/provincia/departamento"
+                className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
+              />
+            </div>
+          )}
+
+          <InputText type="text" placeholder="Dirección" value={userData.direccion} onChange={handleChange} name="direccion" />
+
           <InputText
             type="date"
             placeholder="Fecha de nacimiento"
             value={userData.fecha_nacimiento}
             onChange={handleChange}
-            name="fecha_nacimiento" 
-            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]} // Máximo: hoy - 18 años
-            min={new Date(new Date().setFullYear(new Date().getFullYear() - 140)).toISOString().split("T")[0]} // Mínimo: hoy - 140 años
-          />
-          <InputText
-            type="text"
-            placeholder="Nacionalidad"
-            value={userData.nacionalidad}
-            onChange={handleChange}
-            name="nacionalidad"
+            name="fecha_nacimiento"
+            max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 140)).toISOString().split("T")[0]}
           />
 
           <ButtonA text="Registrarse" type="submit" width="60%" color="#2B388C" />
