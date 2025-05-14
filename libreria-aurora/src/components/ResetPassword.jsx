@@ -5,6 +5,7 @@ import ButtonA from "./ui/buttonA";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import NavBar from "./NavBar";
+import { getApiUrl } from "../api/config";
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -22,8 +23,8 @@ function ResetPassword() {
   });
   const [resetSuccess, setResetSuccess] = useState(false);
   
-  const validateTokenUrl = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/validar_token/";
-  const resetPasswordUrl = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/restablecer_contraseña/";
+  const validateTokenUrl = getApiUrl("/api/usuarios/validar_token/");
+  const resetPasswordUrl = getApiUrl("/api/usuarios/restablecer_contraseña/");
 
   useEffect(() => {
     // Extraer el token de la URL cuando el componente se monta

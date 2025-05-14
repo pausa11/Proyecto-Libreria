@@ -1159,7 +1159,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 
 ### **Estado Actual del Sistema**
 
-#### **Módulos Completamente Funcionales ✅**
+#### **Funcionalidades Implementadas ✅**
 - **Usuarios:**
   - Modelo extendido con nuevos campos (`foto_perfil`, `nacionalidad`).
   - API REST funcional con endpoints para perfil y preferencias.
@@ -1306,7 +1306,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Configurar sistema de cola para envío asíncrono de correos
    - Añadir seguimiento de correos enviados
 
-   ## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
+## [2025-04-29] Mejora de la Gestión de Usuarios y Visualización en el Panel Administrativo
 
 ### feat(usuarios): Implementación de la visualización de la foto de perfil en el panel administrativo
 
@@ -1381,7 +1381,7 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
    - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
 
 
-   ## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
+## [2025-04-30] Corrección y Mejora de la Gestión de Preferencias y Perfil de Usuario
 
 ### feat(usuarios): Implementación y mejora de la gestión de preferencias de usuario
 
@@ -1473,3 +1473,462 @@ Siguiendo estos pasos, se garantiza que cada nuevo módulo se integre correctame
 3. **Ampliar la funcionalidad del perfil de usuario:**
    - Permitir la eliminación de la foto de perfil.
    - Añadir validaciones adicionales para el formato y tamaño de las imágenes.
+
+
+# [2025-05-01] Corrección y Mejora de los Módulos de Finanzas y Compras
+
+## Commit: Corrección y optimización del módulo de Finanzas
+
+## Resumen
+Se han realizado correcciones significativas en el módulo de Finanzas para resolver problemas de recursión infinita, manejo de errores, y mejoras en la integración entre el frontend y backend. Los cambios optimizan el flujo de trabajo para la gestión de tarjetas y saldos, eliminando ambigüedades en los serializers y simplificando los modelos.
+
+## Cambios en Backend
+
+### Serializers
+- Se eliminó la ambigüedad entre los campos `usuario` y `usuario_id` en `TarjetaSerializer` y `SaldoSerializer`
+- Se configuró el campo `usuario` como opcional, permitiendo su asignación automática desde el token de autenticación
+- Se implementó el método `create()` para asignar automáticamente el usuario autenticado al crear objetos
+
+### Views
+- Se optimizaron los ViewSets para Tarjeta y Saldo con manejo adecuado de permisos 
+- Se implementó lógica para actualizar tarjetas existentes en lugar de fallar si ya existe una
+- Se añadió soporte para filtrar elementos por el usuario autenticado
+- Se mejoró el manejo de errores para devolver respuestas HTTP apropiadas
+- Se corrigió el endpoint `cambiar_saldo` para soportar la creación automática cuando no existe un saldo
+
+### Models
+- Se simplificó el modelo `Saldo`, eliminando restricciones innecesarias
+- Se mejoró el método `modificar_saldo()` para un funcionamiento más robusto
+- Se agregaron valores por defecto para evitar errores con saldos nuevos
+
+## Cambios en Frontend
+
+### financialManagement.jsx
+- Se implementó un contador para limitar intentos de creación de saldo y evitar bucles infinitos
+- Se mejoró el manejo de errores para mostrar saldos por defecto (0) cuando no existe uno
+- Se optimizaron las peticiones al servidor para evitar llamadas recursivas infinitas
+- Se implementó un método más robusto `crearSaldoConValor()` para manejar errores 400 (Bad Request)
+
+### addPaymentMethod.jsx
+- Se añadió validación detallada para los datos de tarjeta antes de enviarlos al backend
+- Se corrigió el flujo para obtener explícitamente el ID del usuario antes de crear la tarjeta
+- Se implementó mejor manejo de errores para mostrar mensajes específicos al usuario
+
+## Mejoras generales
+- Se implementaron mensajes de error más descriptivos y claros
+- Se optimizó la experiencia de usuario al mostrar valores por defecto en lugar de fallar
+- Se eliminó el spam de errores relacionados con la falta de tarjeta (comportamiento normal)
+- Se añadió manejo más resiliente de situaciones donde no hay tarjeta o saldo
+- Se simplificaron las peticiones al servidor para reducir la carga y evitar errores
+
+## Impacto
+Estos cambios solucionan el problema crítico de recursión infinita en `fetchSaldo()` y `crearSaldoInicial()`, así como los errores 400 Bad Request al crear tarjetas. El módulo de finanzas ahora funciona de manera robusta, permitiendo a los usuarios ver y gestionar su saldo correctamente incluso cuando no tienen una tarjeta registrada.
+
+La interfaz ahora muestra un valor por defecto de $0 para el saldo cuando no existe uno, y maneja de forma elegante los escenarios donde el usuario aún no ha registrado una tarjeta.
+
+## Pruebas realizadas
+- Verificada la gestión correcta de saldos sin spamear errores
+- Comprobado el flujo de añadir tarjeta de pago
+- Validado el comportamiento de modificación de saldo
+- Confirmado que no se producen loops infinitos ni errores 400 (Bad Request)
+
+## Detalles técnicos
+
+### Problema anterior
+Anteriormente, el sistema presentaba los siguientes problemas:
+1. Recursión infinita entre `fetchSaldo()` y `crearSaldoInicial()`
+2. Errores 400 (Bad Request) al crear tarjetas debido a problemas con campos de usuario
+3. Uso de endpoints obsoletos o mal configurados (/mostrar_informacion/ y /mostrar_saldo/)
+
+### Solución implementada
+La solución implementó una autenticación simplificada basada en tokens JWT, similar a la usada en el componente `ChangePassword.jsx`. Esta aproximación es más segura, simple y confiable, permitiendo al backend extraer automáticamente la identidad del usuario del token sin necesidad de enviar IDs explícitamente.
+
+También se realizó una migración desde endpoints personalizados a endpoints estándar RESTful, garantizando una integración más robusta entre frontend y backend.
+
+
+# [2025-05-02] Reestructuración y Optimización del Sistema de Gestión de Saldos
+
+## Commit: Implementación de un sistema de gestión de saldos robusto y mejorado
+
+## Resumen
+Se ha realizado una reestructuración completa del sistema de gestión de saldos para corregir problemas críticos, mejorar la lógica de negocio y proporcionar una experiencia de usuario más intuitiva. Los cambios principales incluyen la separación clara entre gestión de tarjetas y saldos, implementación de botones de montos predefinidos, validación de tipos de datos y registro de transacciones.
+
+## Problemas resueltos
+1. **Errores de tipo en backend**: Se solucionó el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" mediante conversión explícita de tipos
+2. **Saldos negativos**: Se implementó validación para impedir la introducción de valores negativos
+3. **Operaciones sin tarjeta**: Se añadió verificación de tarjeta registrada antes de permitir recargas
+4. **Interfaz confusa**: Se separó visualmente la gestión de tarjetas y saldos
+5. **Entrada manual propensa a errores**: Se reemplazaron los campos libres por botones con montos predefinidos
+6. **Falta de registro**: Se implementó un historial de transacciones completo
+
+## Cambios en Backend
+
+### Modelos
+- **Nuevo modelo `HistorialSaldo`**: Se creó para registrar todas las transacciones con metadatos
+- **Mejora del modelo `Saldo`**: 
+  - Nuevo método `recargar_saldo()` que valida montos positivos y registra la transacción
+  - Nuevo método `descontar_saldo()` que verifica saldo suficiente antes de procesar
+  - Conversión robusta de tipos utilizando `Decimal` para evitar errores de operaciones matemáticas
+  - Validación y redondeo de valores a números enteros
+
+### Serializers
+- **Nuevos serializers**:
+  - `RecargaSaldoSerializer`: Validación de montos positivos
+  - `DescontarSaldoSerializer`: Validación de operaciones de compra
+  - `HistorialSaldoSerializer`: Exposición de historial de transacciones
+
+### Endpoints
+- **Nuevos endpoints**:
+  - `/api/finanzas/saldos/recargar_saldo/`: Para recargas seguras de saldo
+  - `/api/finanzas/saldos/descontar_saldo/`: Para realizar compras
+  - `/api/finanzas/historial/`: Acceso al historial de transacciones
+- **Validaciones de seguridad**:
+  - Verificación de tarjeta registrada antes de permitir recargas
+  - Prevención de montos negativos
+  - Verificación de saldo suficiente para compras
+
+## Cambios en Frontend
+
+### financialManagement.jsx
+- **Interfaz rediseñada**:
+  - Separación visual entre gestión de tarjetas y gestión de saldo
+  - Diseño moderno con tarjetas independientes para cada sección
+  - Visualización mejorada del saldo actual
+- **Botones de monto predefinido**:
+  - Implementación de botones con montos fijos ($10, $25, $50, $100, $200)
+  - Eliminación del campo de texto libre propenso a errores
+  - Conversión explícita a enteros mediante `Math.floor()` para evitar decimales
+- **Historial de transacciones**:
+  - Nueva sección que muestra todas las transacciones realizadas
+  - Formato tabular con fecha, tipo, monto y saldo resultante
+  - Diferenciación visual por tipo de transacción (recarga/compra)
+- **Manejo de errores robusto**:
+  - Validación local antes de enviar datos al servidor
+  - Captura y visualización clara de errores del servidor
+  - Estados de carga para mejorar experiencia de usuario
+
+## Beneficios principales
+1. **Mayor coherencia**: El sistema ahora requiere una tarjeta antes de poder recargar saldo
+2. **Proceso simplificado**: Recargas rápidas con montos predefinidos que elimina errores de entrada
+3. **Transparencia**: Historial completo de todas las operaciones realizadas
+4. **Seguridad**: Validaciones en frontend y backend para prevenir operaciones inválidas
+5. **Experiencia de usuario**: Interfaz más clara con secciones bien definidas
+6. **Previsibilidad**: Solo se permiten montos enteros y positivos para recargas
+
+## Implementación técnica
+- **Defensa en profundidad**: Validación en cliente y servidor para máxima robustez
+- **Manejo de tipos**: Conversión explícita entre float y Decimal para evitar errores de tipo
+- **Patrón de diseño**: Separación clara de responsabilidades entre modelos, vistas y componentes
+- **Registro de transacciones**: Modelo dedicado para auditoría y seguimiento de operaciones
+
+## Estado actual del sistema ✅
+- **Gestión de tarjetas**: Completamente funcional con validaciones
+- **Recargas de saldo**: Implementadas con botones de montos predefinidos
+- **Historial de transacciones**: Registro completo de todas las operaciones
+- **Integración**: Sistema interconectado con el módulo de usuarios
+- **Seguridad**: Validaciones robustas en todos los niveles
+
+## Próximos pasos 🚧
+1. Integrar completamente con el módulo de compras para procesar pagos
+2. Implementar notificaciones por email para transacciones importantes
+3. Añadir funcionalidad de exportación del historial de transacciones
+4. Desarrollar dashboard con estadísticas de uso del saldo
+
+## Notas técnicas
+- La solución implementada resuelve específicamente el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" mediante conversión explícita de tipos
+- Se ha implementado un sistema de redondeo para asegurar valores enteros en las transacciones
+- Todas las transacciones quedan registradas con su respectivo tipo, monto y saldo resultante
+
+
+# [2025-05-03] Anexo: Documentación Técnica del Sistema de Saldos y Métodos de Pago
+
+## Estado Actual del Sistema de Gestión de Saldos y Métodos de Pago
+
+Este anexo complementa la documentación existente, proporcionando detalles específicos sobre el funcionamiento del sistema de saldos y su interacción con los métodos de pago.
+
+### Flujo Detallado de Actualización de Métodos de Pago
+
+El proceso de actualización de tarjeta (método de pago) sigue el siguiente flujo:
+
+1. **Verificación inicial:**
+   - El componente `financialManagement.jsx` verifica si el usuario tiene una tarjeta registrada mediante una llamada a `GET /api/finanzas/tarjetas/`
+   - Si existe una tarjeta, se muestra con los últimos 4 dígitos visibles y la opción "Actualizar tarjeta"
+   - Si no existe, se ofrece la opción "Agregar método de pago"
+
+2. **Proceso de actualización:**
+   - Al hacer clic en "Actualizar tarjeta", se carga el componente `addPaymentMethod.jsx`
+   - Este componente extrae los datos de la tarjeta actual y los pre-carga en el formulario
+   - La actualización se realiza mediante una solicitud `PUT /api/finanzas/tarjetas/{id}/`
+   - El backend utiliza la lógica optimizada implementada el 01/05/2025 para evitar conflictos
+
+3. **Validación de datos:**
+   - El frontend valida el formato del número de tarjeta (solo dígitos)
+   - Se verifica el formato de fecha de expiración (MM/YY)
+   - El campo CVV se valida para contener exactamente 3 dígitos
+   - El campo titular debe contener al menos nombre y apellido
+
+4. **Manejo de respuestas:**
+   - Éxito: Se muestra una notificación de éxito y se actualiza la visualización de la tarjeta
+   - Error: Se muestra un mensaje específico basado en el tipo de error recibido
+
+### Integración entre Sistema de Tarjetas y Saldo
+
+La integración entre el sistema de tarjetas y saldo funciona de la siguiente manera:
+
+1. **Verificación de tarjeta para operaciones de saldo:**
+   - Antes de realizar cualquier recarga, el endpoint `recargar_saldo` verifica la existencia de una tarjeta asociada al usuario
+   - Esta validación se implementa tanto en frontend como en backend para mayor seguridad
+   - Si no existe tarjeta, se muestra un mensaje indicando que debe registrarse una tarjeta primero
+
+2. **Flujo de recarga:**
+   - El usuario selecciona un monto predefinido ($10, $25, $50, $100 o $200)
+   - El frontend convierte el valor a entero mediante `Math.floor()`
+   - Se envía una solicitud `POST /api/finanzas/saldos/recargar_saldo/`
+   - El backend procesa la solicitud con el método `recargar_saldo()` del modelo `Saldo`
+   - Se registra la transacción en el historial con el tipo "RECARGA"
+
+3. **Flujo de descuento (pago):**
+   - Cuando se realiza una compra, se llama al método `pagar()` del modelo `Carrito`
+   - Este método obtiene el saldo del usuario y verifica si es suficiente
+   - Si hay fondos suficientes, llama al método `descontar_saldo()` del modelo `Saldo`
+   - Se registra la transacción en el historial con el tipo "COMPRA"
+
+### Detalles Técnicos Adicionales sobre Manejo de Tipos
+
+Un aspecto crucial de la implementación es la conversión robusta entre tipos de datos:
+
+```python
+# Fragmento de código del método recargar_saldo() que maneja la conversión de tipos
+if isinstance(cantidad, float) or isinstance(cantidad, int) or isinstance(cantidad, str):
+    cantidad_decimal = Decimal(str(cantidad))
+elif isinstance(cantidad, Decimal):
+    cantidad_decimal = cantidad
+else:
+    raise ValidationError(f"Tipo de dato no soportado: {type(cantidad)}")
+```
+
+Esta implementación resuelve específicamente el error "unsupported operand type(s) for +=: 'decimal.Decimal' and 'float'" que ocurría anteriormente cuando se intentaba sumar un valor float al campo saldo que es de tipo Decimal.
+
+### Sistema de Auditoría y Registro de Transacciones
+
+El modelo `HistorialSaldo` implementa un sistema completo de auditoría que registra:
+
+1. **Metadatos de cada transacción:**
+   - Usuario que realizó la transacción
+   - Fecha y hora exacta
+   - Tipo de transacción (RECARGA, COMPRA, AJUSTE)
+   - Monto de la operación
+   - Saldo resultante tras la operación
+   - Descripción opcional para detalles adicionales
+
+2. **Consulta eficiente del historial:**
+   - Ordenamiento por fecha descendente (transacciones más recientes primero)
+   - Filtrado por usuario para obtener solo las transacciones propias
+   - Representación visual diferenciada por tipo de transacción
+
+Este sistema garantiza transparencia total en las operaciones financieras y permite tanto a usuarios como administradores verificar el estado y evolución del saldo.
+
+# [2025-05-05] Implementación de Configuración Centralizada para API URLs
+
+## Commit: Centralización de endpoints API para facilitar desarrollo y despliegue
+
+## Resumen
+Se ha implementado un sistema centralizado para la gestión de URLs de API que permite alternar fácilmente entre entornos de desarrollo (local) y producción. Esta mejora elimina la necesidad de modificar manualmente las URLs de API en múltiples componentes, facilitando el desarrollo, las pruebas y el despliegue.
+
+## Problemas resueltos
+1. **URLs hardcodeadas**: Anteriormente, las URLs de la API estaban codificadas directamente en cada componente
+2. **Cambios tediosos**: Cambiar entre desarrollo local y producción requería modificar múltiples archivos
+3. **Inconsistencias**: Posibilidad de errores al actualizar solo algunas URLs y no todas
+4. **Falta de estandarización**: Cada componente podía implementar las llamadas a la API de manera diferente
+5. **Dificultad para pruebas**: Complicaciones para probar integraciones con el backend local
+
+## Cambios en Frontend
+
+### Nuevo archivo de configuración
+- **Creación de archivo config.js**: Centraliza toda la configuración relacionada con la API
+- **Implementación de conmutador**: Variable `useProductionBackend` que determina el entorno
+- **Definición de URLs base**: URLs configurables para entornos de producción y desarrollo local
+- **Catálogo de endpoints**: Lista completa de todos los endpoints disponibles en la API
+- **Funciones auxiliares**: 
+  - `getApiUrl()`: Para construcción de URLs completas usando la ruta directa
+  - `getApiUrlByKey()`: Para usar endpoints predefinidos por nombre
+
+### Modificación de componentes
+- **Refactorización de 14 componentes**: Todos los componentes ahora utilizan el sistema centralizado
+- **Eliminación de URLs hardcodeadas**: Reemplazo por llamadas a `getApiUrl()`
+- **Estandarización de llamadas API**: Patrón consistente de uso en toda la aplicación
+- **Importaciones optimizadas**: Inclusión del módulo de configuración donde sea necesario
+
+## Beneficios principales
+1. **Desarrollo simplificado**: Cambio entre entornos con solo modificar una variable
+2. **Mayor consistencia**: Todas las llamadas a la API siguen el mismo patrón
+3. **Pruebas facilitadas**: Sencillo testeo de cambios en el backend local
+4. **Mantenibilidad mejorada**: Actualizaciones de ruta en un solo lugar
+5. **Documentación implícita**: La lista de endpoints sirve como documentación viva de la API
+6. **Reducción de errores**: Previene discrepancias en URLs entre componentes
+
+## Implementación técnica
+- **Patrón Configuración Centralizada**: Todos los ajustes relacionados con la API en un solo lugar
+- **Funciones helper**: Métodos utilitarios para construir URLs completas
+- **Flexible y adaptable**: Dos métodos de uso (ruta directa o por clave) según necesidad
+- **Previsibilidad**: Comportamiento coherente en toda la aplicación
+
+## Estado actual del sistema ✅
+- **Archivo de configuración**: Implementado completamente con todas las URLs de la API
+- **Componentes adaptados**: Los 14 componentes principales ahora usan el sistema centralizado
+- **Endpoints predefinidos**: Todos los endpoints están documentados y disponibles como claves
+- **Cambio de entorno**: Funcional a través de una única variable en config.js
+
+## Cómo usar el sistema
+
+### Cambiar entre entornos
+```javascript
+// En src/api/config.js
+const config = {
+  // Cambiar a false para usar backend local
+  useProductionBackend: true,
+  
+  // Resto de la configuración...
+};
+```
+
+### Usar en componentes (dos opciones)
+```javascript
+// Opción 1: Usando ruta directa
+import { getApiUrl } from "../api/config";
+const backendURL = getApiUrl("/api/usuarios/perfil/");
+
+// Opción 2: Usando clave predefinida
+import { getApiUrlByKey } from "../api/config";
+const backendURL = getApiUrlByKey("usuariosPerfil");
+```
+
+## Próximos pasos 🚧
+1. Implementar detección automática de entorno basada en variables de entorno
+2. Añadir sistema de manejo de errores específico por entorno
+3. Implementar interceptores de peticiones para manejo de tokens y autenticación
+4. Ampliar documentación de endpoints con ejemplos de uso y parámetros
+5. Crear sistema de pruebas automáticas para verificar disponibilidad de endpoints
+
+## Notas técnicas
+- La solución es compatible con el flujo actual de trabajo y no requiere cambios en el backend
+- Se mantiene retrocompatibilidad con componentes que aún no hayan sido actualizados
+- El sistema permite extensión futura para incluir nuevos endpoints o entornos adicionales
+- Todo el código ha sido probado tanto con el backend local como con el de producción
+
+## Ejemplo de beneficios
+Antes, para cambiar del entorno de producción al local, era necesario modificar manualmente más de 20 URLs en 14 archivos diferentes. Ahora, solo se requiere cambiar una línea en config.js:
+
+```javascript
+// Cambiar esto de true a false
+useProductionBackend: false,
+```
+
+Esta mejora agiliza significativamente el proceso de desarrollo y pruebas, reduciendo el tiempo necesario para alternar entre entornos y eliminando una fuente común de errores.
+
+# [2025-05-10] Optimización del Sistema de Catálogo y Búsqueda
+
+## Commit: Implementación unificada y optimizada del sistema de búsqueda y catálogo
+
+## Resumen
+Se ha reestructurado completamente el sistema de catálogo y búsqueda para resolver problemas críticos de experiencia de usuario, duplicación de código y rendimiento. Los cambios principales incluyen la unificación de la funcionalidad de búsqueda dentro del catálogo, eliminación del requisito de autenticación para visualizar libros, y la implementación de una interfaz más intuitiva y eficiente.
+
+## Problemas resueltos
+1. **Requisito de autenticación innecesario**: Anteriormente, solo usuarios autenticados podían acceder al catálogo y búsqueda
+2. **Recargas innecesarias**: Al navegar entre catálogo y búsqueda se recargaban los libros repetidamente
+3. **Interfaz confusa**: El sistema de filtros era poco intuitivo y difícil de utilizar
+4. **Duplicación de componentes**: Existía código redundante entre el catálogo y la búsqueda
+5. **Experiencia fragmentada**: La búsqueda y el catálogo parecían funcionalidades desconectadas
+
+## Cambios en Backend
+
+### LibroViewSet
+- **Eliminación de restricciones de autenticación:**
+  - Reemplazo de `IsAuthenticatedOrReadOnly` por `AllowAny` para permitir acceso público
+  - Configuración adecuada de permisos para mantener seguridad en operaciones de escritura
+- **Mejora de filtros y ordenamiento:**
+  - Ampliación de los campos disponibles para filtrado incluyendo `categoria`, `editorial`, `año_publicacion`
+  - Optimización de campos de búsqueda para incluir `descripcion` y `editorial`
+  - Adición de nuevos campos para ordenamiento incluyendo `titulo` y `autor`
+
+### Nuevo ViewSet para Categorías
+- **Implementación de CategoriaViewSet:**
+  - Endpoint dedicado para consultar todas las categorías disponibles
+  - Configurado con permisos públicos para acceso sin autenticación
+  - Serialización optimizada para su uso en filtros
+
+### SearchView
+- **Eliminación de restricciones:**
+  - Reemplazo de validaciones que requerían al menos un criterio de búsqueda
+  - Configuración para mostrar todos los libros cuando no hay filtros
+  - Implementación de ordenamiento flexible por múltiples campos
+
+## Cambios en Frontend
+
+### Unificación de componentes
+- **Componente `SearchBook.jsx` optimizado:**
+  - Simplificado para redirigir al catálogo con parámetros de búsqueda
+  - Eliminación de lógica duplicada
+  - Utilización de parámetros URL para mantener estado de búsqueda
+
+### Catálogo mejorado
+- **Componente `catalogo.jsx` reestructurado:**
+  - Implementación de interfaz de búsqueda condicional (visible/oculta)
+  - Sistema de filtros intuitivo con categorías, rango de precios y ordenamiento
+  - Funcionalidad para mostrar/ocultar la interfaz de búsqueda
+  - Conservación del estado de búsqueda mediante URL params
+
+### NavBar optimizado
+- **Mejoras en `NavBar.jsx`:**
+  - Comportamiento inteligente para el icono de búsqueda
+  - Si está en catálogo: alterna la visualización de la interfaz de búsqueda
+  - Si está en otra página: navega al catálogo con la interfaz de búsqueda visible
+
+## Beneficios principales
+1. **Eliminación de recargas innecesarias**: La navegación entre catálogo y búsqueda ya no provoca recargas
+2. **Acceso público mejorado**: Cualquier visitante puede explorar el catálogo sin necesidad de registro
+3. **Interfaz unificada**: Una única interfaz coherente para consultar todos los libros
+4. **Experiencia de usuario mejorada**: Filtros intuitivos y ordenamiento sencillo
+5. **Optimización de código**: Eliminación de duplicaciones y mejora de la estructura
+6. **Mantenimiento simplificado**: Concentración de la lógica de búsqueda en un solo componente
+
+## Implementación técnica
+- **Enfoque basado en estado**: Uso de estados React para controlar la visualización de interfaces
+- **URL con parámetros**: Utilización de parámetros en URL para preservar el estado de búsqueda
+- **Interacción contextual**: Comportamiento del icono de búsqueda adaptado al contexto actual
+- **Filtrado eficiente**: Implementación de filtros en el cliente para respuesta instantánea
+- **Ordenamiento flexible**: Sistema de ordenación por múltiples campos con dirección configurable
+
+## Estado actual del sistema ✅
+- **Catálogo público**: Accesible para todos los usuarios, autenticados o no
+- **Búsqueda integrada**: Completamente funcional dentro del catálogo
+- **Filtros avanzados**: Por categoría, rango de precios y otros campos
+- **Ordenamiento**: Implementado para título, precio y año de publicación
+- **Navegación optimizada**: Sin recargas innecesarias entre vistas relacionadas
+
+## Mejoras específicas de interfaz
+1. **Botón de alternar búsqueda**: Permite mostrar/ocultar la interfaz de búsqueda según necesidad
+2. **Filtros intuitivos**: Controles claros para cada tipo de filtrado
+3. **Indicadores visuales**: Resaltado de filtros activos y dirección de ordenamiento
+4. **Mensajes informativos**: Retroalimentación clara cuando no hay resultados
+5. **Barra de búsqueda mejorada**: Busca en múltiples campos (título, autor, ISBN, año)
+
+## Proceso de búsqueda actual
+1. **Usuario accede al catálogo**: Ve todos los libros disponibles
+2. **Usuario activa la búsqueda**: Desde el navbar o con el botón "Mostrar búsqueda"
+3. **Usuario configura filtros**: Selecciona categoría, rango de precios y/o término de búsqueda
+4. **Usuario ordena resultados**: Selecciona campo y dirección (ascendente/descendente)
+5. **Sistema muestra resultados**: Filtrados y ordenados según los criterios especificados
+
+## Próximos pasos 🚧
+1. Implementar sistema de paginación para grandes colecciones de libros
+2. Añadir filtros adicionales como popularidad o valoración
+3. Implementar búsqueda por características avanzadas (número de páginas, idioma)
+4. Desarrollar sistema de búsqueda predictiva con sugerencias
+5. Integrar con el sistema de recomendaciones
+
+## Notas técnicas
+- La implementación actual utiliza filtrado en el cliente para mayor velocidad
+- Todos los componentes ahora utilizan el sistema centralizado de configuración de API
+- Se ha mejorado el manejo de tipos de datos para prevenir errores en las operaciones de filtrado
+- La estructura del código permite fácil expansión para nuevos tipos de filtros en el futuro

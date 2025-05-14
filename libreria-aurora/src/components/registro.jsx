@@ -9,10 +9,11 @@ import AuthFrame from "./ui/authFrame";
 
 import 'react-phone-number-input/style.css'
 import PhoneInput from 'react-phone-number-input'
+import { getApiUrl } from "../api/config";
 
 function Registro() {
   const [value, setValue] = useState("");
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/";
+  const backendURL = getApiUrl("/api/usuarios/");
   const navigate = useNavigate();
 
   const [userData, setUserData] = useState({
@@ -26,7 +27,8 @@ function Registro() {
     numero_identificacion: "",
     telefono: "",
     direccion: "",
-    fecha_nacimiento: ""
+    fecha_nacimiento: "",
+    nacionalidad: ""
   });
 
   const handleChange = (e) => {
@@ -61,7 +63,8 @@ function Registro() {
       "last_name",
       "numero_identificacion",
       "direccion",
-      "fecha_nacimiento"
+      "fecha_nacimiento",
+      "nacionalidad"
     ];
 
     for (let field of requiredFields) {
@@ -97,7 +100,8 @@ function Registro() {
           numero_identificacion: userData.numero_identificacion,
           telefono: value, // Se utiliza el estado "value" del PhoneInput
           direccion: userData.direccion,
-          fecha_nacimiento: userData.fecha_nacimiento
+          fecha_nacimiento: userData.fecha_nacimiento,
+          nacionalidad: userData.nacionalidad
         })
       });
 
@@ -196,6 +200,13 @@ function Registro() {
             name="fecha_nacimiento" 
             max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]} // Máximo: hoy - 18 años
             min={new Date(new Date().setFullYear(new Date().getFullYear() - 140)).toISOString().split("T")[0]} // Mínimo: hoy - 140 años
+          />
+          <InputText
+            type="text"
+            placeholder="Nacionalidad"
+            value={userData.nacionalidad}
+            onChange={handleChange}
+            name="nacionalidad"
           />
 
           <ButtonA text="Registrarse" type="submit" width="60%" color="#2B388C" />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getApiUrl } from "../../api/config";
 
 function EditContentPreferences() {
   const [preferences, setPreferences] = useState({
@@ -12,6 +13,9 @@ function EditContentPreferences() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const preferencesUrl = getApiUrl("/api/usuarios/preferencias_suscripcion/");
+  const updatePreferencesUrl = getApiUrl("/api/usuarios/actualizar_preferencias/");
+
   // Cargar preferencias actuales del usuario
   useEffect(() => {
     const fetchPreferences = async () => {
@@ -19,7 +23,7 @@ function EditContentPreferences() {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const response = await fetch("https://proyecto-libreria-k9xr.onrender.com/api/usuarios/preferencias_suscripcion/", {
+        const response = await fetch(preferencesUrl, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -47,7 +51,7 @@ function EditContentPreferences() {
     };
 
     fetchPreferences();
-  }, []);
+  }, [preferencesUrl]);
 
   const handleToggle = (key) => {
     setPreferences((prev) => ({
@@ -64,7 +68,7 @@ function EditContentPreferences() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch("https://proyecto-libreria-k9xr.onrender.com/api/usuarios/actualizar_preferencias/", {
+      const response = await fetch(updatePreferencesUrl, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
