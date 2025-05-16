@@ -58,6 +58,7 @@ class Usuario(AbstractUser):
         null=True,
         help_text='Foto de perfil (formatos: JPG, PNG, WebP)'
     )
+    departamento = models.TextField(blank=True, null=True)
     nacionalidad = models.TextField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
