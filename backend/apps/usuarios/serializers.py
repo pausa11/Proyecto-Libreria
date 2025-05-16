@@ -12,7 +12,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name',
             'tipo_usuario', 'numero_identificacion', 'telefono',
             'direccion', 'fecha_nacimiento', 'fecha_registro',
-            'ultima_actualizacion', 'activo', 'foto_perfil', 'nacionalidad'
+            'ultima_actualizacion', 'activo', 'foto_perfil', 
+            'nacionalidad', 'departamento'
         )
         read_only_fields = ('id', 'fecha_registro', 'ultima_actualizacion')
 
@@ -59,7 +60,7 @@ class UsuarioRegistroSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'password', 'password2', 'email', 'first_name',
             'last_name', 'tipo_usuario', 'numero_identificacion',
-            'telefono', 'direccion', 'fecha_nacimiento', 'nacionalidad'
+            'telefono', 'direccion', 'fecha_nacimiento', 'nacionalidad', 'departamento'
         )
 
     def validate(self, attrs):

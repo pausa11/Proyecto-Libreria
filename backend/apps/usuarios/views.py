@@ -55,6 +55,8 @@ Usuario = get_user_model()
                     "last_name": "Apellido",
                     "tipo_usuario": "LECTOR",
                     "nacionalidad" : "Colombia",
+                    "departamento" : "Cundinamarca",
+                    "numero_identificacion": "12345678910",
                 }
             )
         ]
