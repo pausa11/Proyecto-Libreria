@@ -173,6 +173,20 @@ class PreferenciasUsuarioPorCategoriauAutorSerializer(serializers.ModelSerialize
         model = UsuarioPreferencias
         fields = ['preferencias']
         read_only_fields = ['preferencias']
+
+class ListaPreferenciasSerializer(serializers.ModelSerializer):
+    """
+    Serializer para obtener o reemplazar toda la lista de preferencias del usuario.
+    """
+    preferencias = serializers.ListField(
+        child=serializers.CharField(max_length=100),
+        allow_empty=True
+    )
+
+    class Meta:
+        model = UsuarioPreferencias
+        fields = ['preferencias']
+
         
     
 

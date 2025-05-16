@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import ButtonA from "../ui/buttonA";
 import InputAuora from "../ui/input";
+import { getApiUrl } from "../../api/config";
 
 function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -17,7 +18,7 @@ function ChangePassword() {
   const [userId, setUserId] = useState(null);
 
   // URL base para la API
-  const baseUrl = "https://proyecto-libreria-k9xr.onrender.com/api";
+  const baseUrl = getApiUrl("/api");
   const profileUrl = `${baseUrl}/usuarios/perfil/`;
 
   // Obtener el perfil del usuario para conseguir su ID

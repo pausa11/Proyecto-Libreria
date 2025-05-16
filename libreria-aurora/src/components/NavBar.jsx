@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { User, ShoppingCart, Search , LogOut} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { User, ShoppingCart, Search, LogOut } from "lucide-react";
 import logo from "../images/Logo.svg";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { getApiUrl } from "../api/config";
 
-function NavBar() {
-
+function NavBar({ toggleSearch }) {
     const navigate = useNavigate();
+    const location = useLocation();
     const [userName, setUserName] = useState(null);
-    const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/usuarios/perfil/";
+    const backendURL = getApiUrl("/api/usuarios/perfil/");
 
     useEffect(() => {
         AOS.init({
@@ -42,7 +43,6 @@ function NavBar() {
             }
 
             const data = await response.json();
-            // console.log("Datos de usuario:", data);
             setUserName(data.username);
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -64,6 +64,16 @@ function NavBar() {
             navigate('/login')
         }
     }
+    
+    const handleSearchClick = () => {
+        // Si estamos en el catálogo, usamos el toggle
+        if (location.pathname === '/catalogo' && toggleSearch) {
+            toggleSearch();
+        } else {
+            // Si no, navegamos al catálogo con el parámetro para mostrar búsqueda
+            navigate('/catalogo?search=true');
+        }
+    };
 
     return (
         <nav className="h-[12vh] bg-[white] flex justify-between items-center p-[2vw] border-b-[.5vh] border-[#2B388C]" data-aos="fade-down">
@@ -83,7 +93,7 @@ function NavBar() {
                 )}
                 <User size={'2.5vw'} color="#2B388C" onClick={handlePerfil} />
                 <ShoppingCart size={'2.5vw'} color="#2B388C" onClick={() => navigate('/cart')} />
-                <Search size={'2.5vw'} color="#2B388C" onClick={() => navigate('/search')} />
+                <Search size={'2.5vw'} color="#2B388C" onClick={handleSearchClick} />
                 {userName && (
                     <LogOut size={'2.5vw'} color="#2B388C" onClick={() => handleLogout()}/> 
                 )}

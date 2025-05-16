@@ -5,10 +5,11 @@ import ButtonA from "./ui/buttonA";
 import BookCard from "./home/bookCard";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
+import { getApiUrl } from "../api/config";
 
 const Home = () => {
   const navigate = useNavigate();
-  const backendURL = "https://proyecto-libreria-k9xr.onrender.com/api/libros/";
+  const backendURL = getApiUrl("/api/libros/");
 
   const [books, setBooks] = useState([]);
   const [popularBooks, setPopularBooks] = useState([]);
