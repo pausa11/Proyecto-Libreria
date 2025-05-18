@@ -47,6 +47,8 @@ function EditProfile() {
     getUserData();
   }, []);
 
+
+  console.log("Usuario:", usuario);
   // Limpiar la URL de la vista previa cuando el componente se desmonte
   useEffect(() => {
     return () => {

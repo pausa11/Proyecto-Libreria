@@ -262,10 +262,7 @@ function Catalogo() {
           {filteredBooks.length > 0 ? (
             filteredBooks.map((book) => (
               <BookCard
-                key={book.id}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://via.placeholder.com/150"}
+                book={book}
                 color="white"
               />
             ))
