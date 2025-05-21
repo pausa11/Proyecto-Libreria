@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import ButtonA from "./ui/buttonA";
-import BookCard from "./home/bookCard";
+import BookCard from "./book/bookCard";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
 import { getApiUrl } from "../api/config";
@@ -108,12 +108,9 @@ const Home = () => {
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Populares </p> 
           <div className="w-full flex justify-center">
-            {popularBooks.map((book, index) => (
+            {popularBooks.map((book) => (
               <BookCard
-                key={book.id || index}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                book={book}
               />
             ))}
           </div>
@@ -178,12 +175,9 @@ const Home = () => {
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
           <div className="w-full flex justify-center">
-            {recentBooks.map((book, index) => (
+            {recentBooks.map((book) => (
               <BookCard
-                key={book.id || index}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                book={book}
               />
             ))}
           </div>

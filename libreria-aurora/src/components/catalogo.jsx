@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import NavBar from "./NavBar";
-import BookCard from "./home/bookCard";
+import BookCard from "./book/bookCard";
 import 'aos/dist/aos.css';
 import { getApiUrl } from "../api/config";
 
@@ -150,7 +150,7 @@ function Catalogo() {
   }
 
   return (
-    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-black">
+    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-[#0B1026]">
       <NavBar toggleSearch={toggleSearchInterface} />
 
       <div className="w-full flex flex-col p-[2vw]">
@@ -262,10 +262,7 @@ function Catalogo() {
           {filteredBooks.length > 0 ? (
             filteredBooks.map((book) => (
               <BookCard
-                key={book.id}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://via.placeholder.com/150"}
+                book={book}
                 color="white"
               />
             ))

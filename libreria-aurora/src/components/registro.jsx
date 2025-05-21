@@ -16,9 +16,8 @@ import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import countries from "i18n-iso-countries";
 import es from "i18n-iso-countries/langs/es.json";
 
-countries.registerLocale(es); // para español
+countries.registerLocale(es);
 
-// Función para obtener código ISO2 del país
 const getCountryCode = (countryName) => {
   const code = countries.getAlpha2Code(countryName, "es") || countries.getAlpha2Code(countryName, "en");
   return code?.toLowerCase();
@@ -42,7 +41,7 @@ function Registro() {
     direccion: "",
     fecha_nacimiento: "",
     nacionalidad: "",
-    estado: ""
+    departamento: ""
   });
 
   const handleChange = (e) => {
@@ -63,7 +62,7 @@ function Registro() {
     const requiredFields = [
       "email", "username", "password", "password2",
       "first_name", "last_name", "numero_identificacion",
-      "direccion", "fecha_nacimiento", "nacionalidad", "estado"
+      "direccion", "fecha_nacimiento", "nacionalidad", "departamento"
     ];
 
     for (let field of requiredFields) {
@@ -141,7 +140,7 @@ function Registro() {
 
             <CountryDropdown
               value={userData.nacionalidad}
-              onChange={(val) => setUserData({ ...userData, nacionalidad: val, estado: "" })}
+              onChange={(val) => setUserData({ ...userData, nacionalidad: val, departamento: "" })}
               defaultOptionLabel="Selecciona tu país"
               labelType="full"
               valueType="full"
@@ -155,10 +154,10 @@ function Registro() {
           <div className="w-[60%] h-[5vh] flex items-center gap-[1vw] border-[.1vh] border-black rounded-[.7vw] p-[1vw] text-[1vw] font-[200]">
               <RegionDropdown
                 country={userData.nacionalidad}
-                value={userData.estado}
-                onChange={(val) => setUserData({ ...userData, estado: val })}
+                value={userData.departamento}
+                onChange={(val) => setUserData({ ...userData, departamento: val })}
                 classes="w-full h-[5vh] border border-black rounded px-2 text-[1vw] bg-white mt-2"
-                defaultOptionLabel="Selecciona tu estado/provincia/departamento"
+                defaultOptionLabel="Selecciona tu departamento/provincia/departamento"
                 className="w-[100%] h-[5vh] outline-none bg-transparent text-[#787767]"
               />
             </div>

@@ -8,6 +8,7 @@ import Home from './components/Home';
 import SearchBook from './components/SearchBook';
 import Catalogo from './components/catalogo';
 import DetalleLibro from './components/DetalleLibro';
+import Carrito from './components/carrito';
 
 function App() {
   return (
@@ -19,11 +20,11 @@ function App() {
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperarContraseña" element={<RecuperarContraseña />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/" element={<Home/>} />
         <Route path="/miPerfil" element={<MiPerfil/>}/>
         <Route path="/Search" element={<SearchBook/>} />
         <Route path="/catalogo" element={<Catalogo/>} />
         <Route path='/:libro' element={<DetalleLibro/>} />
+        <Route path= "/carrito" element={<Carrito/>} />
       </Routes>
     </HashRouter>
   );
