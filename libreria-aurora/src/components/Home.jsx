@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
 import ButtonA from "./ui/buttonA";
-import BookCard from "./home/bookCard";
+import BookCard from "./book/bookCard";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
 import { getApiUrl } from "../api/config";

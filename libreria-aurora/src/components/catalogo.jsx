@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import NavBar from "./NavBar";
-import BookCard from "./home/bookCard";
+import BookCard from "./book/bookCard";
 import 'aos/dist/aos.css';
 import { getApiUrl } from "../api/config";
 

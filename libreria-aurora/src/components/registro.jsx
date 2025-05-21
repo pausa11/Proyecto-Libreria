@@ -16,9 +16,8 @@ import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
 import countries from "i18n-iso-countries";
 import es from "i18n-iso-countries/langs/es.json";
 
-countries.registerLocale(es); // para español
+countries.registerLocale(es);
 
-// Función para obtener código ISO2 del país
 const getCountryCode = (countryName) => {
   const code = countries.getAlpha2Code(countryName, "es") || countries.getAlpha2Code(countryName, "en");
   return code?.toLowerCase();
