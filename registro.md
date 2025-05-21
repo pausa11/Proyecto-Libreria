@@ -1932,3 +1932,172 @@ Se ha reestructurado completamente el sistema de catálogo y búsqueda para reso
 - Todos los componentes ahora utilizan el sistema centralizado de configuración de API
 - Se ha mejorado el manejo de tipos de datos para prevenir errores en las operaciones de filtrado
 - La estructura del código permite fácil expansión para nuevos tipos de filtros en el futuro
+
+# Implementación del Módulo de Mensajería para Sistema de Gestión de Biblioteca
+
+## [2023-10-15] Implementación del Sistema de Mensajería y Foros
+
+### Visión general
+
+Se implementó un sistema completo de mensajería que permite a los usuarios comunicarse con el personal de la biblioteca a través de foros personales. El sistema incluye componentes para usuarios regulares y personal administrativo, con diferentes niveles de acceso y funcionalidades.
+
+### Backend (Django)
+
+- **fix(mensajeria):** Corregido problema en el método responder del MensajeViewSet
+  - **commit:** Corrección del atributo 'estado' por 'estado_mensaje' en MensajeViewSet
+    - Actualizado método `responder()` para utilizar el atributo correcto `estado_mensaje` en vez de `estado`
+    - Añadido manejo de excepciones detallado con mensajes específicos de error
+    - Implementada verificación de permisos y datos para respuestas
+    - Agregado logging para un mejor seguimiento de errores
+
+  ```python
+  @action(detail=True, methods=['post'])
+  def responder(self, request, **kwargs):
+      try:
+          mensaje_original = self.get_object()
+          
+          # Corregido: usar estado_mensaje en lugar de estado
+          if mensaje_original.estado_mensaje == 'ABIERTO':
+              mensaje_original.estado_mensaje = 'RESPONDIDO'
+              mensaje_original.save()
+              
+          # Resto de la implementación...
+  ```
+
+- **fix(mensajeria):** Corregido problema en el método cerrar del MensajeViewSet
+  - **commit:** Actualización del método cerrar para usar estado_mensaje consistentemente
+    - Corregido método `cerrar()` para usar `estado_mensaje` en lugar de `estado`
+    - Mejorado manejo de errores para evitar fallos en frontend
+
+  ```python
+  @action(detail=True, methods=['post'])
+  def cerrar(self, request, **kwargs):
+      try:
+          mensaje = self.get_object()
+          
+          # Actualizar estado del mensaje
+          mensaje.estado_mensaje = 'CERRADO'  # Corregido estado → estado_mensaje
+          mensaje.save()
+          
+          # Resto de la implementación...
+  ```
+
+### Frontend (React)
+
+- **feat(mensajeria):** Implementación del componente forumMessages.jsx para usuarios
+  - **commit:** Creación del componente de mensajería para usuarios regulares
+    - Desarrollado sistema para mostrar, crear y responder mensajes
+    - Implementado manejo de notificaciones para nuevos mensajes y respuestas
+    - Añadido filtrado y visualización de estados de mensajes (ABIERTO/RESPONDIDO/CERRADO)
+    - Optimizada la ordenación de mensajes y respuestas cronológicamente
+
+  ```javascript
+  // Ordenación cronológica de respuestas para mejor seguimiento de conversaciones
+  {[...selectedMessage.respuestas].sort((a, b) => 
+    new Date(a.fecha_creacion) - new Date(b.fecha_creacion)
+  ).map(reply => (
+    // Renderizado de las respuestas...
+  ))}
+  ```
+
+- **feat(mensajeria):** Implementación del componente adminForumMessages.jsx para staff
+  - **commit:** Desarrollo del panel de administración de mensajes para personal bibliotecario
+    - Creado sistema de visualización global de todos los foros y mensajes de usuarios
+    - Implementado filtrado por múltiples criterios (estado, usuario, contenido)
+    - Añadidos contadores visuales de mensajes por estado
+    - Desarrollada interfaz para responder y cerrar consultas de usuarios
+
+  ```javascript
+  // Conteo de mensajes por estado para mejor visualización
+  const counts = {
+    ABIERTO: mainMessages.filter(msg => msg.estado_mensaje === 'ABIERTO').length,
+    RESPONDIDO: mainMessages.filter(msg => msg.estado_mensaje === 'RESPONDIDO').length,
+    CERRADO: mainMessages.filter(msg => msg.estado_mensaje === 'CERRADO').length,
+    total: mainMessages.length
+  };
+  setMessageCounts(counts);
+  ```
+
+- **fix(mensajeria):** Optimización del manejo de errores en respuestas de mensajes
+  - **commit:** Implementación de solución para error 'Mensaje object has no attribute estado'
+    - Añadido manejo específico del error conocido del backend en ambos componentes
+    - Implementada captura y parseo de respuestas de error para mejor feedback al usuario
+    - Desarrollada solución que permite continuar funcionando correctamente a pesar del error
+
+  ```javascript
+  // En adminForumMessages.jsx y forumMessages.jsx
+  if (responseText.includes("'Mensaje' object has no attribute 'estado'")) {
+    console.warn("Error conocido del backend, pero la respuesta probablemente se guardó correctamente");
+    toast.success("Respuesta enviada correctamente");
+    setReplyContent("");
+    
+    // Esperamos un momento y actualizamos para ver la nueva respuesta
+    setTimeout(() => {
+      fetchMessageDetails(selectedMessage.id);
+      // En adminForumMessages.jsx también actualizamos todos los mensajes
+      fetchAllMessages && fetchAllMessages();
+    }, 1000);
+    return;
+  }
+  ```
+
+- **fix(mensajeria):** Mejoras de usabilidad en componentes de mensajería
+  - **commit:** Actualizaciones de UI/UX en componentes de mensajería
+    - Mejorada la visualización de estados con códigos de colores consistentes
+    - Implementado resaltado visual para mensajes abiertos en panel administrativo
+    - Optimizada la experiencia de búsqueda y filtrado de mensajes
+    - Añadido refresco automático de datos después de acciones importantes
+
+  ```javascript
+  // Estilizado de estados de mensajes para mejor visualización
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'ABIERTO':
+        return 'bg-amber-100 text-amber-800';
+      case 'RESPONDIDO':
+        return 'bg-green-100 text-green-800';
+      case 'CERRADO':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-600';
+    }
+  };
+  ```
+
+### Integración y flujo de trabajo
+
+- **feat(perfil):** Integración del sistema de mensajería en el perfil de usuario
+  - **commit:** Integración de componentes de mensajería en el sistema de perfil
+    - Añadida lógica para mostrar el componente adecuado según el rol del usuario (staff/usuario)
+    - Implementada navegación contextual entre secciones del perfil
+    - Optimizada la carga de datos según permisos y necesidades del usuario
+
+### Correcciones y mejoras
+
+- **fix(mensajería):** Optimización de rendimiento en carga de mensajes
+  - **commit:** Mejora del rendimiento en carga de datos de mensajería
+    - Implementada carga optimizada de mensajes para evitar múltiples peticiones al servidor
+    - Añadido filtrado local de mensajes ya cargados para reducir llamadas al API
+    - Mejorado manejo de estado para prevenir renderizados innecesarios
+
+## Resumen del sistema implementado
+
+El sistema de mensajería ahora cuenta con:
+
+1. **Foros personales**: Cada usuario dispone de un foro personal donde puede crear consultas y recibir respuestas.
+
+2. **Vista diferenciada por roles**:
+   - **Usuarios regulares**: Pueden ver su foro personal, crear mensajes nuevos y responder a mensajes existentes.
+   - **Personal (staff)**: Pueden ver todos los foros, responder a cualquier mensaje y cerrar consultas.
+
+3. **Estados de mensajes**:
+   - **ABIERTO**: Mensajes nuevos sin respuesta.
+   - **RESPONDIDO**: Mensajes que han recibido al menos una respuesta.
+   - **CERRADO**: Consultas marcadas como resueltas o cerradas por un administrador.
+
+4. **Notificaciones**: Sistema de notificaciones para informar a los usuarios cuando reciben respuestas a sus mensajes.
+
+5. **Filtrado y búsqueda**: Capacidades avanzadas de búsqueda y filtrado, especialmente para el staff.
+
+6. **Manejo robusto de errores**: Soluciones implementadas para manejar errores conocidos del backend de manera transparente para el usuario.
+

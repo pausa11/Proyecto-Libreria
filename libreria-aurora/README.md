@@ -111,6 +111,11 @@ In the project directory, you can run:
 
 ## `cd libreria-aurora`
 
+### node.js installed
+Make sure you have Node.js installed. You can download it from [nodejs.org](https://nodejs.org/).
+
+### `npm install`
+
 ### `npm start`
 
 Runs the app in the development mode.\
