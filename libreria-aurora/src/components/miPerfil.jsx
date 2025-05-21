@@ -1,26 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar";
+import { getApiUrlByKey } from "../api/config";
 
 import EditProfile from "./profile/editProfile";
 import FinancialManagement from "./profile/financialManagement";
 import ChangePassword from "./profile/ChangePassword";
+import ForumMessages from "./profile/forumMessages";
+import AdminForumMessages from "./profile/adminForumMessages";
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
+  const [isStaff, setIsStaff] = useState(false);
+  
+  // Verificar si el usuario es staff
+  useEffect(() => {
+    const checkUserRole = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        
+        // Usar la función getApiUrlByKey para obtener la URL correcta desde la configuración centralizada
+        const perfilUrl = getApiUrlByKey("usuariosPerfil");
+        
+        const response = await fetch(perfilUrl, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          // Verificar si el usuario tiene permisos de staff
+          if (userData.tipo_usuario === 'ADMIN' || userData.tipo_usuario === 'BIBLIOTECARIO' || userData.is_staff) {
+            setIsStaff(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error al verificar el rol del usuario:", error);
+      }
+    };
+    
+    checkUserRole();
+  }, []);
 
   const renderContent = () => {
     switch (selectedOption) {
       case 'editar perfil':
-        return <EditProfile/>
+        return <EditProfile/>;
       case 'cambiar contraseña':
         return <ChangePassword/>;
       case 'gestion financiera':
-        return <FinancialManagement/>
+        return <FinancialManagement/>;
       case 'pedidos':
         return <p className="p-6 text-black text-lg">Aquí verás tus pedidos realizados.</p>;
       case 'foro':
-        return <p className="p-6 text-black text-lg">Bienvenido al foro de usuarios.</p>;
+        // Mostrar el componente adecuado según el rol del usuario
+        return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
       default:
         return <p className="p-6 text-black text-lg">Selecciona una opción del menú.</p>;
     }

@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Q
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+import logging  # Añadimos logging para diagnosticar problemas
+
 from .models import ForoPersonal, Mensaje, NotificacionMensaje
 from .serializers import (
     ForoPersonalSerializer,
@@ -12,6 +14,9 @@ from .serializers import (
     MensajeDetalladoSerializer,
     NotificacionMensajeSerializer
 )
+
+# Configuramos un logger
+logger = logging.getLogger(__name__)
 
 class IsOwnerOrStaff(permissions.BasePermission):
     """
@@ -71,78 +76,106 @@ class ForoPersonalViewSet(viewsets.ModelViewSet):
     ]
 )
 class MensajeViewSet(viewsets.ModelViewSet):
+    """
+    API para gestionar mensajes en foros personales.
+    """
     serializer_class = MensajeSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrStaff]
     lookup_field = 'id'
     lookup_url_kwarg = 'id'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            logger.info(f"Staff user {user.username} accessing all messages")
+            return Mensaje.objects.all()
+        
+        logger.info(f"User {user.username} accessing their messages")
+        return Mensaje.objects.filter(
+            Q(foro__usuario=user) | Q(autor=user)
+        ).distinct()
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return MensajeDetalladoSerializer
         return MensajeSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return Mensaje.objects.all()
-        return Mensaje.objects.filter(
-            Q(foro__usuario=user) | Q(autor=user)
-        ).distinct()
-
-    @extend_schema(
-        description=_('Responder a un mensaje existente'),
-        responses={201: MensajeSerializer},
-        parameters=[
-            OpenApiParameter(
-                name='id',
-                type=int,
-                location=OpenApiParameter.PATH,
-                description='ID del mensaje al que se responderá'
-            )
-        ]
-    )
+    def perform_create(self, serializer):
+        serializer.save(autor=self.request.user)
+    
+    # Corrigiendo el método responder para manejar correctamente los parámetros
     @action(detail=True, methods=['post'])
-    def responder(self, request, pk=None):
-        mensaje_original = self.get_object()
-        serializer = self.get_serializer(data={
-            'foro': mensaje_original.foro.id,
-            'contenido': request.data.get('contenido'),
-            'es_respuesta': True,
-            'mensaje_original': mensaje_original.id
-        })
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        # Actualizar estado del mensaje original
-        mensaje_original.estado_mensaje = 'RESPONDIDO'
-        mensaje_original.save()
-        
-        # Crear notificación
-        NotificacionMensaje.objects.create(
-            usuario=mensaje_original.autor,
-            mensaje=serializer.instance
-        )
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @extend_schema(
-        description=_('Cerrar un mensaje'),
-        responses={200: None},
-        parameters=[
-            OpenApiParameter(
-                name='id',
-                type=int,
-                location=OpenApiParameter.PATH,
-                description='ID del mensaje a cerrar'
+    def responder(self, request, **kwargs):
+        try:
+            mensaje_original = self.get_object()
+            user = request.user
+            
+            pk = self.kwargs.get(self.lookup_url_kwarg)
+            logger.info(f"User {user.username} attempting to reply to message {pk}")
+            
+            # Verificamos los datos de la solicitud
+            logger.debug(f"Request data: {request.data}")
+            if 'contenido' not in request.data:
+                logger.error(f"Missing 'contenido' in request data for message {pk}")
+                return Response(
+                    {"error": "El contenido es obligatorio"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Crear la respuesta
+            respuesta = Mensaje.objects.create(
+                autor=user,
+                foro=mensaje_original.foro,
+                contenido=request.data['contenido'],
+                es_respuesta=True,
+                mensaje_original=mensaje_original
             )
-        ]
-    )
+            
+            # Actualizar el estado del mensaje original si estaba ABIERTO
+            if mensaje_original.estado_mensaje == 'ABIERTO':
+                mensaje_original.estado_mensaje = 'RESPONDIDO'
+                mensaje_original.save()
+                logger.info(f"Message {pk} status updated to RESPONDIDO")
+            
+            # Crear notificación para el autor del mensaje original
+            if mensaje_original.autor != user:
+                NotificacionMensaje.objects.create(
+                    usuario=mensaje_original.autor,
+                    mensaje=respuesta,
+                    tipo='RESPUESTA'  # Asegurar que se envía el tipo correcto
+                )
+                logger.info(f"Notification created for user {mensaje_original.autor.username}")
+            
+            logger.info(f"Reply to message {pk} created successfully with ID {respuesta.id}")
+            return Response(MensajeSerializer(respuesta).data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            logger.error(f"Error in responder action: {str(e)}", exc_info=True)
+            return Response(
+                {"error": f"Error al responder el mensaje: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    # Corrigiendo también el método cerrar por consistencia
     @action(detail=True, methods=['post'])
-    def cerrar(self, request, pk=None):
-        mensaje = self.get_object()
-        mensaje.estado_mensaje = 'CERRADO'
-        mensaje.save()
-        return Response(status=status.HTTP_200_OK)
+    def cerrar(self, request, **kwargs):
+        try:
+            mensaje = self.get_object()
+            
+            # Actualizar estado del mensaje
+            mensaje.estado_mensaje = 'CERRADO'  # Corregido estado → estado_mensaje
+            mensaje.save()
+            
+            return Response(
+                {"mensaje": "Mensaje cerrado correctamente"},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            logger.error(f"Error in cerrar action: {str(e)}", exc_info=True)
+            return Response(
+                {"error": f"Error al cerrar el mensaje: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 @extend_schema(
     tags=['Notificaciones'],
