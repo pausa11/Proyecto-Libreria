@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import AuthFrame from "./ui/authFrame";
-import InputAuora from "./ui/input";
-import ButtonA from "./ui/buttonA";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
-import NavBar from "./NavBar";
 import { getApiUrl } from "../api/config";
+import NavBar from "./NavBar";
+import AuthFrame from "./ui/authFrame";
+import ButtonA from "./ui/buttonA";
+import InputAuora from "./ui/input";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -138,15 +139,6 @@ function ResetPassword() {
       setIsLoading(false);
     }
   };
-
-  // Componente para el spinner de carga
-  const LoadingSpinner = () => (
-    <div className="flex flex-col items-center justify-center h-[25vh] w-full">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2B388C] mb-4"></div>
-      <p className="text-gray-700">Procesando solicitud...</p>
-    </div>
-  );
-
   // Componente para los requisitos de la contraseña
   const PasswordRequirements = () => (
     <div className="w-[90%] md:w-[80%] my-3 p-3 bg-slate-50 rounded-md text-sm">
@@ -192,9 +184,8 @@ function ResetPassword() {
         <h1 className="text-2xl md:text-3xl font-medium w-full md:w-[80%] text-center md:text-left mb-6">
           Restablecer contraseña
         </h1>
-        
-        {isLoading ? (
-          <LoadingSpinner />
+          {isLoading ? (
+          <LoadingSpinner message="Procesando solicitud..." />
         ) : resetSuccess ? (
           <SuccessMessage />
         ) : isTokenValid ? (

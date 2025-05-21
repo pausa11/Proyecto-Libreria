@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import 'aos/dist/aos.css';
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { getApiUrl } from "../api/config";
 import NavBar from "./NavBar";
 import BookCard from "./book/bookCard";
-import 'aos/dist/aos.css';
-import { getApiUrl } from "../api/config";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 function Catalogo() {
   const backendURL = getApiUrl("/api/libros/");
@@ -140,12 +141,15 @@ function Catalogo() {
     });
     setSearchTerm("");
   };
-
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
-        Cargando libros...
-      </div>
+      <LoadingSpinner 
+        message="Cargando libros..." 
+        height="h-screen" 
+        size="lg"
+        bgColor="bg-black"
+        textColor="text-white"
+      />
     );
   }
 

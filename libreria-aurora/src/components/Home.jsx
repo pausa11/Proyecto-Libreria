@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getApiUrl } from "../api/config";
+import BookCard from "./book/bookCard";
 import NavBar from "./NavBar";
 import ButtonA from "./ui/buttonA";
-import BookCard from "./book/bookCard";
-import 'aos/dist/aos.css';
-import AOS from 'aos';
-import { getApiUrl } from "../api/config";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -85,9 +86,11 @@ const Home = () => {
   // If no books are loaded, show a loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Cargando libros...
-      </div>
+      <LoadingSpinner 
+        message="Cargando libros..." 
+        height="h-screen" 
+        size="lg"
+      />
     );
   }
 

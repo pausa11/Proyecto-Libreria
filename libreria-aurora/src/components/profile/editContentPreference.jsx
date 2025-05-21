@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getApiUrl } from "../../api/config";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 function EditBookPreferences() {
   const categoriesArray = ['Académico', 'Ficción', 'No Ficción'];
@@ -83,9 +84,8 @@ function EditBookPreferences() {
     updatePreferencias(actualizadas);
     setNuevaPreferencia("");
   };
-
   if (loading) {
-    return <div className="p-6 text-gray-700">Cargando preferencias...</div>;
+    return <LoadingSpinner message="Cargando preferencias..." />;
   }
 
   return (
