@@ -150,7 +150,7 @@ function Catalogo() {
   }
 
   return (
-    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-black">
+    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-[#0B1026]">
       <NavBar toggleSearch={toggleSearchInterface} />
 
       <div className="w-full flex flex-col p-[2vw]">
