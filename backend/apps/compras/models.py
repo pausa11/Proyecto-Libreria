@@ -47,7 +47,7 @@ class Carrito(models.Model):
                 "mensaje": "Saldo insuficiente para realizar la compra."
             }
         else:
-            saldo.modificar_saldo(saldo.mostrar_saldo() - total)
+            saldo.descontar_saldo(total)
             self.limpiar_carrito()
             return {
                 "estado": "exito",
