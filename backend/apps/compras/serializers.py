@@ -7,5 +7,5 @@ class CarritoSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('fecha',)  # Debe ser una tupla con coma al final si solo hay un elemento
 
-class AgregarLibroSerializer(serializers.Serializer):
+class AgregaroQuitarLibroSerializer(serializers.Serializer):
     libro_id = serializers.IntegerField(required=True)
