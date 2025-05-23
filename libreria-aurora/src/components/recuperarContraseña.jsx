@@ -5,7 +5,7 @@ import ButtonA from "./ui/buttonA";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { Loader } from "lucide-react";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import { getApiUrl } from "../api/config";
 
 function RecuperarContraseña() {

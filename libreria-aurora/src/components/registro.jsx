@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { Flag } from "lucide-react";

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../api/config";
 import BookCard from "./book/bookCard";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import ButtonA from "./ui/buttonA";
 import LoadingSpinner from "./ui/LoadingSpinner";
 
