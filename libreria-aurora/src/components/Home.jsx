@@ -83,6 +83,11 @@ const Home = () => {
     }
   }, [books]);
 
+
+  const handleNavigate = (book) => {
+    navigate(`/${book.titulo}`, { state: { libro: book } });
+  };
+
   // If no books are loaded, show a loading state
   if (isLoading) {
     return (
@@ -109,7 +114,7 @@ const Home = () => {
 
       <div id="populares" className="w-full p-[2vw]" data-aos="fade-up">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
-          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Populares </p> 
+          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center mb-10"> Populares </p> 
           <div className="w-full flex justify-center items-center gap-4">
             {popularBooks.map((book) => (
               <BookCard
@@ -129,17 +134,17 @@ const Home = () => {
         </div>
       </div>
 
-      <div id="tres-aleatorios" className="flex flex-col w-full p-[10vw] gap-10 bg-white" data-aos="fade-up">
+      <div id="tres-aleatorios" className="flex flex-col w-full p-[10vw] gap-10 bg-white" data-aos="fade-up" >
         {threeRandomBooks.length > 0 &&
           [0, 1, 2].map((_, index) => (
-            <div key={index} className="h-[40vh] w-full flex flex-row justify-evenly">
+            <div key={index} className="h-[40vh] w-full flex flex-row justify-center items-center gap-10" onClick={() => handleNavigate(threeRandomBooks[index])}>
               {index % 2 === 0 ? (
                 <>
-                  <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
+                  <div className="w-[20%] h-full bg-[#E8BD83] rounded-lg">
                     <img 
                       src={threeRandomBooks[index].portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
-                      className="w-full h-full object-cover rounded-lg" 
+                      className="w-full h-full object-cover transition duration-300 ease-in-out group-hover:blur-sm rounded-lg" 
                     />
                   </div>
                   <div className="flex flex-col justify-start items-start w-[50%] h-[80%]">
@@ -153,7 +158,7 @@ const Home = () => {
                 </>
               ) : (
                 <>
-                  <div className="flex flex-col justify-start items-start w-[50%] h-[80%]">
+                  <div className="flex flex-col justify-start items-center w-[50%] h-[80%]" onClick={() => handleNavigate(threeRandomBooks[index])}>
                     <h1 className="font-medium text-4xl">
                       {threeRandomBooks[index].titulo}
                     </h1>
@@ -161,11 +166,11 @@ const Home = () => {
                       {threeRandomBooks[index].descripcion}
                     </h2>
                   </div>
-                  <div className="w-[30%] h-full bg-[#E8BD83] rounded-lg">
+                  <div className="w-[20%] h-full bg-[#E8BD83] rounded-lg">
                     <img 
                       src={threeRandomBooks[index].portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"} 
                       alt="portada del libro" 
-                      className="w-full h-full object-cover rounded-lg" 
+                      className="w-full h-full object-cover transition duration-300 ease-in-out group-hover:blur-sm rounded-lg" 
                     />
                   </div>
                 </>
@@ -176,7 +181,7 @@ const Home = () => {
 
       <div id="recent-books" className="w-full p-[2vw]" data-aos="fade-down">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
-          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
+          <p className="text-[2vw] font-medium text-center h-[10%] flex items-center mb-10"> Recién Agregados </p>
           <div className="w-full flex justify-center items-center gap-4">
             {recentBooks.map((book) => (
               <BookCard

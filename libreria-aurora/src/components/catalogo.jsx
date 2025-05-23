@@ -182,7 +182,7 @@ function Catalogo() {
                   name="categoria" 
                   value={filters.categoria} 
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black h-[4vh] "
+                  className="p-2 rounded-lg text-black h-10 "
                 >
                   <option value="">Todas</option>
                   {categorias.map(cat => (
@@ -199,7 +199,7 @@ function Catalogo() {
                   placeholder="Min"
                   value={filters.precio_min}
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black h-[4vh] "
+                  className="p-2 rounded-lg text-black h-10 "
                 />
               </div>
 
@@ -211,7 +211,7 @@ function Catalogo() {
                   placeholder="Max"
                   value={filters.precio_max}
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black h-[4vh] "
+                  className="p-2 rounded-lg text-black h-10 "
                 />
               </div>
 
@@ -220,19 +220,19 @@ function Catalogo() {
                 <div className="flex gap-2 flex-wrap">
                   <button 
                     onClick={() => handleSortChange('titulo')}
-                    className={`px-3 py-1 rounded  ${sortConfig.field === 'titulo' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-[4vh]`}
+                    className={`px-3 py-1 rounded  ${sortConfig.field === 'titulo' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Título {sortConfig.field === 'titulo' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
                   <button 
                     onClick={() => handleSortChange('precio')}
-                    className={`px-3 py-1 rounded ${sortConfig.field === 'precio' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-[4vh]`}
+                    className={`px-3 py-1 rounded ${sortConfig.field === 'precio' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Precio {sortConfig.field === 'precio' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
                   <button 
                     onClick={() => handleSortChange('año_publicacion')}
-                    className={`px-3 py-1 rounded ${sortConfig.field === 'año_publicacion' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-[4vh]`}
+                    className={`px-3 py-1 rounded ${sortConfig.field === 'año_publicacion' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Año {sortConfig.field === 'año_publicacion' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
