@@ -1,7 +1,7 @@
 import React from "react";
 import { Mail, Key ,Calendar , House, User, CaseUpper , IdCard, Phone} from "lucide-react";
 
-function Input({ type, placeholder, value, onChange, name, min = undefined, max= undefined, width = "", maxLength = undefined, onFocus = undefined , number = true, text = true }) {
+function Input({ type, placeholder, value, onChange, name, min = undefined, max= undefined, width = "60%", maxLength = undefined, onFocus = undefined , number = true, text = true }) {
 
   const handleFocus = (e) => {
     if (onFocus) {
