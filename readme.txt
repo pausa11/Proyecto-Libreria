@@ -33,36 +33,92 @@ Dado que se tratará de un proyecto modular, se recomienda separar el back-end y
 ### A. Repositorio General
 ```
 /
-├── backend/                  # Proyecto Django
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── config/                # Configuración general de Django (settings, urls, wsgi/asgi)
-│   ├── apps/                  # Carpeta que contiene las aplicaciones modulares
-│   │   ├── libros/            # Módulo de Administración de Libros
-│   │   ├── compras/           # Módulo de Compra y Reserva de Libros
-│   │   ├── usuarios/          # Módulo de Usuarios
-│   │   ├── noticias/          # Módulo de Noticias
-│   │   ├── busqueda/          # Módulo de Búsqueda
-│   │   ├── finanzas/          # Módulo de Gestión Financiera
-│   │   ├── mensajeria/        # Módulo de Mensajería
-│   │   └── recomendaciones/   # Módulo de Recomendación
-│   ├── static/                # Archivos estáticos propios del back-end (CSS, JS, imágenes)
-│   └── media/                 # Archivos multimedia (si se requieren para portadas de libros u otros)
+├── backend/                      # Proyecto Django
+│   ├── .env                      # Variables de entorno para Django
+│   ├── manage.py                 # Script de gestión de Django
+│   ├── requirements.txt          # Dependencias del proyecto
+│   ├── venv/                     # Entorno virtual de Python
+│   ├── config/                   # Configuración general de Django
+│   │   ├── __init__.py
+│   │   ├── asgi.py               # Configuración ASGI
+│   │   ├── settings.py           # Configuración del proyecto
+│   │   ├── urls.py               # URLs principales
+│   │   └── wsgi.py               # Configuración WSGI
+│   │
+│   └── apps/                     # Carpeta que contiene las aplicaciones modulares
+│       ├── libros/               # Módulo de Administración de Libros
+│       │   ├── __init__.py
+│       │   ├── admin.py          # Configuración del panel de administración
+│       │   ├── apps.py           # Configuración de la app
+│       │   ├── models.py         # Definición de modelos
+│       │   ├── serializers.py    # Serializadores para la API REST
+│       │   ├── views.py          # Vistas o endpoints de la API
+│       │   ├── urls.py           # Rutas específicas del módulo
+│       │   ├── tests.py          # Pruebas unitarias
+│       │   ├── fixtures/         # Datos iniciales para la base de datos
+│       │   ├── scripts/          # Scripts adicionales
+│       │   └── migrations/       # Migraciones de la base de datos
+│       │
+│       ├── compras/              # Módulo de Compra y Reserva de Libros
+│       ├── usuarios/             # Módulo de Usuarios
+│       │   ├── fixtures/         # Datos iniciales para usuarios
+│       │   ├── signals.py        # Señales de Django para usuarios
+│       │   └── ...               # Otros archivos estándar
+│       │
+│       ├── noticias/             # Módulo de Noticias
+│       │   ├── templates/        # Plantillas específicas
+│       │   ├── signals.py        # Señales para notificaciones
+│       │   ├── notifications.py  # Funciones de notificación
+│       │   └── ...               # Otros archivos estándar
+│       │
+│       ├── busqueda/             # Módulo de Búsqueda
+│       ├── finanzas/             # Módulo de Gestión Financiera
+│       ├── mensajeria/           # Módulo de Mensajería
+│       ├── recomendaciones/      # Módulo de Recomendación
+│       └── reseñas/              # Módulo de Reseñas (nueva app)
 │
-└── frontend/                 # Proyecto Next.js
-    ├── package.json
-    ├── next.config.js
-    ├── pages/                # Páginas principales (Home, Login, Registro, Detalle del Libro, etc.)
-    ├── components/           # Componentes reutilizables (Header, Footer, CardLibro, etc.)
-    ├── styles/               # Hojas de estilo (CSS/SCSS, módulos)
-    └── public/               # Archivos estáticos públicos (imágenes, fuentes)
+└── libreria-aurora/              # Proyecto React (frontend)
+    ├── package.json              # Dependencias y scripts
+    ├── package-lock.json         # Versiones exactas de dependencias
+    ├── postcss.config.js         # Configuración de PostCSS
+    ├── tailwind.config.js        # Configuración de Tailwind CSS
+    ├── README.md                 # Documentación del frontend
+    ├── .gitignore                # Archivos ignorados por Git
+    ├── build/                    # Código compilado para producción
+    ├── node_modules/             # Dependencias instaladas
+    ├── public/                   # Archivos estáticos públicos
+    │   ├── favicon.ico
+    │   ├── index.html            # Página HTML principal
+    │   ├── manifest.json         # Manifiesto de la aplicación
+    │   └── robots.txt            # Configuración para robots
+    │
+    └── src/                      # Código fuente
+        ├── api/                  # Configuración y llamadas a la API
+        │   └── config.js         # Configuración de la API
+        ├── App.js                # Componente principal
+        ├── index.js              # Punto de entrada
+        ├── index.css             # Estilos globales
+        ├── components/           # Componentes reutilizables
+        │   ├── NavBar.jsx        # Barra de navegación
+        │   ├── Home.jsx          # Página de inicio
+        │   ├── SearchBook.jsx    # Búsqueda de libros
+        │   ├── DetalleLibro.jsx  # Detalles de libro
+        │   ├── login.jsx         # Página de inicio de sesión
+        │   ├── registro.jsx      # Página de registro
+        │   ├── miPerfil.jsx      # Perfil de usuario
+        │   ├── ResetPassword.jsx # Restablecimiento de contraseña
+        │   ├── home/             # Componentes de la página de inicio
+        │   ├── profile/          # Componentes de perfil
+        │   └── ui/               # Componentes de interfaz común
+        └── images/               # Recursos gráficos
 ```
 
 ### B. Organización Interna de cada App en Django
 
-Cada módulo (por ejemplo, `libros`) puede tener la siguiente estructura interna:
+La estructura interna de las apps ahora incluye archivos adicionales según las necesidades específicas:
+
 ```
-libros/
+app_nombre/
 ├── migrations/        # Migraciones de la base de datos
 ├── __init__.py
 ├── admin.py           # Configuración del panel de administración
@@ -71,7 +127,12 @@ libros/
 ├── serializers.py     # Serializadores para la API REST
 ├── views.py           # Vistas o endpoints de la API
 ├── urls.py            # Rutas específicas del módulo
-└── tests.py           # Pruebas unitarias
+├── tests.py           # Pruebas unitarias
+├── signals.py         # Señales de Django (en algunas apps)
+├── notifications.py   # Funciones de notificación (en algunas apps)
+├── fixtures/          # Datos iniciales para la base de datos (en algunas apps)
+├── templates/         # Plantillas HTML específicas (en algunas apps)
+└── scripts/           # Scripts adicionales para la app (en algunas apps)
 ```
 
 ---
