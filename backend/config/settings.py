@@ -19,7 +19,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Configuración de environ
-env = environ.Env(DEBUG=(bool, True))
+env = environ.Env(DEBUG=(bool, False))
 
 # Buscar el archivo .env en varias ubicaciones posibles
 env_locations = [
