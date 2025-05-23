@@ -7,6 +7,7 @@ import FinancialManagement from "./profile/financialManagement";
 import ChangePassword from "./profile/ChangePassword";
 import ForumMessages from "./profile/forumMessages";
 import AdminForumMessages from "./profile/adminForumMessages";
+import Pedidos from "./profile/pedidos";
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
@@ -55,7 +56,7 @@ function MiPerfil() {
       case 'gestion financiera':
         return <FinancialManagement/>;
       case 'pedidos':
-        return <p className="p-6 text-black text-lg">Aquí verás tus pedidos realizados.</p>;
+        return <Pedidos/>;
       case 'foro':
         // Mostrar el componente adecuado según el rol del usuario
         return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
