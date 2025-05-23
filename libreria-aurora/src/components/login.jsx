@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import InputAuora from "./ui/input";
 import ButtonA from "./ui/buttonA";
 import AuthFrame from "./ui/authFrame";

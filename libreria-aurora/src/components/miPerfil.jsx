@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import { getApiUrlByKey } from "../api/config";
 
 import EditProfile from "./profile/editProfile";

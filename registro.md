@@ -1659,7 +1659,8 @@ El proceso de actualización de tarjeta (método de pago) sigue el siguiente flu
    - Al hacer clic en "Actualizar tarjeta", se carga el componente `addPaymentMethod.jsx`
    - Este componente extrae los datos de la tarjeta actual y los pre-carga en el formulario
    - La actualización se realiza mediante una solicitud `PUT /api/finanzas/tarjetas/{id}/`
-   - El backend utiliza la lógica optimizada implementada el 01/05/2025 para evitar conflictos
+   - El backend utiliza la lógica optimizada implementada el 01/05/2025
+   para evitar conflictos
 
 3. **Validación de datos:**
    - El frontend valida el formato del número de tarjeta (solo dígitos)
@@ -1935,7 +1936,7 @@ Se ha reestructurado completamente el sistema de catálogo y búsqueda para reso
 
 # Implementación del Módulo de Mensajería para Sistema de Gestión de Biblioteca
 
-## [2023-10-15] Implementación del Sistema de Mensajería y Foros
+## [2025-10-15] Implementación del Sistema de Mensajería y Foros
 
 ### Visión general
 
@@ -2064,6 +2065,8 @@ Se implementó un sistema completo de mensajería que permite a los usuarios com
   };
   ```
 
+
+
 ### Integración y flujo de trabajo
 
 - **feat(perfil):** Integración del sistema de mensajería en el perfil de usuario
@@ -2101,7 +2104,40 @@ El sistema de mensajería ahora cuenta con:
 
 6. **Manejo robusto de errores**: Soluciones implementadas para manejar errores conocidos del backend de manera transparente para el usuario.
 
-# [2025-05-23] Integración Completa de Compras y Finanzas, Mejoras en Serialización y Migraciones
+
+## [2025-5-22] Documentación de corrección de errores: Discordancia en los campos de actualización de perfil
+
+## Problema
+Los usuarios podían configurar campos como `username`, `nacionalidad` y `departamento` durante el registro, pero estos campos no se podían modificar al editar el perfil. El frontend de React tenía componentes de interfaz de usuario para estos campos, pero los cambios no se guardaban en el backend.
+
+## Causa raíz
+El `ProfileUpdateSerializer` en serializers.py no incluía los campos `username`, `nacionalidad` y `departamento` en su tupla `fields`. Por ello, aunque el frontend enviaba estos valores, el backend de Django los ignoraba sin dar aviso durante las actualizaciones de perfil.
+
+## Archivos modificados
+1. serializers.py - Se añadieron los campos faltantes al serializador y se añadió la validación.
+2. views.py - Se actualizaron los ejemplos de la documentación de la API para reflejar los nuevos campos.
+
+## Cambios realizados
+1. Se añadieron `username`, `nacionalidad` y `departamento` a la tupla `ProfileUpdateSerializer.Meta.fields`.
+2. Se implementó la validación correcta del campo `username` para garantizar su unicidad.
+3. Se corrigieron problemas de sangría en el código del serializador.
+4. Se actualizó el ejemplo de la documentación de OpenAPI en el archivo views.py para incluir los nuevos campos compatibles.
+
+## Flujo de trabajo
+1. Cuando un usuario envía una edición a su perfil a través del componente `EditProfile` del frontend:
+- Se recopilan los datos del formulario de los campos, incluidos los campos previamente ignorados.
+- Los datos se envían al endpoint `/api/usuarios/actualizar_perfil/`.
+2. El backend ahora:
+- Deserializa correctamente todos los campos, incluidos `username`, `nacionalidad` y `departamento`
+- Valida el nombre de usuario para garantizar su unicidad.
+- Actualiza todos los campos de la base de datos.
+- Devuelve los datos completos y actualizados del perfil al frontend.
+
+## Pruebas
+Esta corrección permite a los usuarios actualizar correctamente todos los campos del perfil, incluyendo nombre de usuario, nacionalidad y departamento, lo cual no funcionaba anteriormente. La validación garantiza que, aunque estos campos se puedan editar, sigan cumpliendo las reglas de negocio (como la unicidad del nombre de usuario).
+
+## Detalles adicionales
+Este tipo de problema es común cuando se añaden campos a modelos y componentes del frontend, pero se olvidan en los serializadores que los conectan. Los campos ya se gestionaban correctamente en el proceso de registro mediante `UsuarioRegistroSerializer`, pero faltaban en el flujo de actualización. Esta corrección garantiza la coherencia entre las funciones de registro y edición de perfiles.# [2025-05-23] Integración Completa de Compras y Finanzas, Mejoras en Serialización y Migraciones
 
 ## feat(compras): Integración robusta entre Carrito, Pedidos y Finanzas
 

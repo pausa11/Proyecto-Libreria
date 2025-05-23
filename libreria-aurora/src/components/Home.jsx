@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import NavBar from "./NavBar";
-import ButtonA from "./ui/buttonA";
-import BookCard from "./home/bookCard";
-import 'aos/dist/aos.css';
 import AOS from 'aos';
+import 'aos/dist/aos.css';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../api/config";
+import BookCard from "./book/bookCard";
+import NavBar from "./navBar";
+import ButtonA from "./ui/buttonA";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -85,9 +86,11 @@ const Home = () => {
   // If no books are loaded, show a loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        Cargando libros...
-      </div>
+      <LoadingSpinner 
+        message="Cargando libros..." 
+        height="h-screen" 
+        size="lg"
+      />
     );
   }
 
@@ -107,13 +110,10 @@ const Home = () => {
       <div id="populares" className="w-full p-[2vw]" data-aos="fade-up">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Populares </p> 
-          <div className="w-full flex justify-center">
-            {popularBooks.map((book, index) => (
+          <div className="w-full flex justify-center items-center gap-4">
+            {popularBooks.map((book) => (
               <BookCard
-                key={book.id || index}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                book={book}
               />
             ))}
           </div>
@@ -177,13 +177,10 @@ const Home = () => {
       <div id="recent-books" className="w-full p-[2vw]" data-aos="fade-down">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
-          <div className="w-full flex justify-center">
-            {recentBooks.map((book, index) => (
+          <div className="w-full flex justify-center items-center gap-4">
+            {recentBooks.map((book) => (
               <BookCard
-                key={book.id || index}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://www.hola.com/horizon/landscape/e48159e847bc-cristiano-ronaldo.jpg?im=Resize=(960),type=downsize"}
+                book={book}
               />
             ))}
           </div>

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
 import { getApiUrl } from "../../api/config";
+import LoadingSpinner from '../ui/LoadingSpinner';
 
 function EditContentPreferences() {
   const [preferences, setPreferences] = useState({
@@ -91,12 +92,12 @@ function EditContentPreferences() {
       setSaving(false);
     }
   };
-
   if (loading) {
     return (
-      <div className="p-6">
-        <p className="text-lg text-gray-700">Cargando preferencias...</p>
-      </div>
+      <LoadingSpinner 
+        message="Cargando preferencias..." 
+        size="md"
+      />
     );
   }
 

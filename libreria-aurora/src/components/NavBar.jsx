@@ -66,11 +66,9 @@ function NavBar({ toggleSearch }) {
     }
     
     const handleSearchClick = () => {
-        // Si estamos en el catálogo, usamos el toggle
         if (location.pathname === '/catalogo' && toggleSearch) {
             toggleSearch();
         } else {
-            // Si no, navegamos al catálogo con el parámetro para mostrar búsqueda
             navigate('/catalogo?search=true');
         }
     };
@@ -78,7 +76,7 @@ function NavBar({ toggleSearch }) {
     return (
         <nav className="h-[12vh] bg-[white] flex justify-between items-center p-[2vw] border-b-[.5vh] border-[#2B388C]" data-aos="fade-down">
             
-            <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center h-full" onClick={() => navigate('/')}>
                 <img src={logo} alt="logo" className="h-[8vh]" />
             </div>
 
@@ -91,11 +89,11 @@ function NavBar({ toggleSearch }) {
                 {userName && (
                     <p className="text-[#2B388C] text-[1.2vw] font-[500]">Hola, {userName.split(" ")[0]}👋</p>
                 )}
-                <User size={'2.5vw'} color="#2B388C" onClick={handlePerfil} />
-                <ShoppingCart size={'2.5vw'} color="#2B388C" onClick={() => navigate('/cart')} />
-                <Search size={'2.5vw'} color="#2B388C" onClick={handleSearchClick} />
+                <User size={'2vw'} color="#2B388C" onClick={handlePerfil} />
+                <ShoppingCart size={'2vw'} color="#2B388C" onClick={() => navigate('/carrito')} />
+                <Search size={'2vw'} color="#2B388C" onClick={handleSearchClick} />
                 {userName && (
-                    <LogOut size={'2.5vw'} color="#2B388C" onClick={() => handleLogout()}/> 
+                    <LogOut size={'2vw'} color="#2B388C" onClick={() => handleLogout()}/> 
                 )}
             </div>
 

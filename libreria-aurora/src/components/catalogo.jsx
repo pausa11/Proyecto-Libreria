@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import NavBar from "./NavBar";
-import BookCard from "./home/bookCard";
 import 'aos/dist/aos.css';
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { getApiUrl } from "../api/config";
+import NavBar from "./navBar";
+import BookCard from "./book/bookCard";
+import LoadingSpinner from "./ui/LoadingSpinner";
 
 function Catalogo() {
   const backendURL = getApiUrl("/api/libros/");
@@ -140,17 +141,20 @@ function Catalogo() {
     });
     setSearchTerm("");
   };
-
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-black text-white">
-        Cargando libros...
-      </div>
+      <LoadingSpinner 
+        message="Cargando libros..." 
+        height="h-screen" 
+        size="lg"
+        bgColor="bg-black"
+        textColor="text-white"
+      />
     );
   }
 
   return (
-    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-black">
+    <div className="w-full min-h-screen overflow-y-auto overflow-x-hidden bg-[#0B1026]">
       <NavBar toggleSearch={toggleSearchInterface} />
 
       <div className="w-full flex flex-col p-[2vw]">
@@ -262,10 +266,7 @@ function Catalogo() {
           {filteredBooks.length > 0 ? (
             filteredBooks.map((book) => (
               <BookCard
-                key={book.id}
-                title={book.titulo}
-                author={book.autor}
-                img={book.portada_url || "https://via.placeholder.com/150"}
+                book={book}
                 color="white"
               />
             ))
