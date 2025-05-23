@@ -4,6 +4,8 @@ import NavBar from "./navBar";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../api/config";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
+import { toast, Toaster } from "sonner";
+
 
 function CarritoLibro() {
 
@@ -16,7 +18,7 @@ function CarritoLibro() {
   const [usarDireccionGuardada, setUsarDireccionGuardada] = useState(true);
   const [userData, setUserData] = useState(null);
   const [recogerEnTienda, setRecogerEnTienda] = useState(false);
-
+  const [isProcessing, setIsProcessing] = useState(false);
   const [userAddress, setUserAddress] = useState({
     direccion: "",
     nacionalidad: "",
@@ -77,28 +79,27 @@ function CarritoLibro() {
     }
   };
 
-const removeBookFromCart = async (libroId,cantidad) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    const response = await fetch(backendCartDelete, {
-      method: "POST", // <-- Cambiado de DELETE a POST
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ libro_id: libroId, cantidad: cantidad }),
-    });
-    if (!response.ok) {
-      throw new Error("Error en la petición");
+  const removeBookFromCart = async (libroId,cantidad) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      const response = await fetch(backendCartDelete, {
+        method: "POST", // <-- Cambiado de DELETE a POST
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ libro_id: libroId, cantidad: cantidad }),
+      });
+      if (!response.ok) {
+        throw new Error("Error en la petición");
+      }
+      // Actualiza el carrito localmente
+      setCarrito(carrito.filter((libro) => libro.libro.id !== libroId));
+    } catch (error) {
+      console.error("Error removing book from cart:", error);
     }
-    // Actualiza el carrito localmente
-    setCarrito(carrito.filter((libro) => libro.libro.id !== libroId));
-  } catch (error) {
-    console.error("Error removing book from cart:", error);
-  }
-};
-
+  };
 
   const handleRemoveBook = (libroId,cantidad) => {
     console.log("Eliminar libro con ID:", libroId);
@@ -106,12 +107,14 @@ const removeBookFromCart = async (libroId,cantidad) => {
   };
 
   const handleBuy = async () => {
+    setIsProcessing(true); // ⬅️ Activar bloqueo
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.error("No estás autenticado");
+        toast.error("No estás autenticado.");
         return;
       }
+
       const response = await fetch(backendCartBuy, {
         method: "POST",
         headers: {
@@ -125,30 +128,29 @@ const removeBookFromCart = async (libroId,cantidad) => {
           recoger_en_tienda: recogerEnTienda,
         }),
       });
-      if (!response.ok) {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorJson = await response.json();
-          throw new Error(errorJson.detail || "Error al procesar la compra");
-        } else {
-          const errorText = await response.text();
-          console.error("Respuesta no JSON:", errorText);
-          throw new Error("Error inesperado del servidor.");
-        }
-      }
+
       const data = await response.json();
-      console.log("Compra exitosa:", data);
-              alert("Compra exitosa");
+
+      if (!response.ok || (data.mensaje && data.mensaje.estado === "error")) {
+        const msg = data.mensaje?.mensaje || "Error inesperado del servidor.";
+        console.error("Error al procesar la compra:", msg);
+        toast.error(msg);
+        return;
+      }
+
+      toast.success("Compra realizada exitosamente.");
+      localStorage.removeItem("carrito");
+
       setTimeout(() => {
         navigate("/");
-      }, 1000);
-      localStorage.removeItem("carrito");
+      }, 1500);
     } catch (error) {
       console.error("Error al procesar la compra:", error);
-      alert(`Error: ${error.message}`);
+      toast.error(error.message || "Error inesperado.");
+    } finally {
+      setIsProcessing(false); // ⬅️ Siempre apagar bloqueo
     }
   };
-
 
   const onBack = () => navigate(-1);
 
@@ -157,7 +159,7 @@ const removeBookFromCart = async (libroId,cantidad) => {
       handleBuy();
     } else {
       if (!userAddress.direccion || !userAddress.nacionalidad || !userAddress.departamento) {
-        alert("Por favor, completa todos los campos de dirección.");
+        toast.error("Por favor, completa todos los campos de dirección.");
         return;
       }
       handleBuy();
@@ -185,7 +187,6 @@ const removeBookFromCart = async (libroId,cantidad) => {
     return { subtotal, envio, descuento, total };
   };
 
-
   const { envio, descuento, total } = calcularTotal();
 
   if (carrito.length === 0) {
@@ -201,11 +202,12 @@ const removeBookFromCart = async (libroId,cantidad) => {
 
   return (
     <div className="bg-[#f9f9fc] min-h-screen">
+      <Toaster />
       <NavBar />
       <div className="max-w-3xl mx-auto my-10 p-6 bg-white rounded-xl shadow-md border border-blue-200">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Tu Carrito</h2>
         {carrito.map((carrito,idx) => (
-          <div  className="flex gap-6 mb-6 items-start">
+          <div className="flex gap-6 mb-6 items-start" key={idx}>
             <div className="flex-shrink-0">
                 <img src={carrito.libro.portada} alt={`Portada del libro: ${carrito.libro.titulo}`} className="w-32 h-48 object-cover rounded-md" />
             </div>
@@ -293,7 +295,7 @@ const removeBookFromCart = async (libroId,cantidad) => {
         {/* Botones */}
         <div className="flex justify-end gap-3">
           <button onClick={onBack} className="bg-[#9f7f4f] text-white px-4 py-2 rounded hover:bg-[#87683e]">Volver</button>
-          <button onClick={onConfirm} className="bg-[#f3c57b] text-white px-4 py-2 rounded hover:bg-[#e0b362]">Confirmar</button>
+          <button onClick={onConfirm} disabled={isProcessing} className={`px-4 py-2 rounded text-white ${isProcessing ? 'bg-gray-400' : 'bg-[#f3c57b] hover:bg-[#e0b362]'}`} > {isProcessing ? "Procesando..." : "Confirmar"} </button>
         </div>
       </div>
     </div>
