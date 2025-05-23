@@ -2,7 +2,7 @@ import 'aos/dist/aos.css';
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getApiUrl } from "../api/config";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import BookCard from "./book/bookCard";
 import LoadingSpinner from "./ui/LoadingSpinner";
 

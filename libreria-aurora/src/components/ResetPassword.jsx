@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { getApiUrl } from "../api/config";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import AuthFrame from "./ui/authFrame";
 import ButtonA from "./ui/buttonA";
 import InputAuora from "./ui/input";

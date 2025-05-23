@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import NavBar from "./NavBar";
+import NavBar from "./navBar.jsx";
 import BuyBookSection from "./book/addTocCartButton";
 
 function DetalleLibro() {
@@ -45,10 +45,22 @@ function DetalleLibro() {
                 </div>
                 <BuyBookSection
                 stock={libroData.stock}
-                onBuy={(quantity) => {
-                    console.log(`Comprando ${quantity} libro(s)`);
-                    navigate("/carrito", { state: { libro: libroData, cantidad: quantity } });
-                }}
+                    onBuy={(quantity) => {
+                    const nuevoLibro = { ...libroData, cantidad: quantity };
+                    const carritoActual = JSON.parse(localStorage.getItem("carrito")) || [];
+
+                    const libroExistenteIndex = carritoActual.findIndex(item => item.isbn === nuevoLibro.isbn);
+
+                    if (libroExistenteIndex !== -1) {
+                        carritoActual[libroExistenteIndex].cantidad += quantity;
+                    } else {
+                        carritoActual.push(nuevoLibro);
+                    }
+
+                    localStorage.setItem("carrito", JSON.stringify(carritoActual));
+                    navigate("/carrito");
+                    }}
+
                 />
                 </div>
                 

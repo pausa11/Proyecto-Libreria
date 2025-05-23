@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../api/config";
 import BookCard from "./book/bookCard";
-import NavBar from "./NavBar";
+import NavBar from "./navBar";
 import ButtonA from "./ui/buttonA";
 import LoadingSpinner from "./ui/LoadingSpinner";
 
@@ -110,7 +110,7 @@ const Home = () => {
       <div id="populares" className="w-full p-[2vw]" data-aos="fade-up">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Populares </p> 
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center items-center gap-4">
             {popularBooks.map((book) => (
               <BookCard
                 book={book}
@@ -177,7 +177,7 @@ const Home = () => {
       <div id="recent-books" className="w-full p-[2vw]" data-aos="fade-down">
         <div className="relative w-full h-full flex flex-col justify-center items-center">
           <p className="text-[2vw] font-medium text-center h-[10%] flex items-center"> Recién Agregados </p>
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center items-center gap-4">
             {recentBooks.map((book) => (
               <BookCard
                 book={book}
