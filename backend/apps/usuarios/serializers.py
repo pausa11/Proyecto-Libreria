@@ -25,8 +25,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = (
-            'first_name', 'last_name', 'telefono',
-            'direccion', 'fecha_nacimiento', 'foto_perfil'
+            'username', 'first_name', 'last_name', 'telefono',
+            'direccion', 'fecha_nacimiento', 'foto_perfil',
+            'nacionalidad', 'departamento'
         )
     
     def get_foto_perfil_url(self, usuario):
@@ -34,9 +35,18 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         if usuario.foto_perfil:
             return usuario.foto_perfil.url
         return None    
-        
+    
     def validate(self, attrs):
-        # Aquí se pueden agregar validaciones específicas si es necesario
+        # Validar que el username sea único si se intenta cambiar
+        if 'username' in attrs:
+            # No estamos validando el username del usuario actual
+            username = attrs['username']
+            usuario = self.instance
+            
+            # Verificar si existe otro usuario con el mismo nombre
+            if Usuario.objects.exclude(pk=usuario.pk).filter(username=username).exists():
+                raise serializers.ValidationError({"username": "Ya existe un usuario con este nombre de usuario"})
+        
         return attrs
         
     def update(self, instance, validated_data):

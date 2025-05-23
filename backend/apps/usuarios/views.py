@@ -329,11 +329,14 @@ El equipo de Librería Aurora
             OpenApiExample(
                 'Ejemplo de actualización de perfil',
                 value={
+                    "username": "nuevo_usuario",
                     "first_name": "Nuevo Nombre",
                     "last_name": "Nuevo Apellido",
                     "telefono": "+573001234567",
                     "direccion": "Nueva Dirección #123",
                     "fecha_nacimiento": "1990-01-01",
+                    "nacionalidad": "Colombia",
+                    "departamento": "Cundinamarca",
                 }
             )
         ]
