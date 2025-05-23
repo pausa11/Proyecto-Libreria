@@ -2,11 +2,71 @@ import React, { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import NavBar from "./navBar";
 import { useNavigate } from "react-router-dom";
+import { getApiUrl } from "../api/config";
+import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 
 function CarritoLibro() {
 
   const navigate = useNavigate();
+  const backendUser = getApiUrl("/api/usuarios/perfil/");
+  const backendCartGet = getApiUrl("/api/compras/carritos/obtener_libros/");
   const [carrito, setCarrito] = useState([]);
+  const [usarDireccionGuardada, setUsarDireccionGuardada] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [userAddress, setUserAddress] = useState({
+    direccion: "",
+    nacionalidad: "",
+    departamento: "",
+  });
+
+  useEffect(() => {
+      getUserData();
+  }, []);
+
+  const getUserData = async () => {
+      try {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+
+          const response = await fetch(backendUser, {
+              method: "GET",
+              headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${token}`
+              }
+          });
+
+          if (!response.ok) {
+              throw new Error("Error en la petición");
+          }
+
+          const data = await response.json();
+          setUserData(data);
+      } catch (error) {
+          console.error("Error fetching user data:", error);
+      }
+  };
+
+  // const addBookToCart = async (book) => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) return;
+  //   const response = await fetch(backendCart, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "Authorization": `Bearer ${token}`,
+  //     },
+  //     body: JSON.stringify({
+  //       libro: book.id
+  //     }),
+  //   });
+  //   if (!response.ok) {
+  //     const errorData = await response.json();
+  //     throw new Error(errorData.detail || "Error al agregar el libro al carrito");
+  //   }
+  //   return await response.json();
+  // };
+
 
   useEffect(() => {
     const data = localStorage.getItem("carrito");
@@ -78,15 +138,53 @@ function CarritoLibro() {
 
         <hr className="my-6 border-gray-300" />
 
-        {/* Dirección */}
-        <div className="grid grid-cols-2 gap-4 mb-6 bg-white p-4 border rounded-lg">
-          <input type="text" placeholder="Dirección" className="bg-gray-200 p-2 rounded-md" />
-          <input type="text" placeholder="Dirección" className="bg-gray-200 p-2 rounded-md" />
-          <input type="text" placeholder="Ciudad" className="bg-gray-200 p-2 rounded-md col-span-2" />
+        <div className="flex items-center mb-4">
+          <input
+
+            type="checkbox"
+            checked={usarDireccionGuardada}
+            onChange={(e) => setUsarDireccionGuardada(e.target.checked)}
+            className="mr-2"
+          />
+          <label className="text-gray-700">Usar dirección guardada</label>
         </div>
 
+        {/* Dirección */}
+        {usarDireccionGuardada && userData ? (
+          <div className="grid grid-cols-1 gap-2 bg-gray-100 p-4 rounded-md text-sm">
+            <p><strong>País:</strong> {userData.nacionalidad}</p>
+            <p><strong>Departamento:</strong> {userData.departamento}</p>
+            <p><strong>Dirección:</strong> {userData.direccion}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 mb-6 bg-white p-4 border rounded-lg">
+            <div className="col-span-2">
+              <CountryDropdown
+                value={userAddress.nacionalidad}
+                onChange={(val) => setUserAddress({ ...userAddress, nacionalidad: val, departamento: "" })}
+                className="w-full p-2 bg-gray-200 rounded-md"
+              />
+            </div>
+            <div className="col-span-2">
+              <RegionDropdown
+                country={userAddress.nacionalidad}
+                value={userAddress.departamento}
+                onChange={(val) => setUserAddress({ ...userAddress, departamento: val })}
+                className="w-full p-2 bg-gray-200 rounded-md"
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Dirección"
+              value={userAddress.direccion}
+              onChange={(e) => setUserAddress({ ...userAddress, direccion: e.target.value })}
+              className="bg-gray-200 p-2 rounded-md col-span-2"
+            />
+          </div>
+        )}
+
         {/* Totales */}
-        <div className="bg-gray-200 p-4 rounded-md mb-6 text-sm text-gray-700">
+        <div className="bg-gray-200 p-4 rounded-md mb-6 text-sm text-gray-700 mt-4">
           <p>Costo Envío: ${envio.toLocaleString()}</p>
           <p>Descuento: ${descuento.toLocaleString()}</p>
           <p className="text-right text-lg font-bold">Total: ${total.toLocaleString()}</p>

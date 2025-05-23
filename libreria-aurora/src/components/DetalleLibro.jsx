@@ -2,11 +2,13 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./navBar.jsx";
 import BuyBookSection from "./book/addTocCartButton";
+const { getApiUrl } = require("../api/config");
 
 function DetalleLibro() {
     const navigate = useNavigate();
     const location = useLocation();
     const libroData = location.state?.libro;
+    const backendCartPost = getApiUrl("/api/compras/carritos/agregar_libro/");
 
     if (!libroData) {
         return (
