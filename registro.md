@@ -2101,3 +2101,98 @@ El sistema de mensajería ahora cuenta con:
 
 6. **Manejo robusto de errores**: Soluciones implementadas para manejar errores conocidos del backend de manera transparente para el usuario.
 
+# [2025-05-23] Integración Completa de Compras y Finanzas, Mejoras en Serialización y Migraciones
+
+## feat(compras): Integración robusta entre Carrito, Pedidos y Finanzas
+
+### Cambios principales
+
+- **Integración del método `pagar()` en el modelo Carrito:**
+  - Ahora descuenta saldo del usuario solo si hay fondos suficientes.
+  - Valida stock de cada libro antes de procesar la compra.
+  - Descuenta stock de los libros comprados.
+  - Limpia el carrito tras el pago exitoso.
+  - Registra cada compra como un nuevo Pedido y asocia libros y cantidades mediante el modelo intermedio `PedidoLibro`.
+
+- **Modelo intermedio `CarritoLibro` y `PedidoLibro`:**
+  - Permiten manejar cantidades independientes de libros en el carrito y en los pedidos.
+  - El modelo `PedidoLibro` almacena la tupla (libro, cantidad) para cada pedido, asegurando trazabilidad y detalle en el historial de compras.
+
+- **Mejoras en métodos de Carrito:**
+  - Métodos `agregar_libro`, `quitar_libro`, `limpiar_carrito` y `obtener_libros` refactorizados para trabajar siempre con el modelo intermedio y mantener la integridad de cantidades.
+  - Validaciones robustas para evitar cantidades negativas o inconsistentes.
+
+---
+
+## fix(migraciones): Sincronización y corrección de migraciones
+
+- **Reestructuración de migraciones:**
+  - Eliminadas y recreadas migraciones para resolver inconsistencias entre la base de datos y los modelos.
+  - Uso de `--fake-initial` para sincronizar el estado de la base de datos con las migraciones de Django cuando las tablas ya existen.
+  - Corrección de referencias a modelos en migraciones (`to="compras.Pedidos"` en vez de `to="compras.pedidos"`).
+
+- **Gestión de dependencias:**
+  - Orden correcto de creación de modelos y relaciones ForeignKey.
+  - Separación de la creación de modelos intermedios (`PedidoLibro`, `CarritoLibro`) en migraciones independientes para evitar errores de dependencia circular.
+
+---
+
+## feat(api): Serialización avanzada de pedidos y carritos
+
+- **Serializers anidados:**
+  - `PedidoLibroSerializer` y `CarritoLibroSerializer` ahora incluyen el objeto libro completo usando `LibroSerializer`.
+  - `PedidosSerializer` expone el historial de compras con detalle de libros y cantidades (`pedidolibro_set`).
+  - Endpoints de carrito devuelven la lista de libros y cantidades en formato estructurado, facilitando la integración con el frontend.
+
+- **Endpoints mejorados:**
+  - `/api/compras/carritos/obtener_libros/`: Devuelve todos los libros del carrito con sus cantidades y detalles completos.
+  - `/api/compras/carritos/pagar/`: Procesa el pago, descuenta saldo y stock, y registra el pedido.
+  - `/api/compras/carritos/historial_pedidos/`: Devuelve el historial de pedidos del usuario autenticado, mostrando libros y cantidades.
+
+---
+
+## fix(admin): Mejoras en la administración de compras
+
+- **Visualización y gestión:**
+  - Mejorada la visualización de libros y cantidades en el admin de Carrito y Pedidos.
+  - Acciones personalizadas para vaciar carritos y gestionar pedidos desde el panel administrativo.
+
+---
+
+## Estado Actual del Sistema
+
+### Funcionalidades Implementadas ✅
+
+- **Compras:**
+  - Carrito funcional con manejo de cantidades por libro.
+  - Pago integrado con verificación de saldo y stock.
+  - Registro detallado de pedidos y su historial.
+  - Serialización avanzada para integración frontend.
+
+- **Finanzas:**
+  - Descuento automático de saldo al comprar.
+  - Validaciones robustas de saldo y stock.
+  - Registro de transacciones en el historial de saldo.
+
+- **Migraciones y administración:**
+  - Migraciones sincronizadas y sin errores.
+  - Panel admin mejorado para gestión de compras y finanzas.
+
+---
+
+## Próximos Pasos 🚧
+
+1. **Optimizar consultas y prefetching en endpoints de historial y carrito.**
+2. **Implementar notificaciones por email tras compras exitosas.**
+3. **Agregar soporte para devoluciones y cancelaciones de pedidos.**
+4. **Mejorar la documentación Swagger/OpenAPI para todos los endpoints de compras y finanzas.**
+5. **Desarrollar pruebas unitarias e integración para el flujo de compra y pago.**
+
+---
+
+## Notas Técnicas
+
+- El uso de modelos intermedios (`CarritoLibro`, `PedidoLibro`) es obligatorio para manejar cantidades por libro.
+- Las migraciones deben recrearse si se cambia el nombre de un modelo o relación.
+- Para sincronizar migraciones con la base de datos existente, usar `python manage.py migrate <app> --fake-initial`.
+- Todos los endpoints devuelven datos estructurados y listos para consumo en frontend React.

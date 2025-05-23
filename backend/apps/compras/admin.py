@@ -6,7 +6,6 @@ from apps.libros.models import Libro
 class CarritoAdmin(admin.ModelAdmin):
     list_display = ('id', 'fecha', 'total_libros', 'total')
     list_filter = ('fecha',)
-    filter_horizontal = ('libros',)
     actions = ['vaciar_carrito', 'agregar_libro']
 
     def total(self, obj):
