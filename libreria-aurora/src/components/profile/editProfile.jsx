@@ -2,6 +2,19 @@ import React, { useState, useEffect } from "react";
 import EditContentPreferences from "./editContentPreference";
 import HandleNewsSubscription from "./handleNewsSubscription";
 import { getApiUrl } from "../../api/config";
+import { Flag } from "lucide-react";
+import { CountryDropdown, RegionDropdown } from 'react-country-region-selector';
+import countries from "i18n-iso-countries";
+import es from "i18n-iso-countries/langs/es.json";
+
+// Registrar localización para países
+countries.registerLocale(es);
+
+// Función para obtener código de país
+const getCountryCode = (countryName) => {
+  const code = countries.getAlpha2Code(countryName, "es") || countries.getAlpha2Code(countryName, "en");
+  return code?.toLowerCase();
+};
 
 function EditProfile() {
   const backendURL = getApiUrl("/api/usuarios/perfil/");
@@ -13,6 +26,18 @@ function EditProfile() {
   const [preview, setPreview] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [mensajeFoto, setMensajeFoto] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    first_name: "",
+    last_name: "",
+    telefono: "",
+    direccion: "",
+    fecha_nacimiento: "",
+    nacionalidad: "",
+    departamento: ""
+  });
+  const [updateMessage, setUpdateMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     const getUserData = async () => {
@@ -34,6 +59,17 @@ function EditProfile() {
 
         const data = await response.json();
         setUsuario(data);
+          // Inicializar el formulario con los datos del usuario
+        setFormData({
+          username: data.username || "",
+          first_name: data.first_name || "",
+          last_name: data.last_name || "",
+          telefono: data.telefono || "",
+          direccion: data.direccion || "",
+          fecha_nacimiento: data.fecha_nacimiento || "",
+          nacionalidad: data.nacionalidad || "",
+          departamento: data.departamento || ""
+        });
         
         // Verificar si el usuario tiene foto de perfil
         if (data.foto_perfil) {
@@ -126,6 +162,59 @@ function EditProfile() {
       setMensajeFoto("❌ " + (error.message || "No se pudo actualizar la foto"));
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  // Manejar cambios en los campos del formulario
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  // Manejar el envío del formulario
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No se encontró el token de autenticación");
+      }
+      
+      const response = await fetch(updateProfileUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      if (!response.ok) {
+        throw new Error("Error al actualizar el perfil");
+      }
+      
+      const updatedData = await response.json();
+      setUsuario(updatedData);
+      setIsEditing(false);
+      setUpdateMessage({
+        text: "Perfil actualizado correctamente",
+        type: "success"
+      });
+      
+      setTimeout(() => {
+        setUpdateMessage({ text: "", type: "" });
+      }, 3000);
+      
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error);
+      setUpdateMessage({
+        text: "Error al actualizar el perfil: " + error.message,
+        type: "error"
+      });
     }
   };
 
@@ -224,33 +313,203 @@ function EditProfile() {
             {mensajeFoto && <p className="text-xs lg:text-sm mt-2">{mensajeFoto}</p>}
           </div>
         </div>
-      </div>
-
-      {/* Información del usuario */}
+      </div>      {/* Información del usuario */}
       <div className="bg-gray-50 rounded-lg p-4 lg:p-6 mb-4 lg:mb-6 shadow-sm">
-        <h2 className="text-lg lg:text-xl font-medium mb-3 lg:mb-4">Información Personal</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
-          <div>
-            <p className="text-xs lg:text-sm text-gray-600">Usuario</p>
-            <p className="font-medium text-sm lg:text-base">{usuario?.username || "Cargando..."}</p>
-          </div>
-          <div>
-            <p className="text-xs lg:text-sm text-gray-600">Correo electrónico</p>
-            <p className="font-medium text-sm lg:text-base">{usuario?.email || "Cargando..."}</p>
-          </div>
-          <div>
-            <p className="text-xs lg:text-sm text-gray-600">Nombre</p>
-            <p className="font-medium text-sm lg:text-base">{usuario?.first_name || "-"}</p>
-          </div>
-          <div>
-            <p className="text-xs lg:text-sm text-gray-600">Apellido</p>
-            <p className="font-medium text-sm lg:text-base">{usuario?.last_name || "-"}</p>
-          </div>
-          <div>
-            <p className="text-xs lg:text-sm text-gray-600">Nacionalidad</p>
-            <p className="font-medium text-sm lg:text-base">{usuario?.nacionalidad || "-"}</p>
-          </div>
+        <div className="flex justify-between items-center mb-3 lg:mb-4">
+          <h2 className="text-lg lg:text-xl font-medium">Información Personal</h2>
+          {!isEditing ? (
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="text-sm bg-[#3B4CBF] hover:bg-[#2D3A99] text-white px-3 py-1.5 rounded"
+            >
+              Editar
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="text-sm bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1.5 rounded"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={handleProfileUpdate}
+                className="text-sm bg-[#3B4CBF] hover:bg-[#2D3A99] text-white px-3 py-1.5 rounded"
+              >
+                Guardar
+              </button>
+            </div>
+          )}
         </div>
+        
+        {updateMessage.text && (
+          <div className={`mb-3 p-2 rounded text-sm ${updateMessage.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {updateMessage.text}
+          </div>
+        )}
+        
+        {!isEditing ? (          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Usuario</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.username || "Cargando..."}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Correo electrónico</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.email || "Cargando..."}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Nombre</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.first_name || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Apellido</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.last_name || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Nacionalidad</p>
+              <div className="flex items-center gap-2">
+                {usuario?.nacionalidad && (
+                  <img
+                    src={`https://flagcdn.com/w40/${getCountryCode(usuario.nacionalidad)}.png`}
+                    alt={usuario.nacionalidad}
+                    className="w-[20px] h-[15px]"
+                  />
+                )}
+                <p className="font-medium text-sm lg:text-base">{usuario?.nacionalidad || "-"}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Departamento/Provincia/Estado</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.departamento || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Teléfono</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.telefono || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Dirección</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.direccion || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs lg:text-sm text-gray-600">Fecha de nacimiento</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.fecha_nacimiento || "-"}</p>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleProfileUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">            <div className="md:col-span-2">
+              <p className="text-xs lg:text-sm text-gray-600">Correo electrónico</p>
+              <p className="font-medium text-sm lg:text-base">{usuario?.email || "Cargando..."}</p>
+              <p className="text-xs text-gray-500 mt-1">(No se puede cambiar)</p>
+            </div>
+            
+            <div>
+              <label htmlFor="username" className="block text-xs lg:text-sm text-gray-600 mb-1">Usuario</label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value={formData.username}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded p-2 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="first_name" className="block text-xs lg:text-sm text-gray-600 mb-1">Nombre</label>
+              <input
+                id="first_name"
+                name="first_name"
+                type="text"
+                value={formData.first_name}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded p-2 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="last_name" className="block text-xs lg:text-sm text-gray-600 mb-1">Apellido</label>
+              <input
+                id="last_name"
+                name="last_name"
+                type="text"
+                value={formData.last_name}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded p-2 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="nacionalidad" className="block text-xs lg:text-sm text-gray-600 mb-1">Nacionalidad</label>
+              <div className="flex items-center gap-2 border border-gray-300 rounded p-2 text-sm">
+                {formData.nacionalidad ? (
+                  <img
+                    src={`https://flagcdn.com/w40/${getCountryCode(formData.nacionalidad)}.png`}
+                    alt={formData.nacionalidad}
+                    className="w-[20px] h-[15px]"
+                  />
+                ) : (
+                  <Flag className="text-gray-500" size={18} />
+                )}
+                <CountryDropdown
+                  value={formData.nacionalidad}
+                  onChange={(val) => setFormData({ ...formData, nacionalidad: val, departamento: "" })}
+                  defaultOptionLabel="Selecciona tu país"
+                  labelType="full"
+                  valueType="full"
+                  className="w-full outline-none bg-transparent"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="departamento" className="block text-xs lg:text-sm text-gray-600 mb-1">Departamento/Provincia/Estado</label>
+              <div className="border border-gray-300 rounded p-2 text-sm">
+                {formData.nacionalidad ? (
+                  <RegionDropdown
+                    country={formData.nacionalidad}
+                    value={formData.departamento}
+                    onChange={(val) => setFormData({ ...formData, departamento: val })}
+                    defaultOptionLabel="Selecciona tu departamento"
+                    className="w-full outline-none bg-transparent"
+                  />
+                ) : (
+                  <p className="text-gray-500 text-sm">Selecciona un país primero</p>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <label htmlFor="telefono" className="block text-xs lg:text-sm text-gray-600 mb-1">Teléfono</label>
+              <input
+                id="telefono"
+                name="telefono"
+                type="tel"
+                value={formData.telefono}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded p-2 text-sm"
+                placeholder="+XX XXXXXXXXXX"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="direccion" className="block text-xs lg:text-sm text-gray-600 mb-1">Dirección</label>
+              <input
+                id="direccion"
+                name="direccion"
+                type="text"
+                value={formData.direccion}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded p-2 text-sm"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="fecha_nacimiento" className="block text-xs lg:text-sm text-gray-600 mb-1">Fecha de nacimiento</label>
+              <p className="font-medium text-sm lg:text-base border border-gray-300 rounded p-2 bg-gray-100">{formData.fecha_nacimiento || "-"}</p>
+              <p className="text-xs text-gray-500 mt-1">(No se puede cambiar)</p>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Enlaces de gestión */}
