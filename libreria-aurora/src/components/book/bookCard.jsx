@@ -9,14 +9,8 @@ function BookCard({ book, color = "black" }) {
   };
 
   return (
-    <div
-      onClick={handleNavigate}
-      className="relative w-[15vw] h-[60vh] p-[1vw] flex flex-col items-center justify-between 
-                 shadow-md rounded-xl cursor-pointer 
-                 transition-transform duration-300 ease-in-out 
-                 hover:scale-105 group overflow-hidden"
-    >
-      {/* Imagen de portada */}
+    <div onClick={handleNavigate} className="relative w-[15vw] h-[60vh] p-[1vw] flex flex-col items-center justify-between shadow-md rounded-xl cursor-pointer transition-transform duration-300 ease-in-out hover:scale-105 group overflow-hidden" >
+
       <div className="w-full aspect-[2/3] overflow-hidden rounded-md relative">
         <img
           src={book.portada_url || "https://via.placeholder.com/150"}

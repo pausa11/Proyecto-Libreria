@@ -89,11 +89,11 @@ function NavBar({ toggleSearch }) {
                 {userName && (
                     <p className="text-[#2B388C] text-[1.2vw] font-[500]">Hola, {userName.split(" ")[0]}👋</p>
                 )}
-                <User size={'2.5vw'} color="#2B388C" onClick={handlePerfil} />
-                <ShoppingCart size={'2.5vw'} color="#2B388C" onClick={() => navigate('/carrito')} />
-                <Search size={'2.5vw'} color="#2B388C" onClick={handleSearchClick} />
+                <User size={'2vw'} color="#2B388C" onClick={handlePerfil} />
+                <ShoppingCart size={'2vw'} color="#2B388C" onClick={() => navigate('/carrito')} />
+                <Search size={'2vw'} color="#2B388C" onClick={handleSearchClick} />
                 {userName && (
-                    <LogOut size={'2.5vw'} color="#2B388C" onClick={() => handleLogout()}/> 
+                    <LogOut size={'2vw'} color="#2B388C" onClick={() => handleLogout()}/> 
                 )}
             </div>
 
