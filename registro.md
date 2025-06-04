@@ -2232,3 +2232,64 @@ Este tipo de problema es común cuando se añaden campos a modelos y componentes
 - Las migraciones deben recrearse si se cambia el nombre de un modelo o relación.
 - Para sincronizar migraciones con la base de datos existente, usar `python manage.py migrate <app> --fake-initial`.
 - Todos los endpoints devuelven datos estructurados y listos para consumo en frontend React.
+
+
+## [2025-06-04] Implementación del Módulo de Tiendas y API de Ubicaciones
+
+### feat(tiendas): Nuevo módulo para gestión de tiendas físicas
+
+#### Implementación del modelo Tienda
+- **Creado modelo `Tienda`** en `apps.tiendas.models` con los siguientes campos:
+  - `nombre`: Nombre de la tienda (CharField)
+  - `direccion`: Dirección física (CharField)
+  - `latitud`: Coordenada de latitud (DecimalField)
+  - `longitud`: Coordenada de longitud (DecimalField)
+- **Método `__str__`** para mostrar el nombre en el admin y representaciones.
+
+#### Migraciones y configuración de la app
+- **Creada migración inicial** para el modelo Tienda.
+- **Configuración de la app** en `apps.py` con `name = 'apps.tiendas'` para correcto registro en Django.
+
+#### Serialización y API REST
+- **Creado `TiendaSerializer`** para exponer todos los campos del modelo.
+- **Implementado `TiendaViewSet`** usando `ModelViewSet` para CRUD completo de tiendas.
+- **Configurado router y URLs** en `apps/tiendas/urls.py`:
+  - Endpoint principal: `/api/tiendas/tiendas/` (GET, POST, PUT, DELETE)
+
+#### Integración en el proyecto
+- **Registrada la app `tiendas`** en `INSTALLED_APPS` y en el archivo global de URLs.
+- **Endpoint disponible** para que el frontend consuma la lista de tiendas y sus ubicaciones.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de tiendas físicas**:
+  - CRUD completo de tiendas desde el backend.
+  - Almacenamiento de coordenadas para integración con Google Maps u otros servicios de mapas.
+- **API RESTful**:
+  - Endpoint `/api/tiendas/tiendas/` para listar, crear, editar y eliminar tiendas.
+  - Serialización completa de los datos de cada tienda.
+
+#### Integración con Frontend
+- El frontend puede consumir `/api/tiendas/tiendas/` para mostrar las ubicaciones en un mapa interactivo.
+- Preparado para integración con componentes de Google Maps en React.
+
+---
+
+### Próximos Pasos 🚧
+
+1. **Agregar validaciones adicionales** para coordenadas y direcciones.
+2. **Mejorar la documentación Swagger/OpenAPI** para el módulo de tiendas.
+3. **Implementar filtros y búsqueda** por nombre o ubicación en el endpoint.
+4. **Integrar visualización de tiendas en el frontend** usando Google Maps.
+5. **Agregar soporte para imágenes o información adicional de cada tienda.**
+
+---
+
+### Notas Técnicas
+
+- El modelo `Tienda` es independiente y puede ser extendido fácilmente.
+- El endpoint está protegido por los permisos globales de la API (puede ajustarse según necesidad).
+- La estructura permite escalar a múltiples sucursales y visualización geográfica.
