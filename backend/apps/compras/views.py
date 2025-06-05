@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
+from apps.libros.models import Libro
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-from .models import Carrito
+from .models import Carrito, Reserva
 from .serializers import AgregaroQuitarLibroSerializer, CarritoLibroSerializer, PedidoLibroSerializer, PedidosSerializer
+from .serializers import ReservaSerializer, CrearReservaSerializer, IdReservaSerializer
 
 @extend_schema_view(
     list=extend_schema(description="Obtiene la lista de todos los carritos"),
@@ -114,3 +116,85 @@ class CarritoViewSet(viewsets.ModelViewSet):
         serializer = PedidosSerializer(pedidos, many=True)
         PedidoLibroSerializer(pedidos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class ReservaViewSet(viewsets.ModelViewSet):
+    queryset = Reserva.objects.all()
+    serializer_class = ReservaSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    @extend_schema(
+        description="Obtiene la lista de reservas del usuario autenticado",
+        responses={200: ReservaSerializer(many=True)}
+    )
+    def get_queryset(self):
+        # Solo mostrar reservas del usuario autenticado
+        return Reserva.objects.filter(usuario=self.request.user)
+
+    @extend_schema(
+        description="Crea una nueva reserva de libro",
+        request=CrearReservaSerializer,
+        responses={201: ReservaSerializer, 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def reservar(self, request):
+        serializer = CrearReservaSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        libro = get_object_or_404(Libro, pk=serializer.validated_data['libro_id'])
+        cantidad = serializer.validated_data['cantidad']
+        usuario = request.user
+
+        resultado = Reserva().reservar_libro(libro, usuario, cantidad)
+        if resultado['estado'] == 'exito':
+            reserva = resultado['reserva']
+            return Response(ReservaSerializer(reserva).data, status=status.HTTP_201_CREATED)
+        return Response(resultado, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        description="Cancela una reserva de libro",
+        request=IdReservaSerializer,
+        responses={200: ReservaSerializer, 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def cancelar(self, request, pk=None):
+        serializer = IdReservaSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reserva = get_object_or_404(Reserva, pk=serializer.validated_data['reserva_id'])
+        resultado = reserva.cancelar_reserva()
+        if resultado['estado'] == 'exito':
+            return Response(resultado, status=status.HTTP_200_OK)
+        return Response(resultado, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @extend_schema(
+        description="Verifica si todas las reservas hechas por un usuario han expirado",
+        request=None,
+        responses={200: ReservaSerializer, 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def verificar_expiracion(self, request):
+        reservas = Reserva.objects.filter(usuario=request.user, estado='Reservado')
+        expiradas = 0
+        for reserva in reservas:
+            resultado = reserva.verificar_expiracion()
+            if resultado['estado'] == 'exito':
+                expiradas += 1
+        return Response(
+            {"estado": "exito", "mensaje": f"Se han expirado {expiradas} reservas."},
+            status=status.HTTP_200_OK
+        )
+    
+    @extend_schema(
+        description="Paga una reserva",
+        request=IdReservaSerializer,
+        responses={200: "Reserva pagada con éxito", 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def pagar_reserva(self, request, pk=None):
+        serializer = IdReservaSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        reserva = get_object_or_404(Reserva, pk=serializer.validated_data['reserva_id'])
+        resultado = reserva.pagar_reserva()
+        if resultado['estado'] == 'exito':
+            return Response({"mensaje": "Reserva pagada con éxito"}, status=status.HTTP_200_OK)
+        return Response(resultado, status=status.HTTP_400_BAD_REQUEST)

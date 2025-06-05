@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Carrito, Pedidos, CarritoLibro, PedidoLibro
+from .models import Carrito, Pedidos, CarritoLibro, PedidoLibro, Reserva
 from apps.libros.models import Libro
 
 class CarritoSerializer(serializers.ModelSerializer):
@@ -47,3 +47,25 @@ class CarritoLibroSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarritoLibro
         fields = ['libro', 'cantidad']
+        
+class ReservaSerializer(serializers.ModelSerializer):
+    libro = LibroSerializer(read_only=True)
+
+    class Meta:
+        model = Reserva
+        fields = ['id', 'usuario', 'libro', 'cantidad', 'estado', 'fecha_reserva', 'fecha_expiracion']
+        read_only_fields = ['estado', 'fecha_reserva', 'fecha_expiracion']
+
+class CrearReservaSerializer(serializers.Serializer):
+    libro_id = serializers.IntegerField()
+    cantidad = serializers.IntegerField(min_value=1)
+    
+class IdReservaSerializer(serializers.Serializer):
+    reserva_id = serializers.IntegerField()
+    
+    def validate_reserva_id(self, value):
+        try:
+            Reserva.objects.get(id=value)
+        except Reserva.DoesNotExist:
+            raise serializers.ValidationError("La reserva no existe.")
+        return value

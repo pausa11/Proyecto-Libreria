@@ -2293,3 +2293,92 @@ Este tipo de problema es común cuando se añaden campos a modelos y componentes
 - El modelo `Tienda` es independiente y puede ser extendido fácilmente.
 - El endpoint está protegido por los permisos globales de la API (puede ajustarse según necesidad).
 - La estructura permite escalar a múltiples sucursales y visualización geográfica.
+
+## [2025-06-05] Implementación y Optimización del Sistema de Reservas y Compras
+
+### feat(compras): Sistema completo de reservas y pagos
+
+#### Cambios en modelos (`models.py`)
+- **Implementación del modelo `Reserva`:**
+  - Permite a los usuarios reservar libros con control de stock y expiración automática.
+  - Campos: usuario, libro, cantidad, estado, fecha_reserva, fecha_expiracion.
+  - Métodos:
+    - `reservar_libro`: Valida stock, límites por usuario y crea la reserva.
+    - `cancelar_reserva`: Permite cancelar reservas activas y devuelve stock.
+    - `verificar_expiracion`: Marca reservas como expiradas y devuelve stock si corresponde.
+    - `pagar_reserva`: Permite pagar una reserva, descuenta saldo y crea un pedido.
+- **Mejoras en el modelo `Carrito`:**
+  - Métodos robustos para agregar, quitar y limpiar libros.
+  - Método `pagar` ahora descuenta saldo, valida stock y genera pedidos con detalle de libros y cantidades.
+- **Modelo `Pedidos` y `PedidoLibro`:**
+  - Permiten registrar cada compra con detalle de libros y cantidades.
+  - Métodos para crear pedidos y consultar los libros asociados.
+
+---
+
+### feat(api): Serializers avanzados para reservas y compras (`serializers.py`)
+- **Serializadores para reservas:**
+  - `ReservaSerializer`: Expone todos los campos relevantes, anida información del libro.
+  - `CrearReservaSerializer`: Valida datos de entrada para crear reservas.
+  - `IdReservaSerializer`: Valida la existencia de una reserva por ID.
+- **Serializadores para carritos y pedidos:**
+  - `CarritoLibroSerializer` y `PedidoLibroSerializer`: Incluyen información completa del libro y cantidad.
+  - `PedidosSerializer`: Anida el detalle de libros y cantidades en cada pedido.
+
+---
+
+### feat(api): Endpoints RESTful para reservas y compras (`views.py`, `urls.py`)
+- **ReservaViewSet:**
+  - Endpoint para listar reservas del usuario autenticado.
+  - Acción personalizada `reservar`: Permite crear una reserva validando stock y límites.
+  - Acción `cancelar`: Permite cancelar una reserva activa.
+  - Acción `verificar_expiracion`: Marca como expiradas todas las reservas vencidas del usuario.
+  - Acción `pagar_reserva`: Permite pagar una reserva, descuenta saldo y genera el pedido.
+- **CarritoViewSet:**
+  - Endpoints para agregar, quitar y vaciar libros del carrito.
+  - Acción `pagar`: Procesa el pago del carrito, descuenta saldo y stock, y genera el pedido.
+  - Acción `historial_pedidos`: Devuelve el historial de pedidos del usuario autenticado.
+- **Configuración de rutas (`urls.py`):**
+  - Registro de los ViewSets de carrito y reservas en el router principal.
+
+---
+
+### fix(swagger): Documentación precisa y endpoints claros
+- Uso de `@extend_schema` para documentar cada acción personalizada.
+- Corrección de los parámetros de entrada y salida en la documentación de Swagger/OpenAPI.
+- Eliminación de parámetros innecesarios en endpoints personalizados (como `usuario` y `cantidad` en acciones que no los requieren).
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Reservas:**  
+  - Creación, cancelación, expiración y pago de reservas con control de stock y saldo.
+- **Compras:**  
+  - Carrito funcional, pago integrado, historial de pedidos detallado.
+- **API RESTful:**  
+  - Endpoints claros y documentados para todas las operaciones de reservas y compras.
+- **Serialización avanzada:**  
+  - Respuestas estructuradas y listas para consumo en frontend.
+
+#### Mejoras en la experiencia de usuario
+- Mensajes claros de error y éxito en todas las operaciones.
+- Validaciones robustas para evitar inconsistencias de stock y saldo.
+- Documentación Swagger precisa y sin parámetros innecesarios.
+
+---
+
+### Próximos Pasos 🚧
+1. Implementar notificaciones automáticas para reservas expiradas y pagos exitosos.
+2. Añadir filtros y paginación en el historial de reservas y pedidos.
+3. Mejorar la gestión de devoluciones y cancelaciones de pedidos.
+4. Desarrollar pruebas unitarias e integración para el flujo de reservas y compras.
+5. Optimizar consultas y prefetching en endpoints de historial y carrito.
+
+---
+
+### Notas Técnicas
+- El sistema de reservas y compras es extensible y preparado para integración con módulos de finanzas y notificaciones.
+- La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
+- La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.
