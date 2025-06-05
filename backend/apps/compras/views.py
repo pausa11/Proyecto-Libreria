@@ -4,9 +4,9 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-from .models import Carrito, Reserva
+from .models import Carrito, Pedidos, Reserva
 from .serializers import AgregaroQuitarLibroSerializer, CarritoLibroSerializer, PedidoLibroSerializer, PedidosSerializer
-from .serializers import ReservaSerializer, CrearReservaSerializer, IdReservaSerializer
+from .serializers import ReservaSerializer, CrearReservaSerializer, IdReservaSerializer, CancelarPedidoSerializer
 
 @extend_schema_view(
     list=extend_schema(description="Obtiene la lista de todos los carritos"),
@@ -100,6 +100,15 @@ class CarritoViewSet(viewsets.ModelViewSet):
         return Response({"mensaje": resultado})
         
     
+class PedidoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para gestionar pedidos.
+    Este ViewSet permite a los usuarios ver su historial de pedidos y obtener detalles de cada pedido.
+    """
+    queryset = Pedidos.objects.all()
+    serializer_class = PedidosSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
     @extend_schema(
         description="Obtiene el historial de pedidos del usuario",
         responses={200: PedidosSerializer(many=True)},
@@ -116,6 +125,31 @@ class CarritoViewSet(viewsets.ModelViewSet):
         serializer = PedidosSerializer(pedidos, many=True)
         PedidoLibroSerializer(pedidos, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @extend_schema(
+        description = "Cancela un pedido",
+        request = CancelarPedidoSerializer,
+        responses = {200: "Pedido cancelado con éxito", 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def cancelar_pedido(self, request):
+        """
+        Cancela un pedido específico.
+        
+        Este método permite al usuario cancelar un pedido existente.
+        """
+        serializer = CancelarPedidoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        pedido_id = serializer.validated_data['pedido_id']
+        try:
+            pedido = Pedidos.objects.get(id=pedido_id, usuario=request.user)
+            if pedido.estado == 'Cancelado':
+                return Response({"error": "El pedido ya está cancelado"}, status=status.HTTP_400_BAD_REQUEST)
+            pedido.cancelar_pedido()
+            return Response({"mensaje": "Pedido cancelado con éxito"}, status=status.HTTP_200_OK)
+        except Pedidos.DoesNotExist:
+            return Response({"error": "Pedido no encontrado"}, status=status.HTTP_404_NOT_FOUND)
     
     
 class ReservaViewSet(viewsets.ModelViewSet):

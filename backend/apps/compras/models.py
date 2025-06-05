@@ -237,9 +237,6 @@ class Reserva(models.Model):
             "estado": "exito",
             "mensaje": f"Pago realizado para la reserva de {self.cantidad} copias de {self.libro.titulo}."
         }
-        
-    
-    
 
 class Historial(models.Model):
     fecha = models.DateTimeField()
@@ -282,3 +279,20 @@ class Pedidos(models.Model):
     
     def MostrarPedidos(self):
         return PedidoLibro.objects.filter(pedido=self).all()
+    
+    def cancelar_pedido(self):
+        """
+        Cancela un pedido.
+        """
+        if self.estado == 'Pendiente':
+            self.estado = 'Cancelado'
+            self.save()
+            return {
+                "estado": "exito",
+                "mensaje": f"Pedido #{self.id} cancelado."
+            }
+        else:
+            return {
+                "estado": "error",
+                "mensaje": "El pedido ya ha sido completado o cancelado."
+            }

@@ -40,6 +40,17 @@ class PedidosSerializer(serializers.ModelSerializer):
         fields = ['id', 'fecha', 'usuario', 'estado', 'pedidolibro_set']
         read_only_fields = ('fecha',)
 
+class CancelarPedidoSerializer(serializers.Serializer):
+    pedido_id = serializers.IntegerField()
+
+    def validate_pedido_id(self, value):
+        try:
+            Pedidos.objects.get(id=value)
+        except Pedidos.DoesNotExist:
+            raise serializers.ValidationError("El pedido no existe.")
+        return value
+    
+    
 # Si quieres mostrar los libros y cantidades en el carrito:
 class CarritoLibroSerializer(serializers.ModelSerializer):
     libro = LibroSerializer(read_only=True)
