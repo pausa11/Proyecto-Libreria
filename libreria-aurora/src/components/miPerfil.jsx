@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "./navBar";
 import { getApiUrlByKey } from "../api/config";
 
@@ -8,9 +8,10 @@ import ChangePassword from "./profile/ChangePassword";
 import ForumMessages from "./profile/forumMessages";
 import AdminForumMessages from "./profile/adminForumMessages";
 import Pedidos from "./profile/pedidos";
+import Reservas from "./profile/reservas";
 
 function MiPerfil() {
-  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
+  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
   const [isStaff, setIsStaff] = useState(false);
   
@@ -57,6 +58,8 @@ function MiPerfil() {
         return <FinancialManagement/>;
       case 'pedidos':
         return <Pedidos/>;
+      case 'reservas':
+        return <Reservas/>;
       case 'foro':
         // Mostrar el componente adecuado según el rol del usuario
         return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
