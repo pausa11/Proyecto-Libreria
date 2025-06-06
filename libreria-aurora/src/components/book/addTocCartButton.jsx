@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-function BuyBookSection({ stock, onBuy }) {
+function BuyBookSection({ stock, onBuy, onReserve }) {
   const [quantity, setQuantity] = useState(1);
 
   const handleDecrease = () => {
@@ -14,6 +14,12 @@ function BuyBookSection({ stock, onBuy }) {
   const handleBuy = () => {
     if (stock > 0 && quantity > 0) {
       onBuy(quantity);
+    }
+  };
+
+  const handleReserve = () => {
+    if (quantity > 0 && quantity <= 3) {
+      onReserve(quantity);
     }
   };
 
@@ -42,12 +48,29 @@ function BuyBookSection({ stock, onBuy }) {
             </div>
             <span className="text-sm text-gray-500">(Stock: {stock})</span>
           </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded transition"
-            onClick={handleBuy}
-          >
-            Comprar
-          </button>
+
+          <div className="flex gap-4">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded transition"
+              onClick={handleBuy}
+            >
+              Comprar
+            </button>
+
+            {onReserve && (
+              <button
+                className={`${
+                  quantity > 3
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-yellow-600 hover:bg-yellow-700"
+                } text-white font-semibold px-6 py-2 rounded transition`}
+                onClick={handleReserve}
+                disabled={quantity > 3}
+              >
+                Reservar
+              </button>
+            )}
+          </div>
         </>
       ) : (
         <p className="text-red-500 font-medium">Producto agotado</p>
