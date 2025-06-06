@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getApiUrl } from "../../api/config";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 function Reservas() {
   const [reservas, setReservas] = useState([]);
@@ -28,6 +29,31 @@ function Reservas() {
       }
     } catch (error) {
       console.error("Error al obtener reservas:", error);
+    }
+  };
+
+  const cancelarReserva = async (reservaId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(getApiUrl("/api/compras/reservas/cancelar/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reserva_id: reservaId }),
+      });
+
+      if (!response.ok) {
+        toast.error("No se pudo cancelar la reserva.");
+        return;
+      }
+
+      toast.success("Reserva cancelada exitosamente.");
+      fetchReservas(); // recargar lista
+    } catch (error) {
+      console.error("Error al cancelar reserva:", error);
+      toast.error("Ocurrió un error al cancelar la reserva.");
     }
   };
 
@@ -73,7 +99,14 @@ function Reservas() {
                 </div>
 
                 <div className="text-right mt-2 pr-4">
-                  <p className="text-lg font-semibold text-green-600">💲 Total de la reserva: ${precioTotal.toFixed(2)}</p>
+                  {reserva.estado === "Reservado" && (
+                    <button
+                      onClick={() => cancelarReserva(reserva.id)}
+                      className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-all"
+                    >
+                      Cancelar reserva
+                    </button>
+                  )}
                 </div>
               </div>
             );
