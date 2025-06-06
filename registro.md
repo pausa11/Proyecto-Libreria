@@ -2382,3 +2382,91 @@ Este tipo de problema es común cuando se añaden campos a modelos y componentes
 - El sistema de reservas y compras es extensible y preparado para integración con módulos de finanzas y notificaciones.
 - La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
 - La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.
+
+
+## [2025-06-06] Implementación de Historial de Compras, Devolución con QR y Optimización de Compras
+
+### feat(compras): Historial de compras y devolución con QR
+
+#### Cambios en modelos (`models.py`)
+- **Nuevo modelo `HistorialDeCompras`:**
+  - Guarda cada compra completada por el usuario, vinculada a un pedido y fecha.
+  - Método `devolucion_compra`:
+    - Genera un código QR en memoria con los datos de la compra.
+    - Envía el QR por correo electrónico al usuario como archivo adjunto.
+    - Valida que la devolución solo sea posible dentro de los 8 días posteriores a la compra.
+  - Método `MostrarHistorialCompras`: permite consultar el historial de compras del usuario.
+- **Actualización en modelo `Pedidos`:**
+  - Al cambiar el estado a `'Entregado'`, se registra automáticamente la compra en el historial (`HistorialDeCompras`).
+  - Métodos para crear, cancelar y mostrar pedidos optimizados.
+- **Integración con reservas y carritos:**
+  - Flujo de pago y registro de pedidos mejorado para reflejar correctamente el historial.
+
+---
+
+### feat(api): Serializers y endpoints para historial de compras (`serializers.py`, `views.py`, `urls.py`)
+- **Serializer `HistorialDeComprasSerializer`:**
+  - Expone los campos `id`, `usuario`, `pedido` y `fecha`.
+  - Anida la información del pedido con libros y cantidades.
+- **ViewSet `HistorialDeComprasViewSet`:**
+  - Endpoint de solo lectura para listar el historial de compras del usuario autenticado.
+  - Acción personalizada `devolver_compra`:
+    - Permite solicitar la devolución de una compra.
+    - Llama al método `devolucion_compra` del modelo y envía el QR por email.
+    - Valida el plazo de devolución y responde con mensajes claros.
+- **Rutas (`urls.py`):**
+  - Registro del ViewSet en el router bajo el prefijo `historial-compras`.
+
+---
+
+### feat(api): Mejoras en endpoints de compras y reservas
+- **ReservaViewSet:**
+  - Endpoints para reservar, cancelar, pagar y verificar expiración de reservas.
+  - Documentación Swagger mejorada para cada acción.
+- **PedidoViewSet y CarritoViewSet:**
+  - Endpoints para gestionar pedidos, cancelar, cambiar estado y ver historial.
+  - Acciones para agregar, quitar y vaciar libros del carrito.
+
+---
+
+### fix(swagger): Documentación precisa y endpoints claros
+- Uso de `@extend_schema` y `request=None` para documentar correctamente los endpoints que no requieren body.
+- Eliminación de parámetros innecesarios en la documentación de acciones personalizadas.
+- Respuestas detalladas para operaciones exitosas y de error.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Historial de compras:**  
+  - Registro automático de compras entregadas.
+  - Consulta del historial por usuario autenticado.
+- **Devolución con QR:**  
+  - Generación y envío de código QR por email para devoluciones dentro del plazo permitido.
+- **Gestión de reservas, carritos y pedidos:**  
+  - Flujo completo de compra, pago y registro en historial.
+- **API RESTful:**  
+  - Endpoints claros y documentados para todas las operaciones de compras, reservas y devoluciones.
+
+#### Mejoras en la experiencia de usuario
+- Mensajes claros de éxito y error en todas las operaciones.
+- Validaciones robustas para devoluciones y registro de compras.
+- Documentación Swagger precisa y sin parámetros innecesarios.
+
+---
+
+### Próximos Pasos 🚧
+1. Permitir descarga del QR desde el historial si el usuario lo solicita.
+2. Añadir notificaciones automáticas para devoluciones y compras exitosas.
+3. Implementar filtros y paginación en el historial de compras.
+4. Desarrollar pruebas unitarias para el flujo de devoluciones y registro de historial.
+5. Optimizar consultas y prefetching en endpoints de historial y pedidos.
+
+---
+
+### Notas Técnicas
+- El QR se genera en memoria y solo se envía por email, no se almacena en la base de datos.
+- El historial de compras es inmutable y se registra automáticamente al entregar un pedido.
+- La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
+- La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.

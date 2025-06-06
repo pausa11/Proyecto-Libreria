@@ -4,9 +4,9 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
-from .models import Carrito, Pedidos, Reserva
-from .serializers import AgregaroQuitarLibroSerializer, CarritoLibroSerializer, PedidoLibroSerializer, PedidosSerializer
-from .serializers import ReservaSerializer, CrearReservaSerializer, IdReservaSerializer, CancelarPedidoSerializer
+from .models import Carrito, HistorialDeCompras, Pedidos, Reserva
+from .serializers import AgregaroQuitarLibroSerializer, CarritoLibroSerializer, HistorialDeComprasSerializer, PedidoLibroSerializer, PedidosSerializer
+from .serializers import ReservaSerializer, CrearReservaSerializer, IdReservaSerializer, CancelarPedidoSerializer, CambiarEstadoPedidoSerializer, IdHistorialSerializer
 
 @extend_schema_view(
     list=extend_schema(description="Obtiene la lista de todos los carritos"),
@@ -151,6 +151,32 @@ class PedidoViewSet(viewsets.ModelViewSet):
         except Pedidos.DoesNotExist:
             return Response({"error": "Pedido no encontrado"}, status=status.HTTP_404_NOT_FOUND)
     
+    @extend_schema(
+        description="Cambia el estado de un pedido",
+        request = CambiarEstadoPedidoSerializer,
+        responses = {200: "Estado del pedido actualizado con éxito", 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def cambiar_estado(self, request):
+        """
+        Cambia el estado de un pedido específico.
+        
+        Este método permite al usuario cambiar el estado de un pedido existente.
+        """
+        serializer = CambiarEstadoPedidoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        pedido_id = serializer.validated_data['pedido_id']
+        nuevo_estado = serializer.validated_data['nuevo_estado']
+        
+        try:
+            pedido = Pedidos.objects.get(id=pedido_id, usuario=request.user)
+            resultado = pedido.cambiar_estado(nuevo_estado)
+            if resultado['estado'] == 'exito':
+                return Response({"mensaje": "Estado del pedido actualizado con éxito"}, status=status.HTTP_200_OK)
+            return Response(resultado, status=status.HTTP_400_BAD_REQUEST)
+        except Pedidos.DoesNotExist:
+            return Response({"error": "Pedido no encontrado"}, status=status.HTTP_404_NOT_FOUND)
     
 class ReservaViewSet(viewsets.ModelViewSet):
     queryset = Reserva.objects.all()
@@ -232,3 +258,40 @@ class ReservaViewSet(viewsets.ModelViewSet):
         if resultado['estado'] == 'exito':
             return Response({"mensaje": "Reserva pagada con éxito"}, status=status.HTTP_200_OK)
         return Response(resultado, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class HistorialDeComprasViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = HistorialDeComprasSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Solo muestra el historial del usuario autenticado
+        return HistorialDeCompras.objects.filter(usuario=self.request.user).select_related('pedido').order_by('-fecha')
+    
+    @extend_schema(
+        description="Obtiene el historial de compras del usuario autenticado",
+        responses={200: HistorialDeComprasSerializer(many=True)}
+    )
+    def listar_historial(self, request):
+        queryset = self.get_queryset()
+        return Response(HistorialDeComprasSerializer(queryset, many=True).data)
+    
+    @extend_schema(
+        description="Devolucion de una compra",
+        request=IdHistorialSerializer,
+        responses={200: "Devolución exitosa", 400: None}
+    )
+    @action(detail=False, methods=['post'])
+    def devolver_compra(self, request):
+        serializer = IdHistorialSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        historial_id = serializer.validated_data['historial_id']
+
+        try:
+            historial = HistorialDeCompras.objects.get(id=historial_id, usuario=request.user)
+            resultado = historial.devolucion_compra()
+            if resultado['estado'] == 'exito':
+                return Response({"mensaje": "Se ha enviado un correo electronico con un codigo qr"}, status=status.HTTP_200_OK)
+            return Response(resultado, status=status.HTTP_400_BAD_REQUEST)
+        except HistorialDeCompras.DoesNotExist:
+            return Response({"error": "Compra no encontrada"}, status=status.HTTP_404_NOT_FOUND)

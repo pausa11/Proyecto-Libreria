@@ -238,13 +238,58 @@ class Reserva(models.Model):
             "mensaje": f"Pago realizado para la reserva de {self.cantidad} copias de {self.libro.titulo}."
         }
 
-class Historial(models.Model):
-    fecha = models.DateTimeField()
-    libros = models.ManyToManyField(Libro, blank = True, related_name='historiales')
-
-    def __str__(self):
-        return f"Historial #{self.id} - {self.fecha.strftime('%Y-%m-%d')}"
+class HistorialDeCompras(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historial_compras')
+    pedido = models.ForeignKey('Pedidos', on_delete=models.CASCADE, related_name='historial_compras')
+    fecha = models.DateTimeField(auto_now_add=True)
     
+    def __str__(self):
+        return f"Compra #{self.id} - {self.fecha.strftime('%Y-%m-%d')} - Usuario: {self.usuario.username}"
+    
+    #Enviar codigo qr al usuario por email para relalizar la devolucion
+    def devolucion_compra(self):
+        import qrcode
+        from io import BytesIO
+        from django.core.mail import EmailMessage
+        
+        if self.fecha < timezone.now() - timedelta(days=8):
+            return {
+                "estado": "error",
+                "mensaje": "La compra no puede ser devuelta, ya que han pasado más de 8 días desde la fecha de compra."
+            }
+
+        qr_data = f"Devolución de compra #{self.id} - Usuario: {self.usuario.username}"
+        qr = qrcode.make(qr_data)
+        img_io = BytesIO()
+        qr.save(img_io, format='PNG')
+        img_io.seek(0)
+
+        # Envía el correo con el QR adjunto (sin guardarlo en el modelo)
+        subject = f"Código QR para devolución de compra #{self.id}"
+        message = (
+            f"Hola {self.usuario.username},\n\n"
+            f"Adjuntamos el código QR para la devolución de tu compra #{self.id}.\n"
+            "Recuerda que solo puedes devolver la compra dentro de los 8 días posteriores a la compra.\n\n"
+            "Saludos,\nLibrería Aurora"
+        )
+        email = EmailMessage(
+            subject,
+            message,
+            to=[self.usuario.email]
+        )
+        email.attach(f"qr_devolucion_{self.id}.png", img_io.read(), "image/png")
+        email.send()
+
+        return {
+            "estado": "exito",
+            "mensaje": f"Código QR generado y enviado por email para la devolución de la compra #{self.id}."
+        }
+        
+    def MostrarHistorialCompras(self):
+        """
+        Muestra el historial de compras del usuario.
+        """
+        return HistorialDeCompras.objects.filter(usuario=self.usuario).all()
 
 class Pedidos(models.Model):
     fecha = models.DateTimeField(auto_now_add=True)
@@ -253,7 +298,8 @@ class Pedidos(models.Model):
     estado_choices = [
         ('Pendiente', 'Pendiente'),
         ('Cancelado', 'Cancelado'),
-        ('Completado', 'Completado'),
+        ('En Proceso', 'En Proceso'),
+        ('Entregado', 'Entregado'),
     ]
     estado = models.CharField(max_length=10, choices=estado_choices, default='Pendiente')
     def save(self, *args, **kwargs):
@@ -295,4 +341,25 @@ class Pedidos(models.Model):
             return {
                 "estado": "error",
                 "mensaje": "El pedido ya ha sido completado o cancelado."
+            }
+    
+    def cambiar_estado(self, nuevo_estado):
+        """
+        Cambia el estado del pedido.
+        """
+        if nuevo_estado in dict(self.estado_choices):
+            self.estado = nuevo_estado
+            if nuevo_estado == 'Entregado':
+                # Si el pedido es entregado, se registra en el historial de compras
+                HistorialDeCompras.objects.create(usuario=self.usuario, pedido=self)
+            self.save()
+            
+            return {
+                "estado": "exito",
+                "mensaje": f"Estado del pedido #{self.id} cambiado a {nuevo_estado}."
+            }
+        else:
+            return {
+                "estado": "error",
+                "mensaje": "Estado no válido."
             }

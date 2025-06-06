@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Carrito, Pedidos, CarritoLibro, PedidoLibro, Reserva
+from .models import Carrito, HistorialDeCompras, Pedidos, CarritoLibro, PedidoLibro, Reserva
 from apps.libros.models import Libro
 
 class CarritoSerializer(serializers.ModelSerializer):
@@ -79,4 +79,39 @@ class IdReservaSerializer(serializers.Serializer):
             Reserva.objects.get(id=value)
         except Reserva.DoesNotExist:
             raise serializers.ValidationError("La reserva no existe.")
+        return value
+    
+class HistorialDeComprasSerializer(serializers.ModelSerializer):
+    pedido = PedidosSerializer(read_only=True)
+
+    class Meta:
+        model = HistorialDeCompras
+        fields = ['id', 'usuario', 'pedido', 'fecha']
+        read_only_fields = ['id', 'usuario', 'pedido', 'fecha']
+        
+class CambiarEstadoPedidoSerializer(serializers.Serializer):
+    pedido_id = serializers.IntegerField()
+    nuevo_estado = serializers.ChoiceField(choices=Pedidos.estado_choices)
+
+    def validate_pedido_id(self, value):
+        try:
+            Pedidos.objects.get(id=value)
+        except Pedidos.DoesNotExist:
+            raise serializers.ValidationError("El pedido no existe.")
+        return value
+
+    def validate_nuevo_estado(self, value):
+        estados_validos = [estado[0] for estado in Pedidos.estado_choices]
+        if value not in estados_validos:
+            raise serializers.ValidationError("Estado no válido.")
+        return value
+
+class IdHistorialSerializer(serializers.Serializer):
+    historial_id = serializers.IntegerField()
+
+    def validate_historial_id(self, value):
+        try:
+            HistorialDeCompras.objects.get(id=value)
+        except HistorialDeCompras.DoesNotExist:
+            raise serializers.ValidationError("El historial de compras no existe.")
         return value
