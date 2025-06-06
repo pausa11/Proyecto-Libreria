@@ -107,7 +107,7 @@ const Home = () => {
       <div id="tiendas" className="bg-[#1B2459] w-full h-[50%] p-[2vw]" data-aos="zoom-in">
         <div className="relative w-full h-full flex">
           <div className="absolute bottom-0 right-0 flex justify-end items-center w-full h-[10%]">
-            <ButtonA text="Tiendas" onClick={() => {}} width="10%" color="#FFD700" />
+            <ButtonA text="Tiendas" onClick={() => navigate('/tiendas')} width="10%" color="#FFD700" />
           </div>
         </div>
       </div>

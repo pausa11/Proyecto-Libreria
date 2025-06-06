@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getApiUrl } from "../../api/config";
 import { useNavigate } from "react-router-dom";
 
@@ -10,29 +10,34 @@ function Pedidos() {
     fetchHistorialPedidos();
   }, []);
 
-  const fetchHistorialPedidos = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const response = await fetch(getApiUrl("/api/compras/carritos/historial_pedidos/"), {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al obtener historial de pedidos");
-      }
-
-      const data = await response.json();
-      console.log(data);
-      setPedidos(data);
-    } catch (error) {
-      console.error(error);
+const fetchHistorialPedidos = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.warn("Token no encontrado. Redirigiendo o abortando.");
+      return;
     }
-  };
+
+    const response = await fetch(getApiUrl("/api/compras/carritos/historial_pedidos/"), {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const responseBody = await response.json();
+
+    if (!response.ok) {
+      console.error("Error al obtener historial de pedidos:", responseBody);
+      return;
+    }
+
+    setPedidos(responseBody);
+  } catch (error) {
+    console.error("Error de red o excepción:", error);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
