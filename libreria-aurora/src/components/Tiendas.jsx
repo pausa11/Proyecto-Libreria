@@ -97,11 +97,10 @@ function Tiendas() {
   return (
     <div className="min-h-screen bg-gray-100 ">
         <NavBar />
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-blue-200 mt-10">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-blue-200 p-[1vw] m-2">
             <h2 className="text-xl font-bold text-black border-b-2 border-yellow-400 pb-1">Tiendas</h2>
 
-            {/* Formulario */}
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            {/* <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
                 <label className="block text-sm font-medium text-gray-700">Nombre</label>
                 <input
@@ -174,9 +173,8 @@ function Tiendas() {
             >
                 Registrar Tienda
             </button>
-            </form>
+            </form> */}
 
-            {/* Mensajes */}
             {loading ? (
             <p className="mt-4 text-gray-600">Cargando tiendas...</p>
             ) : error ? (
