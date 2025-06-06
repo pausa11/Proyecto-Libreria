@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [historialCompras, setHistorialCompras] = useState([]);
-  const [mostrarHistorial, setMostrarHistorial] = useState(false);
+  const [modoVista, setModoVista] = useState("pedidos"); // "pedidos" o "historial"
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,10 +44,7 @@ function Pedidos() {
       });
 
       const data = await response.json();
-      if (response.ok) {
-        setHistorialCompras(data);
-        setMostrarHistorial(true);
-      }
+      if (response.ok) setHistorialCompras(data);
     } catch (error) {
       console.error("Error al obtener historial de compras:", error);
     }
@@ -122,34 +119,50 @@ function Pedidos() {
     );
   };
 
+  const cambiarVista = async (nuevaVista) => {
+    setModoVista(nuevaVista);
+    if (nuevaVista === "historial" && historialCompras.length === 0) {
+      await fetchHistorialCompras();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-blue-200">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-6">
-            <h2 className="text-xl font-bold text-black border-b-2 border-yellow-400 pb-1">Tus Pedidos</h2>
-            <h2 className="text-xl font-semibold text-gray-500 cursor-pointer hover:text-yellow-600" onClick={fetchHistorialCompras} >
+            <h2
+              className={`text-xl font-bold pb-1 border-b-2 cursor-pointer ${
+                modoVista === "pedidos" ? "text-black border-yellow-400" : "text-gray-500 border-transparent"
+              }`}
+              onClick={() => cambiarVista("pedidos")}
+            >
+              Tus Pedidos
+            </h2>
+            <h2
+              className={`text-xl font-semibold pb-1 border-b-2 cursor-pointer ${
+                modoVista === "historial" ? "text-black border-yellow-400" : "text-gray-500 border-transparent"
+              }`}
+              onClick={() => cambiarVista("historial")}
+            >
               Historial de Compras
             </h2>
           </div>
           <button onClick={() => navigate(-1)} className="bg-[#c9a875] text-white px-4 py-1 rounded hover:bg-[#a9895e]">Volver</button>
         </div>
 
-        {!mostrarHistorial ? (
+        {modoVista === "pedidos" ? (
           pedidos.length === 0 ? (
             <p className="text-gray-500">No hay pedidos registrados.</p>
           ) : (
             pedidos.map((pedido) => renderPedido(pedido, true))
           )
         ) : (
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Compras registradas</h3>
-            {historialCompras.length === 0 ? (
-              <p className="text-gray-500">No hay compras registradas.</p>
-            ) : (
-              historialCompras.map((compra) => renderPedido(compra.pedido, false))
-            )}
-          </div>
+          historialCompras.length === 0 ? (
+            <p className="text-gray-500">No hay compras registradas.</p>
+          ) : (
+            historialCompras.map((compra) => renderPedido(compra.pedido, false))
+          )
         )}
       </div>
     </div>
