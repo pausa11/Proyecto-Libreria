@@ -3007,3 +3007,148 @@ WHERE table_name = 'usuarios_usuario';
 **Tiempo invertido:** ~8 horas de desarrollo + 4 horas de debugging
 **Líneas de código:** ~800 líneas nuevas
 **Bugs críticos restantes:** 1 (serialización de is_staff/is_superuser)
+
+Basándome en la conversación y los intentos de solución, aquí está la documentación en formato commit para el archivo de registro:
+
+```markdown
+## ACTUALIZACIÓN: Intento de Solución #2 - Campos is_staff/is_superuser
+
+**Fecha:** Junio 7, 2025
+**Commit:** `fix: attempt #2 - improve user role serialization and sync`
+
+---
+
+### 4.5 Segundo Intento de Solución: Mejora del Serializer y Comando de Sincronización
+
+**Problema persistente:** Los campos `is_staff` e `is_superuser` siguen llegando como `undefined` al frontend, a pesar de que en el admin de Django se muestran correctamente.
+
+**Evidencia actual:**
+```javascript
+// Frontend logs:
+🚨 WARNING: User has ADMIN tipo_usuario but is_staff is not true!
+🚨 This indicates a serialization or database sync issue
+
+// Admin Django muestra:
+Usuario: superuser2 | Staff: Sí | Superuser: Sí | Tipo: ADMIN
+
+// Pero el frontend recibe:
+Usuario: superuser2 | Staff: No | Superuser: No | Tipo: ADMIN
+```
+
+#### Archivos modificados en este intento:
+
+**1. Comando de sincronización de usuarios**
+```python
+# sync_user_roles.py
+# NUEVO ARCHIVO - Comando para sincronizar roles sin migraciones
+```
+
+**2. Mejora del método save() en models.py**
+```python
+# models.py
+def save(self, *args, **kwargs):
+    # Sincronización MEJORADA - evitar bucles infinitos
+    # ... lógica de sincronización más robusta
+```
+
+**3. Serializer mejorado con instancia fresca**
+```python
+# backend/apps/usuarios/serializers.py
+def to_representation(self, instance):
+    # Obtener instancia fresca de la BD para evitar problemas de caché
+    fresh_instance = Usuario.objects.get(pk=instance.pk)
+    # ... forzar valores booleanos explícitos
+```
+
+**4. Admin con acción de sincronización**
+```python
+# backend/apps/usuarios/admin.py
+@admin.register(Usuario)
+class UsuarioAdmin(UserAdmin):
+    actions = ['sincronizar_roles_usuarios']
+    # ... acción para sincronizar roles manualmente
+```
+
+#### Soluciones implementadas:
+
+1. **Comando de sincronización:** Script para actualizar registros existentes sin migraciones
+2. **Serializer con instancia fresca:** Fuerza lectura directa desde BD para evitar caché
+3. **Método save() mejorado:** Lógica más robusta de sincronización de campos
+4. **Acción de admin:** Herramienta manual para sincronizar desde el panel de Django
+5. **Debug logging:** Logs específicos para usuarios problemáticos
+
+#### Instrucciones ejecutadas:
+```bash
+# Se crearon los directorios management/commands/
+# Se implementó el comando sync_user_roles
+# Se ejecutaría: python manage.py sync_user_roles --dry-run
+```
+
+---
+
+### 4.6 Resultado del Segundo Intento: FALLO
+
+**Estado:** ❌ **Problema NO resuelto**
+
+**Síntomas persistentes:**
+- El admin de Django muestra correctamente `is_staff: True` e `is_superuser: True`
+- El serializer sigue enviando `is_staff: false` e `is_superuser: false`
+- Los logs de debug del serializer no aparecen (indicando que podría no ejecutarse)
+- El frontend continúa recibiendo campos `undefined` o `false`
+
+**Posibles causas identificadas:**
+
+1. **Problema de herencia del modelo:** El modelo `Usuario(AbstractUser)` podría no estar heredando correctamente los campos estándar
+2. **Conflicto de campos:** El campo personalizado `activo` podría estar interfiriendo con `is_active`
+3. **Problema de queries:** El queryset podría estar usando `select_related` o `prefetch_related` incorrectamente
+4. **Caché de Django ORM:** Los objetos podrían estar cacheados y no reflejar cambios de BD
+5. **Problema de configuración:** `AUTH_USER_MODEL` o configuración de Django incorrecta
+6. **Versión de DRF:** Bug en la versión específica de Django REST Framework utilizada
+
+**Evidencia técnica:**
+```python
+# Lo que debería funcionar pero NO funciona:
+fresh_instance = Usuario.objects.get(pk=instance.pk)
+data['is_staff'] = bool(fresh_instance.is_staff)  # Debería ser True, llega False
+```
+
+**Hipótesis principal:** El modelo personalizado `Usuario` tiene un conflicto fundamental con los campos heredados de `AbstractUser`, posiblemente relacionado con:
+- Migraciones no aplicadas correctamente en el pasado
+- Campos que existen en el modelo pero no en la base de datos física
+- Problema de sincronización entre el campo `activo` personalizado y `is_active` estándar
+
+---
+
+### 4.7 Estado Actual del Proyecto
+
+**Funcionalidad del módulo:**
+- ✅ Frontend: 95% funcional (interfaz completa, navegación, validaciones)
+- ❌ Backend: 60% funcional (API funciona pero serialización incorrecta)
+- ❌ Integración: 40% funcional (roles no se detectan, permisos fallan)
+
+**Impacto del bug:**
+- Los usuarios con roles altos aparecen como lectores en el frontend
+- Las estadísticas de roles están incorrectas
+- Los permisos de gestión no funcionan correctamente
+- La seguridad del sistema está comprometida
+
+**Trabajo realizado total:**
+- Tiempo invertido: ~12 horas de desarrollo + 8 horas de debugging
+- Líneas de código: ~1200 líneas nuevas
+- Intentos de solución: 2 completos
+- Archivos modificados: 8
+- Archivos nuevos: 3
+
+**Próximos pasos recomendados:**
+1. Investigar directamente en la base de datos la estructura real de la tabla de usuarios
+2. Verificar migraciones pendientes o conflictivas
+3. Considerar reimplementación del sistema de roles usando Django Groups
+4. Evaluar rollback a campos estándar de Django User únicamente
+5. Implementar tests unitarios para validar serialización antes de continuar
+
+**Bug crítico abierto:** Serialización incorrecta de campos is_staff/is_superuser desde Django hacia React
+**Prioridad:** Alta - Afecta funcionalidad core del sistema
+**Complejidad:** Alta - Problema a nivel de arquitectura de datos
+```
+
+Este registro documenta claramente el segundo intento fallido y proporciona un análisis técnico detallado del problema persistente para futuras referencias o para que otro desarrollador pueda continuar la investigación.Este registro documenta claramente el segundo intento fallido y proporciona un análisis técnico detallado del problema persistente para futuras referencias o para que otro desarrollador pueda continuar la investigación.

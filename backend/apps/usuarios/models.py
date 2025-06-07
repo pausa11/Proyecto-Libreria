@@ -116,35 +116,49 @@ class Usuario(AbstractUser):
         return self.get_full_name() or self.username
 
     def save(self, *args, **kwargs):
-        # Sincronizar is_staff e is_superuser basado en tipo_usuario
-        if self.tipo_usuario == 'ADMIN':
-            self.is_staff = True
-        elif self.tipo_usuario == 'BIBLIOTECARIO':
-            self.is_staff = True
-        elif self.tipo_usuario == 'LECTOR':
-            self.is_staff = False
-            
-        # Los superusers mantienen sus privilegios independientemente del tipo_usuario
-        if self.is_superuser:
-            self.is_staff = True
-            self.is_active = True
-            # Si es superuser, asegurar que tenga un tipo_usuario apropiado
-            if not self.tipo_usuario or self.tipo_usuario == 'LECTOR':
-                self.tipo_usuario = 'ADMIN'
+        # Sincronización MEJORADA - evitar bucles infinitos
+        actualizado = False
         
-        # Sincronizar activo con is_active
+        # 1. Si es superuser, debe ser staff y admin
+        if self.is_superuser:
+            if not self.is_staff:
+                self.is_staff = True
+                actualizado = True
+            if self.tipo_usuario != 'ADMIN':
+                self.tipo_usuario = 'ADMIN'
+                actualizado = True
+        
+        # 2. Si tiene tipo_usuario de nivel alto, debe ser staff
+        elif self.tipo_usuario in ['ADMIN', 'BIBLIOTECARIO']:
+            if not self.is_staff:
+                self.is_staff = True
+                actualizado = True
+        
+        # 3. Si es lector, no debe ser staff (a menos que sea superuser)
+        elif self.tipo_usuario == 'LECTOR' and not self.is_superuser:
+            if self.is_staff:
+                self.is_staff = False
+                actualizado = True
+        
+        # 4. Sincronizar is_active con activo
         if hasattr(self, 'activo'):
-            self.is_active = self.activo
+            if self.is_active != self.activo:
+                self.is_active = self.activo
+                actualizado = True
         else:
+            # Si no existe activo, sincronizar desde is_active
             self.activo = self.is_active
-            
-        print(f"💾 Guardando usuario {self.username}:")
-        print(f"  - is_staff: {self.is_staff}")
-        print(f"  - is_superuser: {self.is_superuser}")
-        print(f"  - tipo_usuario: {self.tipo_usuario}")
-        print(f"  - activo: {getattr(self, 'activo', 'N/A')}")
-        print(f"  - is_active: {self.is_active}")
-            
+            actualizado = True
+        
+        # Solo hacer log si hay cambios significativos
+        if actualizado:
+            print(f"🔄 Sincronizando usuario {self.username}:")
+            print(f"  ├─ is_staff: {self.is_staff}")
+            print(f"  ├─ is_superuser: {self.is_superuser}")
+            print(f"  ├─ tipo_usuario: {self.tipo_usuario}")
+            print(f"  ├─ is_active: {self.is_active}")
+            print(f"  └─ activo: {getattr(self, 'activo', 'N/A')}")
+        
         super().save(*args, **kwargs)
 
 class UsuarioPreferencias(models.Model):

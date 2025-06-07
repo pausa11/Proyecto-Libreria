@@ -268,11 +268,13 @@ function AdminUsuarios() {
       console.log(`🔍 Current user role: ${currentUserRole}, filtering users...`);
       
       if (currentUserRole === 'admin') {
-        // Admins pueden ver bibliotecarios y lectores, pero NO otros admins ni superusers
+        // Admins pueden ver admins, bibliotecarios y lectores, pero NO superusers
         filteredUsers = usersWithRoles.filter(user => 
-          user.determinedRole === 'bibliotecario' || user.determinedRole === 'lector'
+          user.determinedRole === 'admin' ||
+          user.determinedRole === 'bibliotecario' ||
+          user.determinedRole === 'lector'
         );
-        console.log('📋 Admin can see: bibliotecarios and lectores');
+        console.log('📋 Admin can see: admins, bibliotecarios and lectores');
       } else if (currentUserRole === 'bibliotecario') {
         // Bibliotecarios solo pueden ver lectores
         filteredUsers = usersWithRoles.filter(user => 
