@@ -11,44 +11,14 @@ import Pedidos from "./profile/pedidos";
 import Reservas from "./profile/reservas";
 import AdminLibros from "./profile/adminLibros";
 import GestionarTiendas from "./profile/gestionarTiendas";
+import { useIsStaff } from "../hooks/useIsStaff"; 
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro', 'gestionar libros','gestionar tiendas'];
+  const staffOptions = ['editar perfil', 'cambiar contraseña', 'pedidos', 'foro', 'gestionar libros', 'gestionar tiendas'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
-  const [isStaff, setIsStaff] = useState(false);
-  
   // Verificar si el usuario es staff
-  useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        
-        // Usar la función getApiUrlByKey para obtener la URL correcta desde la configuración centralizada
-        const perfilUrl = getApiUrlByKey("usuariosPerfil");
-        
-        const response = await fetch(perfilUrl, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          // Verificar si el usuario tiene permisos de staff
-          if (userData.tipo_usuario === 'ADMIN' || userData.tipo_usuario === 'BIBLIOTECARIO' || userData.is_staff) {
-            setIsStaff(true);
-          }
-        }
-      } catch (error) {
-        console.error("Error al verificar el rol del usuario:", error);
-      }
-    };
-    
-    checkUserRole();
-  }, []);
+  const isStaff = useIsStaff();
 
   const renderContent = () => {
     switch (selectedOption) {
@@ -57,11 +27,11 @@ function MiPerfil() {
       case 'cambiar contraseña':
         return <ChangePassword/>;
       case 'gestion financiera':
-        return <FinancialManagement/>;
+        return !isStaff && <FinancialManagement/>;
       case 'pedidos':
         return <Pedidos/>;
       case 'reservas':
-        return <Reservas/>;
+        return !isStaff && <Reservas/>;
       case 'foro':
         return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
       case 'gestionar libros':
@@ -83,7 +53,7 @@ function MiPerfil() {
         <div className="w-full lg:w-[25%] lg:mr-6 mb-4 lg:mb-0">
           <div className="bg-white rounded-lg p-4 sticky top-4">
             <div className="flex flex-row lg:flex-col gap-2 lg:gap-4 overflow-x-auto lg:overflow-visible">
-              {(isStaff ? options : options.slice(0, 6)).map((option, index) => (
+              {(isStaff ? staffOptions : options.slice(0, 6)).map((option, index) => (
                 <button 
                   key={index} 
                   onClick={() => setSelectedOption(option)} 

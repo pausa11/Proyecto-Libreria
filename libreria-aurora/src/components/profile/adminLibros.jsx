@@ -13,6 +13,8 @@ function AdminLibros() {
     autor: '',
     isbn: '',
     categoria: '',
+    editorial: '',
+    descripcion: '',
     precio: '',
     stock: '',
     año_publicacion: '',
@@ -53,7 +55,15 @@ function AdminLibros() {
       setSelectedLibro(libro);
     } else {
       setFormData({
-        titulo: '', autor: '', isbn: '', categoria: '', precio: '', stock: '', año_publicacion: '',
+        titulo: '', 
+        autor: '', 
+        isbn: '', 
+        categoria: '', 
+        editorial: '',
+        descripcion: '',
+        precio: '', 
+        stock: '', 
+        año_publicacion: '',
       });
       setIsEdit(false);
       setSelectedLibro(null);
@@ -77,6 +87,27 @@ function AdminLibros() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     
+    // Validaciones básicas antes de enviar
+    if (!formData.titulo || !formData.autor || !formData.isbn || !formData.categoria || !formData.editorial) {
+      toast.error('Por favor completa todos los campos obligatorios');
+      return;
+    }
+
+    if (parseFloat(formData.precio) <= 0) {
+      toast.error('El precio debe ser mayor que 0');
+      return;
+    }
+
+    if (parseInt(formData.stock) < 0) {
+      toast.error('El stock no puede ser negativo');
+      return;
+    }
+
+    if (parseInt(formData.año_publicacion) < 1000 || parseInt(formData.año_publicacion) > new Date().getFullYear()) {
+      toast.error('El año de publicación no es válido');
+      return;
+    }
+    
     try {
       const method = isEdit ? 'PATCH' : 'POST';
       const url = isEdit ? `${librosUrl}${selectedLibro.id}/` : librosUrl;
@@ -91,9 +122,9 @@ function AdminLibros() {
         // Si hay imagen nueva, usar FormData
         const formDataToSend = new FormData();
         
-        // Agregar todos los campos del formulario
+        // Agregar todos los campos del formulario con validación
         Object.keys(formData).forEach(key => {
-          if (formData[key] !== '') {
+          if (formData[key] !== '' && formData[key] !== null && formData[key] !== undefined) {
             formDataToSend.append(key, formData[key]);
           }
         });
@@ -106,9 +137,27 @@ function AdminLibros() {
       } else {
         // Si no hay imagen, usar JSON como antes
         headers['Content-Type'] = 'application/json';
-        requestBody = JSON.stringify(formData);
+        
+        // Limpiar datos antes de enviar
+        const cleanData = {};
+        Object.keys(formData).forEach(key => {
+          if (formData[key] !== '' && formData[key] !== null && formData[key] !== undefined) {
+            // Convertir tipos según sea necesario
+            if (key === 'precio') {
+              cleanData[key] = parseFloat(formData[key]);
+            } else if (key === 'stock' || key === 'año_publicacion') {
+              cleanData[key] = parseInt(formData[key]);
+            } else {
+              cleanData[key] = formData[key];
+            }
+          }
+        });
+        
+        requestBody = JSON.stringify(cleanData);
       }
 
+      console.log('Enviando datos:', isEdit ? 'PATCH' : 'POST', url);
+      
       const response = await fetch(url, {
         method,
         headers,
@@ -116,11 +165,36 @@ function AdminLibros() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Error al guardar libro');
+        let errorMessage = 'Error al guardar libro';
+        try {
+          const errorData = await response.json();
+          console.error('Error del servidor:', errorData);
+          
+          // Construir mensaje de error más detallado
+          if (errorData.detail) {
+            errorMessage = errorData.detail;
+          } else if (typeof errorData === 'object') {
+            const errorMessages = [];
+            Object.keys(errorData).forEach(field => {
+              if (Array.isArray(errorData[field])) {
+                errorMessages.push(`${field}: ${errorData[field].join(', ')}`);
+              } else {
+                errorMessages.push(`${field}: ${errorData[field]}`);
+              }
+            });
+            if (errorMessages.length > 0) {
+              errorMessage = errorMessages.join('\n');
+            }
+          }
+        } catch (parseError) {
+          console.error('Error al parsear respuesta de error:', parseError);
+          errorMessage = `Error ${response.status}: ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const responseData = await response.json();
+      console.log('Respuesta exitosa:', responseData);
       
       toast.success(isEdit ? 'Libro actualizado correctamente' : 'Libro creado correctamente');
       
@@ -132,7 +206,7 @@ function AdminLibros() {
       closeModal();
       fetchLibros();
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error completo:', error);
       toast.error(error.message || 'Error al guardar libro');
     }
   };
@@ -212,6 +286,7 @@ function AdminLibros() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Autor</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ISBN</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Editorial</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Año</th>
@@ -226,6 +301,7 @@ function AdminLibros() {
                   <td className="px-4 py-4 text-sm text-gray-900">{libro.autor}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">{libro.isbn}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">{libro.categoria}</td>
+                  <td className="px-4 py-4 text-sm text-gray-900">{libro.editorial}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">${libro.precio}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">{libro.stock}</td>
                   <td className="px-4 py-4 text-sm text-gray-900">{libro.año_publicacion}</td>
@@ -245,13 +321,92 @@ function AdminLibros() {
           <div className="bg-white rounded-lg p-6 w-full max-w-lg">
             <h2 className="text-xl font-bold mb-4">{isEdit ? 'Editar Libro' : 'Nuevo Libro'}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <input name="titulo" value={formData.titulo} onChange={handleChange} placeholder="Título" className="w-full p-2 border rounded" required />
-              <input name="autor" value={formData.autor} onChange={handleChange} placeholder="Autor" className="w-full p-2 border rounded" required />
-              <input name="isbn" value={formData.isbn} onChange={handleChange} placeholder="ISBN" className="w-full p-2 border rounded" required />
-              <input name="categoria" value={formData.categoria} onChange={handleChange} placeholder="Categoría" className="w-full p-2 border rounded" required />
-              <input name="precio" value={formData.precio} onChange={handleChange} placeholder="Precio" type="number" className="w-full p-2 border rounded" required />
-              <input name="stock" value={formData.stock} onChange={handleChange} placeholder="Stock" type="number" className="w-full p-2 border rounded" required />
-              <input name="año_publicacion" value={formData.año_publicacion} onChange={handleChange} placeholder="Año de publicación" type="number" className="w-full p-2 border rounded" required />
+              <input 
+                name="titulo" 
+                value={formData.titulo} 
+                onChange={handleChange} 
+                placeholder="Título *" 
+                className="w-full p-2 border rounded" 
+                required 
+                maxLength={200}
+              />
+              <input 
+                name="autor" 
+                value={formData.autor} 
+                onChange={handleChange} 
+                placeholder="Autor *" 
+                className="w-full p-2 border rounded" 
+                required 
+                maxLength={100}
+              />
+              <input 
+                name="isbn" 
+                value={formData.isbn} 
+                onChange={handleChange} 
+                placeholder="ISBN *" 
+                className="w-full p-2 border rounded" 
+                required 
+                maxLength={20}
+              />
+              <input 
+                name="categoria" 
+                value={formData.categoria} 
+                onChange={handleChange} 
+                placeholder="Categoría *" 
+                className="w-full p-2 border rounded" 
+                required 
+                maxLength={50}
+              />
+              <input 
+                name="editorial" 
+                value={formData.editorial} 
+                onChange={handleChange} 
+                placeholder="Editorial *" 
+                className="w-full p-2 border rounded" 
+                required 
+                maxLength={100}
+              />
+              <textarea 
+                name="descripcion" 
+                value={formData.descripcion} 
+                onChange={handleChange} 
+                placeholder="Descripción del libro (opcional)" 
+                className="w-full p-2 border rounded" 
+                rows={3}
+                maxLength={1000}
+              />
+              <input 
+                name="precio" 
+                value={formData.precio} 
+                onChange={handleChange} 
+                placeholder="Precio *" 
+                type="number" 
+                step="0.01"
+                min="0.01"
+                className="w-full p-2 border rounded" 
+                required 
+              />
+              <input 
+                name="stock" 
+                value={formData.stock} 
+                onChange={handleChange} 
+                placeholder="Stock *" 
+                type="number" 
+                min="0"
+                className="w-full p-2 border rounded" 
+                required 
+              />
+              <input 
+                name="año_publicacion" 
+                value={formData.año_publicacion} 
+                onChange={handleChange} 
+                placeholder="Año de publicación *" 
+                type="number" 
+                min="1000"
+                max={new Date().getFullYear()}
+                className="w-full p-2 border rounded" 
+                required 
+              />
               {/* Sección de carátula actualizada */}
               <div className="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm">
                 <h3 className="text-lg font-medium mb-3">Carátula del libro</h3>

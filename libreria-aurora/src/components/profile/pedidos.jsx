@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getApiUrl } from "../../api/config";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 
 function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
@@ -44,6 +45,7 @@ function Pedidos() {
       });
 
       const data = await response.json();
+      console.log("Historial de compras:", data);
       if (response.ok) setHistorialCompras(data);
     } catch (error) {
       console.error("Error al obtener historial de compras:", error);
@@ -74,6 +76,36 @@ function Pedidos() {
     }
   };
 
+  const devolverCompra = async (historialId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(getApiUrl("/api/compras/historial-compras/devolver_compra/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ historial_id: historialId }),
+      });
+
+      if (!response.ok) {
+        alert("No se pudo procesar la devolución.");
+        console.error("Error al procesar la devolución:", response.statusText);
+        return;
+      }
+
+      toast.success("Devolución procesada exitosamente.Revisa tu correo para más detalles.", {
+        duration: 5000,
+        position: "top-right",
+      });
+      fetchHistorialCompras(); // Actualiza el historial
+    } catch (error) {
+      console.error("Error al procesar la devolución:", error);
+    }
+  };
+
   const renderPedido = (pedido, permitirCancelar = false) => {
     const cantidadTotal = pedido.pedidolibro_set.reduce(
       (acc, item) => acc + item.cantidad,
@@ -87,6 +119,7 @@ function Pedidos() {
 
     return (
       <div key={pedido.id} className="mb-8 border-t pt-6">
+        <Toaster />
         {pedido.pedidolibro_set.map((item, index) => (
           <div key={index} className="flex gap-4 mb-4">
             <div className="flex-shrink-0">
@@ -151,19 +184,45 @@ function Pedidos() {
           <button onClick={() => navigate(-1)} className="bg-[#c9a875] text-white px-4 py-1 rounded hover:bg-[#a9895e]">Volver</button>
         </div>
 
-        {modoVista === "pedidos" ? (
-          pedidos.length === 0 ? (
-            <p className="text-gray-500">No hay pedidos registrados.</p>
+          {modoVista === "pedidos" ? (
+            pedidos.filter((pedido) => pedido.estado !== "Entregado").length === 0 ? (
+              <p className="text-gray-500">No hay pedidos registrados.</p>
+            ) : (
+              pedidos
+                .filter((pedido) => pedido.estado !== "Entregado")
+                .map((pedido) => renderPedido(pedido, true))
+            )
           ) : (
-            pedidos.map((pedido) => renderPedido(pedido, true))
-          )
-        ) : (
-          historialCompras.length === 0 ? (
-            <p className="text-gray-500">No hay compras registradas.</p>
-          ) : (
-            historialCompras.map((compra) => renderPedido(compra.pedido, false))
-          )
-        )}
+            historialCompras.length === 0 ? (
+              <p className="text-gray-500">No hay compras registradas.</p>
+            ) : (
+              historialCompras.map((compra) => {
+                const pedido = compra.pedido;
+
+                // Condición: entregado y dentro de 8 días
+                const puedeDevolver =
+                  pedido.estado === "Entregado" &&
+                  (new Date() - new Date(pedido.fecha)) / (1000 * 60 * 60 * 24) <= 8;
+
+                return (
+                  <div key={pedido.id}>
+                    {renderPedido(pedido, false)}
+                    {puedeDevolver && (
+                      <div className="text-right pr-4">
+                        <button
+                          onClick={() => devolverCompra(compra.id)}
+                          className="mt-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-all"
+                        >
+                          Devolver
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )
+          )}
+
       </div>
     </div>
   );

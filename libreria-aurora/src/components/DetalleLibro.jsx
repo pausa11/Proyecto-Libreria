@@ -3,11 +3,13 @@ import NavBar from "./navBar.jsx";
 import BuyBookSection from "./book/addTocCartButton";
 import { toast, Toaster } from "sonner";
 import { getApiUrl } from "../api/config.js";
+import { useIsStaff } from "../hooks/useIsStaff.js";
 
 function DetalleLibro() {
   const navigate = useNavigate();
   const location = useLocation();
   const libroData = location.state?.libro;
+  const isStaff = useIsStaff();
 
   const backendCartPost = getApiUrl("/api/compras/carritos/agregar_libro/");
 
@@ -133,11 +135,13 @@ function DetalleLibro() {
                 <p><strong>Editorial:</strong> {libroData.editorial}</p>
                 <p><strong>Género:</strong> {libroData.categoria_nombre}</p>
               </div>
-              <BuyBookSection
-                stock={libroData.stock}
-                onBuy={handleBuy}
-                onReserve={handleReserva}
-              />
+              { !isStaff && (
+                <BuyBookSection
+                  stock={libroData.stock}
+                  onBuy={handleBuy}
+                  onReserve={handleReserva}
+                />
+              )}
             </div>
           </div>
         </div>
