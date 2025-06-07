@@ -106,7 +106,8 @@ const Home = () => {
 
       <div id="tiendas" className="bg-[#1B2459] w-full h-[50%] p-[2vw]" data-aos="zoom-in">
         <div className="relative w-full h-full flex">
-          <div className="absolute bottom-0 right-0 flex justify-end items-center w-full h-[10%]">
+          <div className="absolute bottom-0 right-0 flex justify-between items-center w-full h-[10%]">
+            <p className='text-white text-[2vw]'>NUESTRAS TIENDAS</p>
             <ButtonA text="Tiendas" onClick={() => navigate('/tiendas')} width="10%" color="#FFD700" />
           </div>
         </div>
@@ -134,10 +135,10 @@ const Home = () => {
         </div>
       </div>
 
-      <div id="tres-aleatorios" className="flex flex-col w-full p-[10vw] gap-10 bg-white" data-aos="fade-up" >
+      <div id="tres-aleatorios" className="flex flex-col w-full px-[10vw] py-[5vw] gap-5 bg-white" data-aos="fade-up" >
         {threeRandomBooks.length > 0 &&
           [0, 1, 2].map((_, index) => (
-            <div key={index} className="h-[40vh] w-full flex flex-row justify-center items-center gap-10" onClick={() => handleNavigate(threeRandomBooks[index])}>
+            <div key={index} className=" w-full flex flex-row justify-center items-center gap-10" onClick={() => handleNavigate(threeRandomBooks[index])}>
               {index % 2 === 0 ? (
                 <>
                   <div className="w-[20%] h-full bg-[#E8BD83] rounded-lg">
