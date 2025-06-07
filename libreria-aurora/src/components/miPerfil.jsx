@@ -1,4 +1,5 @@
 import { useState} from "react";
+import { useIsStaff } from "../hooks/useIsStaff"; 
 import NavBar from "./navBar";
 import EditProfile from "./profile/editProfile";
 import FinancialManagement from "./profile/financialManagement";
@@ -9,13 +10,12 @@ import Pedidos from "./profile/pedidos";
 import Reservas from "./profile/reservas";
 import AdminLibros from "./profile/adminLibros";
 import GestionarTiendas from "./profile/gestionarTiendas";
-import { useIsStaff } from "../hooks/useIsStaff"; 
 
 function MiPerfil() {
-  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro', 'gestionar libros','gestionar tiendas'];
+  const { isStaff, loading } = useIsStaff();
+  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro'];
   const staffOptions = ['editar perfil', 'cambiar contraseña', 'pedidos', 'foro', 'gestionar libros', 'gestionar tiendas'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
-  const { isStaff, loading } = useIsStaff();
 
   const renderContent = () => {
     switch (selectedOption) {
@@ -42,26 +42,25 @@ function MiPerfil() {
   };
 
   if (loading) {
-  return (
-    <div className="w-full min-h-screen flex flex-col">
-      <NavBar />
-      <div className="flex-grow flex items-center justify-center bg-[#2B388C] text-white text-lg">
-        Cargando perfil...
+    return (
+      <div className="w-full min-h-screen flex flex-col">
+        <NavBar />
+        <div className="flex-grow flex items-center justify-center bg-[#2B388C] text-white text-lg">
+          Cargando perfil...
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="w-full min-h-screen flex flex-col">
       <NavBar />
-
       <div className="w-full flex-grow flex flex-col lg:flex-row p-4 lg:p-10 bg-[#2B388C]">
-        {/* Sidebar - Menu de opciones */}
+
         <div className="w-full lg:w-[25%] lg:mr-6 mb-4 lg:mb-0">
           <div className="bg-white rounded-lg p-4 sticky top-4">
             <div className="flex flex-row lg:flex-col gap-2 lg:gap-4 overflow-x-auto lg:overflow-visible">
-              {(isStaff ? staffOptions : options.slice(0, 6)).map((option, index) => (
+              {(isStaff ? staffOptions : options).map((option, index) => (
                 <button 
                   key={index} 
                   onClick={() => setSelectedOption(option)} 
@@ -75,11 +74,11 @@ function MiPerfil() {
             </div>
           </div>
         </div>
-
-        {/* Contenido principal - Se adapta al contenido */}
+        
         <div className="w-full lg:w-[75%] bg-white rounded-lg overflow-hidden">
           {renderContent()}
         </div>
+
       </div>
     </div>
   );
