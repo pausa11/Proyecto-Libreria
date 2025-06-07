@@ -26,37 +26,28 @@ def normalize_filename(title):
     title = title.replace(":", "")
     return title.replace(" ", "_")
 
-
-
 # Obtener todos los libros de la base de datos
 libros = Libro.objects.all()
-
-# Obtener el nombre de los archivos en cloudinary
-""" cloudinary_files = cloudinary.api.resources(type="upload", prefix="", max_results=500)
-cloudinary_filenames = [file['public_id'] for file in cloudinary_files['resources']]
-print(f"Archivos en Cloudinary: {len(cloudinary_filenames)} encontrados.")
-print(cloudinary_filenames)
- """
 
 print(f"Actualizando referencias de imágenes para {libros.count()} libros:")
 for libro in libros:
     # Generar nombre de archivo a partir del título
     filename = normalize_filename(libro.titulo)
-    image_filename = f"{filename}.jpg"
+    
     # Verificar si la imagen existe en Cloudinary
     try:
         result = cloudinary.api.resource(filename)
         
-        # Actualizar el campo portada del libro
-        libro.portada = image_filename
+        # Actualizar el campo portada del libro usando el public_id
+        libro.portada = filename  # Para CloudinaryField, asignar directamente el public_id
         libro.save()
         
         print(f"✅ Actualizado libro: '{libro.titulo}'")
-        print(f"   Con imagen: {image_filename}")
+        print(f"   Con imagen: {filename}")
         print(f"   URL: {result['secure_url']}")
     except Exception as e:
         print(f"❌ Error al actualizar '{libro.titulo}'")
-        print(f"   Imagen buscada: {image_filename}")
+        print(f"   Imagen buscada: {filename}")
         print(f"   Error: {str(e)}")
 
 print("Proceso completado.")
