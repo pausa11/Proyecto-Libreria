@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import NavBar from "./navBar.jsx";
 import BuyBookSection from "./book/addTocCartButton";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { getApiUrl } from "../api/config.js";
 
 function DetalleLibro() {
@@ -82,17 +82,17 @@ function DetalleLibro() {
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                libro_id: libroData.id,  // ✅ campo correcto ahora
+                libro_id: libroData.id,  
                 cantidad: quantity,
             }),
             });
 
             if (!response.ok) {
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const errorJson = await response.json();
-                throw new Error(errorJson.detail || "Error al reservar el libro");
-            } else {
+              const contentType = response.headers.get("content-type");
+              if (contentType && contentType.includes("application/json")) {
+                  const errorJson = await response.json();
+                  throw new Error(errorJson.detail || "Error al reservar el libro");
+              } else {
                 const errorText = await response.text();
                 console.error("Respuesta no JSON:", errorText);
                 throw new Error("Error inesperado del servidor.");
@@ -100,7 +100,7 @@ function DetalleLibro() {
             }
 
             toast.success("Libro reservado exitosamente");
-            navigate("/reservas");
+            navigate("/");
         } catch (error) {
             console.error("Error al reservar libro:", error);
             toast.error(`Error: ${error.message}`);
@@ -110,6 +110,7 @@ function DetalleLibro() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <Toaster position="top-center" richColors />
       <NavBar />
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
