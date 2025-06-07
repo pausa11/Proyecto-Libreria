@@ -17,4 +17,5 @@ django-environ>=0.10.0,<0.11.0
 gunicorn==21.2.0
 cloudinary==1.36.0
 django-cloudinary-storage==0.3.0
-qrcode>=0.18.0  # Para generación de códigos QR
+whitenoise==5.2.0
+
