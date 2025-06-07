@@ -11,11 +11,12 @@ import Pedidos from "./profile/pedidos";
 import Reservas from "./profile/reservas";
 import AdminLibros from "./profile/adminLibros";
 import GestionarTiendas from "./profile/gestionarTiendas";
+import AdminUsuarios from "./profile/adminUsuarios";
 import { useIsStaff } from "../hooks/useIsStaff"; 
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro', 'gestionar libros','gestionar tiendas'];
-  const staffOptions = ['editar perfil', 'cambiar contraseña', 'pedidos', 'foro', 'gestionar libros', 'gestionar tiendas'];
+  const staffOptions = ['editar perfil', 'cambiar contraseña', 'pedidos', 'foro', 'gestionar libros', 'gestionar tiendas', 'gestionar usuarios'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
   // Verificar si el usuario es staff
   const isStaff = useIsStaff();
@@ -38,6 +39,8 @@ function MiPerfil() {
         return isStaff && <AdminLibros/>;
       case 'gestionar tiendas':
         return isStaff && <GestionarTiendas/>;
+      case 'gestionar usuarios':
+        return isStaff && <AdminUsuarios/>;
         
       default:
         return <p className="p-6 text-black text-lg">Selecciona una opción del menú.</p>;

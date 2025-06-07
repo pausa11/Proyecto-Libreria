@@ -13,9 +13,49 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'tipo_usuario', 'numero_identificacion', 'telefono',
             'direccion', 'fecha_nacimiento', 'fecha_registro',
             'ultima_actualizacion', 'activo', 'foto_perfil', 
-            'nacionalidad', 'departamento'
+            'nacionalidad', 'departamento',
+            # ESTOS CAMPOS SON CRÍTICOS - DEBEN ESTAR PRESENTES
+            'is_staff', 'is_superuser', 'is_active'
         )
         read_only_fields = ('id', 'fecha_registro', 'ultima_actualizacion')
+    
+    def to_representation(self, instance):
+        """Sobrescribimos para asegurar que todos los campos estén presentes y correctos"""
+        print(f"🔥 SERIALIZER DEBUG - Usuario: {instance.username}")
+        print(f"🔥 Instance type: {type(instance)}")
+        print(f"🔥 Has is_staff attr: {hasattr(instance, 'is_staff')}")
+        print(f"🔥 Has is_superuser attr: {hasattr(instance, 'is_superuser')}")
+        
+        # Llamar al método padre primero
+        data = super().to_representation(instance)
+        print(f"🔥 Data after super(): {data}")
+        
+        # Verificar valores directos de la instancia del modelo
+        instance_is_staff = getattr(instance, 'is_staff', None)
+        instance_is_superuser = getattr(instance, 'is_superuser', None)
+        instance_tipo_usuario = getattr(instance, 'tipo_usuario', None)
+        instance_activo = getattr(instance, 'activo', None)
+        
+        print(f"🔥 Raw instance values:")
+        print(f"  - is_staff: {instance_is_staff} (type: {type(instance_is_staff)})")
+        print(f"  - is_superuser: {instance_is_superuser} (type: {type(instance_is_superuser)})")
+        print(f"  - tipo_usuario: {instance_tipo_usuario}")
+        print(f"  - activo: {instance_activo}")
+        
+        # FORZAR estos valores en el resultado
+        data['is_staff'] = bool(instance_is_staff) if instance_is_staff is not None else False
+        data['is_superuser'] = bool(instance_is_superuser) if instance_is_superuser is not None else False
+        data['is_active'] = bool(instance_activo if instance_activo is not None else getattr(instance, 'is_active', True))
+        data['activo'] = bool(instance_activo if instance_activo is not None else getattr(instance, 'is_active', True))
+        
+        print(f"🔥 Final serialized data:")
+        print(f"  - is_staff: {data['is_staff']}")
+        print(f"  - is_superuser: {data['is_superuser']}")
+        print(f"  - is_active: {data['is_active']}")
+        print(f"  - tipo_usuario: {data.get('tipo_usuario')}")
+        print(f"🔥 END SERIALIZER DEBUG\n")
+        
+        return data
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """
@@ -198,7 +238,6 @@ class ListaPreferenciasSerializer(serializers.ModelSerializer):
         model = UsuarioPreferencias
         fields = ['preferencias']
 
-        
-    
 
-    
+
+

@@ -14,13 +14,11 @@ class Libro(models.Model):
     titulo = models.CharField(max_length=200)
     autor = models.CharField(max_length=200)
     isbn = models.CharField(max_length=13, unique=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    editorial = models.CharField(max_length=100, blank=True)
+    categoria = models.CharField(max_length=100, default='General', help_text="Categoría del libro")
+    editorial = models.CharField(max_length=100, default='Sin editorial', help_text="Editorial del libro")
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0, validators=[MinValueValidator(0)])
-    año_publicacion = models.IntegerField(
-        validators=[MinValueValidator(1000), MaxValueValidator(2025)]
-    )
+    año_publicacion = models.IntegerField(default=2000, help_text="Año de publicación del libro")
     descripcion = models.TextField(blank=True)
     portada = CloudinaryField('image', blank=True, null=True, 
                               transformation={'quality': 'auto', 'fetch_format': 'auto'})

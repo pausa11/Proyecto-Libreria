@@ -17,7 +17,6 @@ Este proyecto implementa un sistema completo de gestión para una librería, con
 - `backend/`: API REST desarrollada con Django y Django REST Framework
 - `frontend/`: Interfaz de usuario desarrollada con Next.js
 
-## Requisitos del Sistema
 
 ### Backend
 - Python 3.8+
@@ -140,6 +139,27 @@ python manage.py changepassword <username>
 ```
 
 ## Pruebas del Backend
+
+### Verificación de Endpoints de Usuarios
+
+Para probar los nuevos endpoints de gestión de usuarios:
+
+```bash
+# Listar usuarios (requiere autenticación de staff)
+curl -X GET https://proyecto-libreria-k9xr.onrender.com/api/usuarios/ \
+  -H "Authorization: Bearer tu_token_aqui"
+
+# Crear nuevo usuario (requiere permisos apropiados)
+curl -X POST https://proyecto-libreria-k9xr.onrender.com/api/usuarios/ \
+  -H "Authorization: Bearer tu_token_aqui" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "nuevo_usuario",
+    "email": "usuario@ejemplo.com", 
+    "password": "contraseña_segura",
+    "role": "lector"
+  }'
+```
 
 ### Verificación de Endpoints
 
@@ -266,6 +286,7 @@ pip freeze > requirements.txt
 - Libros: `/api/libros/`
 - Búsqueda: `/api/search/`
 - Usuarios: `/api/usuarios/`
+- **Gestión de Usuarios**: `/api/usuarios/` (con permisos de staff)
 
 ### Solución de Problemas Comunes
 
@@ -293,6 +314,20 @@ python manage.py collectstatic
 python manage.py changepassword username
 
 # Crear usuario con permisos específicos
+python manage.py createsuperuser
+```
+
+#### Problemas de Permisos de Usuario
+```bash
+# Si hay problemas con permisos de gestión de usuarios
+# Verificar que el usuario tenga is_staff=True
+python manage.py shell
+>>> from django.contrib.auth.models import User
+>>> user = User.objects.get(username='tu_usuario')
+>>> user.is_staff = True
+>>> user.save()
+
+# Crear superusuario para gestión completa
 python manage.py createsuperuser
 ```
 

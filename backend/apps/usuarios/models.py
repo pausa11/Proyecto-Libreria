@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.validators import RegexValidator, FileExtensionValidator
 import uuid
@@ -15,6 +15,39 @@ def user_profile_image_path(instance, filename):
     filename = f"{instance.username}_{uuid.uuid4().hex[:8]}.{ext}"
     # Devolver la ruta donde se guardará
     return os.path.join('perfiles', filename)
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('El email es obligatorio')
+        if not username:
+            raise ValueError('El username es obligatorio')
+        
+        email = self.normalize_email(email)
+        
+        # Only set fields that actually exist in the Usuario model
+        if 'numero_identificacion' not in extra_fields:
+            extra_fields['numero_identificacion'] = f"ADMIN-{username}"
+        
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, username, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        
+        # Set unique identification for superuser
+        extra_fields.setdefault('numero_identificacion', f"SUPER-{username}")
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('El superuser debe tener is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('El superuser debe tener is_superuser=True.')
+        
+        return self.create_user(username, email, password, **extra_fields)
 
 class Usuario(AbstractUser):
     TIPO_USUARIO_CHOICES = [
@@ -68,6 +101,8 @@ class Usuario(AbstractUser):
     ultima_actualizacion = models.DateTimeField(auto_now=True)
     activo = models.BooleanField(default=True)
 
+    objects = CustomUserManager()
+    
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
@@ -81,18 +116,35 @@ class Usuario(AbstractUser):
         return self.get_full_name() or self.username
 
     def save(self, *args, **kwargs):
-        # Si se está actualizando un objeto existente y hay una nueva foto de perfil
-        if self.pk and 'foto_perfil' in kwargs.get('update_fields', []):
-            # Obtener el objeto antiguo desde la base de datos
-            try:
-                old_instance = Usuario.objects.get(pk=self.pk)
-                # Si tenía una foto, eliminarla
-                if old_instance.foto_perfil and old_instance.foto_perfil.name != self.foto_perfil.name:
-                    if os.path.isfile(old_instance.foto_perfil.path):
-                        os.remove(old_instance.foto_perfil.path)
-            except Usuario.DoesNotExist:
-                pass
+        # Sincronizar is_staff e is_superuser basado en tipo_usuario
+        if self.tipo_usuario == 'ADMIN':
+            self.is_staff = True
+        elif self.tipo_usuario == 'BIBLIOTECARIO':
+            self.is_staff = True
+        elif self.tipo_usuario == 'LECTOR':
+            self.is_staff = False
+            
+        # Los superusers mantienen sus privilegios independientemente del tipo_usuario
+        if self.is_superuser:
+            self.is_staff = True
+            self.is_active = True
+            # Si es superuser, asegurar que tenga un tipo_usuario apropiado
+            if not self.tipo_usuario or self.tipo_usuario == 'LECTOR':
+                self.tipo_usuario = 'ADMIN'
         
+        # Sincronizar activo con is_active
+        if hasattr(self, 'activo'):
+            self.is_active = self.activo
+        else:
+            self.activo = self.is_active
+            
+        print(f"💾 Guardando usuario {self.username}:")
+        print(f"  - is_staff: {self.is_staff}")
+        print(f"  - is_superuser: {self.is_superuser}")
+        print(f"  - tipo_usuario: {self.tipo_usuario}")
+        print(f"  - activo: {getattr(self, 'activo', 'N/A')}")
+        print(f"  - is_active: {self.is_active}")
+            
         super().save(*args, **kwargs)
 
 class UsuarioPreferencias(models.Model):
@@ -147,7 +199,6 @@ class UsuarioPreferencias(models.Model):
             self.save()
         else:
             raise ValueError("Preferencia no encontrada en la lista.")
-
 
 class TokenRecuperacionPassword(models.Model):
     """

@@ -120,6 +120,14 @@ La estructura interna de las apps ahora incluye archivos adicionales según las 
 ```
 app_nombre/
 ├── migrations/        # Migraciones de la base de datos
+│   ├── __init__.py    # Requerido para que Python trate la carpeta como paquete
+│   ├── 0001_initial.py # Primera migración
+│   └── ...            # Migraciones adicionales
+├── management/        # Comandos personalizados de Django (opcional)
+│   ├── __init__.py
+│   └── commands/
+│       ├── __init__.py
+│       └── custom_command.py
 ├── __init__.py
 ├── admin.py           # Configuración del panel de administración
 ├── apps.py            # Configuración de la app

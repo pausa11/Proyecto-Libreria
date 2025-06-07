@@ -7,66 +7,37 @@ from .models import Usuario, UsuarioPreferencias, TokenRecuperacionPassword
 
 @admin.register(Usuario)
 class UsuarioAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'tipo_usuario', 'is_active', 'mostrar_foto_perfil', 'fecha_registro')
-    list_filter = ('tipo_usuario', 'is_active', 'is_staff', 'fecha_registro')
-    search_fields = ('username', 'first_name', 'last_name', 'email', 'numero_identificacion')
-    ordering = ('-fecha_registro',)
+    # Agregar campos personalizados a la vista de lista
+    list_display = ('username', 'email', 'first_name', 'last_name', 'tipo_usuario', 'is_staff', 'is_superuser', 'activo', 'fecha_registro')
+    list_filter = ('tipo_usuario', 'is_staff', 'is_superuser', 'activo', 'fecha_registro')
+    search_fields = ('username', 'email', 'first_name', 'last_name', 'numero_identificacion')
     
-    fieldsets = (
-        (None, {'fields': ('username', 'password')}),
-        (_('Información Personal'), {
-            'fields': (
-                'first_name', 'last_name', 'email', 'tipo_usuario',
-                'numero_identificacion', 'telefono', 'direccion',
-                'fecha_nacimiento', 'foto_perfil', 'nacionalidad'
-            )
+    # Personalizar los fieldsets para mostrar todos los campos relevantes
+    fieldsets = UserAdmin.fieldsets + (
+        (_('Información Adicional'), {
+            'fields': ('tipo_usuario', 'numero_identificacion', 'telefono', 'direccion', 
+                      'fecha_nacimiento', 'nacionalidad', 'departamento', 'foto_perfil', 'activo')
         }),
-        (_('Permisos'), {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
-        }),
-        (_('Fechas importantes'), {'fields': ('last_login', 'date_joined')}),
     )
     
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'tipo_usuario', 'numero_identificacion'),
+    # Campos para el formulario de creación
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (_('Información Adicional'), {
+            'fields': ('tipo_usuario', 'numero_identificacion', 'telefono', 'nacionalidad', 'departamento')
         }),
     )
-    def mostrar_foto_perfil(self, obj):
-        if obj.foto_perfil:
-            return '<img src="{}" style="width: 50px; height: 50px;" />'.format(obj.foto_perfil.url)
-        return '-'
-    mostrar_foto_perfil.short_description = 'Foto de perfil'
+    
+    readonly_fields = ('fecha_registro', 'ultima_actualizacion')
 
 @admin.register(UsuarioPreferencias)
 class UsuarioPreferenciasAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'recibir_actualizaciones', 'recibir_noticias', 'recibir_descuentos', 'recibir_mensajes_foro')
+    list_display = ('usuario', 'recibir_actualizaciones', 'recibir_noticias', 'recibir_descuentos', 'fecha_actualizacion')
     list_filter = ('recibir_actualizaciones', 'recibir_noticias', 'recibir_descuentos', 'recibir_mensajes_foro')
     search_fields = ('usuario__username', 'usuario__email')
-    raw_id_fields = ('usuario',)
-    fieldsets = (
-        (_('Usuario'), {'fields': ('usuario',)}),
-        (_('Preferencias de comunicación'), {
-            'fields': (
-                'recibir_actualizaciones', 'recibir_noticias',
-                'recibir_descuentos', 'recibir_mensajes_foro'
-            )
-        }),
-        (_('Metadatos'), {'fields': ('fecha_actualizacion',)}),
-    )
-    readonly_fields = ('fecha_actualizacion',)
-
 
 @admin.register(TokenRecuperacionPassword)
 class TokenRecuperacionPasswordAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'token', 'fecha_creacion', 'fecha_expiracion', 'usado', 'esta_activo')
     list_filter = ('usado', 'fecha_creacion')
     search_fields = ('usuario__username', 'usuario__email')
-    readonly_fields = ('token', 'fecha_creacion')
-    date_hierarchy = 'fecha_creacion'
-    
-    def esta_activo(self, obj):
-        return obj.esta_activo
-    esta_activo.boolean = True
-    esta_activo.short_description = "¿Activo?"
+    readonly_fields = ('token', 'fecha_creacion', 'esta_activo')

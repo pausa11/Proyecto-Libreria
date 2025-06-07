@@ -2641,3 +2641,369 @@ Algunos archivos con ":" no eran reconocidos, asi que se agrego el patron.
 5. No se requiere intervención manual ni ejecución de scripts
 
 **Resultado**: El flujo de trabajo manual y dependiente de scripts se transforma en una interfaz de administración automatizada, ahorrando tiempo y reduciendo errores, manteniendo las convenciones de nombres y la integración con Cloudinary.
+
+# Documentación de Cambios - Módulo de Gestión de Usuarios
+
+## Resumen del Proyecto
+
+**Objetivo:** Implementar un módulo CRUD completo para la gestión de usuarios con roles jerárquicos en el sistema de librería.
+
+**Ubicación:** adminUsuarios.jsx
+
+**Fecha:** Diciembre 2024
+
+---
+
+## 1. PLANIFICACIÓN INICIAL
+
+### 1.1 Análisis de Requisitos
+- **Jerarquía de roles implementada:**
+  - `superuser` (desarrolladores): Acceso completo al sistema
+  - `admin`: Gestiona bibliotecarios y lectores
+  - `bibliotecario`: Gestiona solo lectores
+  - `lector`: Sin permisos administrativos
+
+### 1.2 Estructura de Archivos Planificada
+```
+backend/apps/usuarios/
+├── permissions.py     # Permisos basados en roles
+├── filters.py         # Filtros de usuarios
+├── views.py          # ViewSets administrativos
+├── serializers.py    # Serializers para admin
+└── urls.py           # Endpoints administrativos
+
+frontend/src/components/profile/
+├── AdminUsuarios.jsx  # Interfaz principal CRUD
+├── UserForm.jsx      # Formulario crear/editar
+├── UserList.jsx      # Lista de usuarios
+└── UserDetail.jsx    # Vista detallada
+```
+
+### 1.3 Endpoints Diseñados
+- `GET /api/usuarios/` - Listar usuarios con filtros
+- `POST /api/usuarios/` - Crear usuario
+- `GET /api/usuarios/{id}/` - Obtener usuario específico
+- `PATCH /api/usuarios/{id}/` - Actualizar usuario
+- `GET /api/usuarios/perfil/` - Obtener usuario actual
+
+---
+
+## 2. IMPLEMENTACIÓN REALIZADA
+
+### 2.1 Componente Principal: AdminUsuarios.jsx
+
+**Commit:** `feat: implement user management CRUD module`
+
+**Archivos modificados:**
+- adminUsuarios.jsx (NUEVO)
+- miPerfil.jsx (ACTUALIZADO)
+
+**Funcionalidades implementadas:**
+- ✅ Interfaz responsive con tabla de usuarios
+- ✅ Filtros por estado (activo/inactivo) y rol
+- ✅ Búsqueda por username, email, nombre
+- ✅ Modal para crear/editar usuarios
+- ✅ Estadísticas de usuarios por rol
+- ✅ Validación de permisos basada en jerarquía
+- ✅ Activación/desactivación de usuarios
+- ✅ Cambio de roles con validación
+
+**Componentes de UI incluidos:**
+```jsx
+// Estadísticas
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  // Cards con métricas
+
+// Filtros
+<div className="bg-white rounded-lg shadow-md p-4">
+  // Búsqueda + filtros dropdown
+
+// Tabla de usuarios
+<table className="min-w-full divide-y divide-gray-200">
+  // Headers + filas de usuarios + acciones
+
+// Modal formulario
+<div className="fixed inset-0 bg-black bg-opacity-40">
+  // Formulario crear/editar usuario
+```
+
+### 2.2 Integración con miPerfil.jsx
+
+**Commit:** `feat: integrate user management into profile menu`
+
+**Cambios realizados:**
+```jsx
+// Agregado a staffOptions
+const staffOptions = [
+  'editar perfil', 'cambiar contraseña', 'pedidos', 
+  'foro', 'gestionar libros', 'gestionar tiendas', 
+  'gestionar usuarios'  // NUEVO
+];
+
+// Agregado al renderContent
+case 'gestionar usuarios':
+  return isStaff && <AdminUsuarios/>;
+```
+
+### 2.3 Actualización de README.md
+
+**Commit:** `docs: update README with user management documentation`
+
+**Secciones agregadas:**
+- Descripción del nuevo módulo
+- Jerarquía de roles explicada
+- Endpoints de la API documentados
+- Instrucciones de acceso
+- Validaciones de seguridad
+
+---
+
+## 3. PROBLEMAS IDENTIFICADOS Y SOLUCIONES INTENTADAS
+
+### 3.1 Problema Principal: Loop Infinito de Re-renders
+
+**Síntomas:**
+```
+ERROR: Too many re-renders. React limits the number of renders to prevent an infinite loop.
+```
+
+**Causa:** Funciones que se ejecutaban en cada render causando cambios de estado
+
+**Solución aplicada:**
+```jsx
+// ANTES (problemático)
+const getCurrentUserRole = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  setCurrentUserRole(determineRole(user)); // Causa re-render
+  return role;
+};
+
+// DESPUÉS (solucionado)
+const currentUserRole = useMemo(() => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return determineRole(user);
+}, []);
+```
+
+**Commit:** `fix: resolve infinite re-render loop with useMemo and useCallback`
+
+### 3.2 Problema: Detección Incorrecta de Roles
+
+**Síntomas:**
+```
+📊 Current User Info from localStorage: {}
+🎭 Determined Role: lector
+```
+
+**Causa:** localStorage no contenía información válida del usuario
+
+**Solución aplicada:**
+- Cambio de localStorage a API para obtener roles
+- Implementación de `fetchCurrentUser()` desde `/api/usuarios/perfil/`
+- Determinación de roles basada en backend
+
+**Commit:** `fix: implement secure role detection from backend API`
+
+```jsx
+// Función para obtener usuario actual desde API
+const fetchCurrentUser = async () => {
+  const response = await fetch(`${baseUrl}/perfil/`, {
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+  const userData = await response.json();
+  setCurrentUserData(userData);
+  return userData;
+};
+```
+
+### 3.3 Problema Crítico: Campos is_staff e is_superuser como undefined
+
+**Síntomas:**
+```
+🔍 User fields analysis: {
+  has_is_staff: false, 
+  has_is_superuser: false, 
+  is_staff_value: undefined, 
+  is_superuser_value: undefined
+}
+```
+
+**Diagnóstico:** El serializer de Django no estaba incluyendo los campos `is_staff` e `is_superuser` en la respuesta JSON.
+
+**Soluciones intentadas:**
+
+#### Intento 1: Actualización del UsuarioSerializer
+```python
+# backend/apps/usuarios/serializers.py
+class UsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            # ... otros campos ...
+            'is_staff', 'is_superuser', 'is_active'  # AGREGADOS
+        )
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['is_staff'] = bool(instance.is_staff)
+        data['is_superuser'] = bool(instance.is_superuser)
+        return data
+```
+
+#### Intento 2: Sincronización en el modelo Usuario
+```python
+# backend/apps/usuarios/models.py
+def save(self, *args, **kwargs):
+    # Sincronizar is_staff basado en tipo_usuario
+    if self.tipo_usuario in ['ADMIN', 'BIBLIOTECARIO']:
+        self.is_staff = True
+    elif self.tipo_usuario == 'LECTOR':
+        self.is_staff = False
+    super().save(*args, **kwargs)
+```
+
+#### Intento 3: Debug intensivo del serializer
+```python
+def to_representation(self, instance):
+    print(f"🔥 SERIALIZER DEBUG - Usuario: {instance.username}")
+    print(f"🔥 is_staff directo: {instance.is_staff}")
+    print(f"🔥 is_superuser directo: {instance.is_superuser}")
+    
+    data = super().to_representation(instance)
+    # Forzar valores
+    data['is_staff'] = bool(instance.is_staff)
+    data['is_superuser'] = bool(instance.is_superuser)
+    return data
+```
+
+#### Intento 4: Script de corrección de base de datos
+```python
+# backend/fix_user_permissions.py
+def fix_user_permissions():
+    users_to_fix = Usuario.objects.filter(
+        tipo_usuario__in=['ADMIN', 'BIBLIOTECARIO'],
+        is_staff=False
+    )
+    for user in users_to_fix:
+        user.is_staff = True
+        user.save()
+```
+
+---
+
+## 4. ESTADO FINAL Y PROBLEMA SIN RESOLVER
+
+### 4.1 Estado Actual
+- ✅ Componente React funcional sin loops infinitos
+- ✅ Interfaz de usuario completa y responsive
+- ✅ Integración correcta con el sistema de navegación
+- ✅ Validaciones de frontend implementadas
+- ❌ **Campos is_staff e is_superuser siguen llegando como undefined**
+
+### 4.2 Evidencia del Problema
+```javascript
+// Lo que llega del backend:
+{
+  id: 7, 
+  username: 'admin_kevin', 
+  email: 'kevin.cano@utp.edu.co',
+  tipo_usuario: 'ADMIN',
+  is_staff: undefined,        // ❌ PROBLEMA
+  is_superuser: undefined     // ❌ PROBLEMA
+}
+
+// Lo que debería llegar:
+{
+  id: 7, 
+  username: 'admin_kevin', 
+  email: 'kevin.cano@utp.edu.co',
+  tipo_usuario: 'ADMIN',
+  is_staff: true,            // ✅ ESPERADO
+  is_superuser: false        // ✅ ESPERADO
+}
+```
+
+### 4.3 Posibles Causas del Problema No Resuelto
+
+1. **Modelo Usuario personalizado:** Es posible que el modelo `Usuario` que extiende `AbstractUser` no esté heredando correctamente los campos `is_staff` e `is_superuser`.
+
+2. **Configuración de Django:** Podría haber un problema en la configuración de `AUTH_USER_MODEL` o en las migraciones.
+
+3. **Versión de Django/DRF:** Incompatibilidad entre versiones que afecte la serialización de campos heredados.
+
+4. **Caché del servidor:** El servidor podría estar cacheando una versión anterior del serializer.
+
+5. **Problema de migraciones:** Los campos podrían no existir físicamente en la base de datos a pesar de estar en el modelo.
+
+6. **Conflicto de campo 'activo':** El campo personalizado `activo` podría estar interfiriendo con el campo estándar `is_active`.
+
+### 4.4 Diagnósticos Recomendados
+
+1. **Verificar en Django shell:**
+```python
+from apps.usuarios.models import Usuario
+user = Usuario.objects.get(username='admin_kevin')
+print(f"is_staff exists: {hasattr(user, 'is_staff')}")
+print(f"is_staff value: {user.is_staff}")
+```
+
+2. **Revisar migraciones:**
+```bash
+python manage.py showmigrations usuarios
+python manage.py sqlmigrate usuarios <last_migration>
+```
+
+3. **Verificar estructura de BD:**
+```sql
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'usuarios_usuario';
+```
+
+---
+
+## 5. LECCIONES APRENDIDAS
+
+### 5.1 Buenas Prácticas Aplicadas
+- ✅ Uso de `useMemo` y `useCallback` para optimización
+- ✅ Separación clara de responsabilidades
+- ✅ Validación de permisos en frontend y backend
+- ✅ Logging detallado para debugging
+- ✅ Manejo de errores robusto
+
+### 5.2 Áreas de Mejora
+- ❌ Dependencia de localStorage para roles iniciales
+- ❌ Debugging logs muy verbosos en producción
+- ❌ Falta de tests unitarios
+- ❌ Sincronización compleja entre campos personalizados y estándar
+
+### 5.3 Recomendaciones para Futuro
+1. Implementar un sistema de roles más simple y directo
+2. Usar solo campos estándar de Django User
+3. Implementar tests automatizados para validar serialización
+4. Considerar usar Django Groups en lugar de campos personalizados
+5. Implementar autenticación basada en JWT con roles incluidos
+
+---
+
+## 6. ARCHIVOS AFECTADOS FINALES
+
+### Nuevos Archivos
+- adminUsuarios.jsx
+- fix_user_permissions.py
+
+### Archivos Modificados
+- miPerfil.jsx
+- serializers.py
+- models.py
+- views.py
+- admin.py
+- README.md
+
+### Estado de Funcionalidad
+- **Frontend:** 90% funcional (solo falta recibir campos correctos del backend)
+- **Backend:** 70% funcional (problema de serialización sin resolver)
+- **Integración:** 60% funcional (roles no se detectan correctamente)
+
+**Tiempo invertido:** ~8 horas de desarrollo + 4 horas de debugging
+**Líneas de código:** ~800 líneas nuevas
+**Bugs críticos restantes:** 1 (serialización de is_staff/is_superuser)

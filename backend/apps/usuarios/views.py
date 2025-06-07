@@ -160,8 +160,21 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['get'])
     def perfil(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+        print(f"🔥 VISTA PERFIL - Usuario: {request.user.username}")
+        print(f"🔥 User ID: {request.user.id}")
+        print(f"🔥 is_staff directo: {request.user.is_staff}")
+        print(f"🔥 is_superuser directo: {request.user.is_superuser}")
+        print(f"🔥 tipo_usuario directo: {request.user.tipo_usuario}")
+        
+        # Usar el serializer explícitamente
+        serializer = UsuarioSerializer(request.user)
+        user_data = serializer.data
+        
+        print(f"🔥 Datos serializados finales: {user_data}")
+        print(f"🔥 has is_staff key: {'is_staff' in user_data}")
+        print(f"🔥 has is_superuser key: {'is_superuser' in user_data}")
+        
+        return Response(user_data)
     
 
     @extend_schema(
@@ -540,3 +553,17 @@ El equipo de Librería Aurora
                 return Response(serializer.data)
 
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def perform_update(self, serializer):
+        """Sobrescribimos para sincronizar campos al actualizar"""
+        instance = serializer.save()
+        
+        # Si se actualiza is_active, sincronizar con activo
+        if 'is_active' in serializer.validated_data:
+            instance.activo = serializer.validated_data['is_active']
+            instance.save(update_fields=['activo'])
+        
+        # Si se actualiza activo, sincronizar con is_active  
+        elif 'activo' in serializer.validated_data:
+            instance.is_active = serializer.validated_data['activo']
+            instance.save(update_fields=['is_active'])
