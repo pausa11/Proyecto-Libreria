@@ -5,6 +5,7 @@ import logo from "../images/Logo.svg";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { getApiUrl } from "../api/config";
+import { useIsStaff } from "../hooks/useIsStaff";
 
 function NavBar({ toggleSearch }) {
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ function NavBar({ toggleSearch }) {
     const [userName, setUserName] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const backendURL = getApiUrl("/api/usuarios/perfil/");
+    const isStaff = useIsStaff();
 
     useEffect(() => {
         AOS.init({ duration: 1000, easing: 'ease-in-out', once: false, mirror: true });
@@ -87,7 +89,9 @@ function NavBar({ toggleSearch }) {
                 )}
 
                 <User size={'2vw'} color="#2B388C" onClick={handlePerfil} />
-                <ShoppingCart size={'2vw'} color="#2B388C" onClick={() => navigate('/carrito')} />
+                {!isStaff && (
+                    <ShoppingCart size={'2vw'} color="#2B388C" onClick={() => navigate('/carrito')} />
+                )}
                 <Search size={'2vw'} color="#2B388C" onClick={handleSearchClick} />
 
                 {!isLoading && userName && (
