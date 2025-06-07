@@ -162,7 +162,7 @@ function Catalogo() {
         {showSearchInterface && (
           <>
             {/* Barra de búsqueda */}
-            <div className="w-full max-w-3xl mx-auto mb-6">
+            <div className="w-1/2  mb-6">
               <input
                 type="text"
                 placeholder="Buscar por título, autor, ISBN, año..."
@@ -174,14 +174,15 @@ function Catalogo() {
             </div>
 
             {/* Filtros y ordenamiento */}
-            <div className="w-full flex flex-wrap gap-4 mb-6">
-              <div className="flex flex-col">
+            <div className="w-full flex flex-wrap gap-4 mb-6 ">
+              
+              <div className="flex flex-col h-full">
                 <label className="text-white mb-1">Categoría</label>
                 <select 
                   name="categoria" 
                   value={filters.categoria} 
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black"
+                  className="p-2 rounded-lg text-black h-10 "
                 >
                   <option value="">Todas</option>
                   {categorias.map(cat => (
@@ -190,7 +191,7 @@ function Catalogo() {
                 </select>
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col h-full">
                 <label className="text-white mb-1">Precio mínimo</label>
                 <input
                   type="number"
@@ -198,11 +199,11 @@ function Catalogo() {
                   placeholder="Min"
                   value={filters.precio_min}
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black"
+                  className="p-2 rounded-lg text-black h-10 "
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col h-full">
                 <label className="text-white mb-1">Precio máximo</label>
                 <input
                   type="number"
@@ -210,28 +211,28 @@ function Catalogo() {
                   placeholder="Max"
                   value={filters.precio_max}
                   onChange={handleFilterChange}
-                  className="p-2 rounded-lg text-black"
+                  className="p-2 rounded-lg text-black h-10 "
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col h-full">
                 <label className="text-white mb-1">Ordenar por</label>
                 <div className="flex gap-2 flex-wrap">
                   <button 
                     onClick={() => handleSortChange('titulo')}
-                    className={`px-3 py-1 rounded ${sortConfig.field === 'titulo' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'}`}
+                    className={`px-3 py-1 rounded  ${sortConfig.field === 'titulo' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Título {sortConfig.field === 'titulo' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
                   <button 
                     onClick={() => handleSortChange('precio')}
-                    className={`px-3 py-1 rounded ${sortConfig.field === 'precio' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'}`}
+                    className={`px-3 py-1 rounded ${sortConfig.field === 'precio' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Precio {sortConfig.field === 'precio' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
                   <button 
                     onClick={() => handleSortChange('año_publicacion')}
-                    className={`px-3 py-1 rounded ${sortConfig.field === 'año_publicacion' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'}`}
+                    className={`px-3 py-1 rounded ${sortConfig.field === 'año_publicacion' ? 'bg-[#3B4CBF] text-white' : 'bg-gray-300 text-black'} h-10`}
                   >
                     Año {sortConfig.field === 'año_publicacion' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </button>
@@ -262,7 +263,7 @@ function Catalogo() {
         </div>
 
         {/* Resultados */}
-        <div className="w-full flex flex-wrap justify-between gap-6">
+        <div className="w-full flex flex-wrap gap-4 justify-center"> 
           {filteredBooks.length > 0 ? (
             filteredBooks.map((book) => (
               <BookCard

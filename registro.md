@@ -2137,4 +2137,336 @@ El `ProfileUpdateSerializer` en serializers.py no incluía los campos `username`
 Esta corrección permite a los usuarios actualizar correctamente todos los campos del perfil, incluyendo nombre de usuario, nacionalidad y departamento, lo cual no funcionaba anteriormente. La validación garantiza que, aunque estos campos se puedan editar, sigan cumpliendo las reglas de negocio (como la unicidad del nombre de usuario).
 
 ## Detalles adicionales
-Este tipo de problema es común cuando se añaden campos a modelos y componentes del frontend, pero se olvidan en los serializadores que los conectan. Los campos ya se gestionaban correctamente en el proceso de registro mediante `UsuarioRegistroSerializer`, pero faltaban en el flujo de actualización. Esta corrección garantiza la coherencia entre las funciones de registro y edición de perfiles.
+Este tipo de problema es común cuando se añaden campos a modelos y componentes del frontend, pero se olvidan en los serializadores que los conectan. Los campos ya se gestionaban correctamente en el proceso de registro mediante `UsuarioRegistroSerializer`, pero faltaban en el flujo de actualización. Esta corrección garantiza la coherencia entre las funciones de registro y edición de perfiles.# [2025-05-23] Integración Completa de Compras y Finanzas, Mejoras en Serialización y Migraciones
+
+## feat(compras): Integración robusta entre Carrito, Pedidos y Finanzas
+
+### Cambios principales
+
+- **Integración del método `pagar()` en el modelo Carrito:**
+  - Ahora descuenta saldo del usuario solo si hay fondos suficientes.
+  - Valida stock de cada libro antes de procesar la compra.
+  - Descuenta stock de los libros comprados.
+  - Limpia el carrito tras el pago exitoso.
+  - Registra cada compra como un nuevo Pedido y asocia libros y cantidades mediante el modelo intermedio `PedidoLibro`.
+
+- **Modelo intermedio `CarritoLibro` y `PedidoLibro`:**
+  - Permiten manejar cantidades independientes de libros en el carrito y en los pedidos.
+  - El modelo `PedidoLibro` almacena la tupla (libro, cantidad) para cada pedido, asegurando trazabilidad y detalle en el historial de compras.
+
+- **Mejoras en métodos de Carrito:**
+  - Métodos `agregar_libro`, `quitar_libro`, `limpiar_carrito` y `obtener_libros` refactorizados para trabajar siempre con el modelo intermedio y mantener la integridad de cantidades.
+  - Validaciones robustas para evitar cantidades negativas o inconsistentes.
+
+---
+
+## fix(migraciones): Sincronización y corrección de migraciones
+
+- **Reestructuración de migraciones:**
+  - Eliminadas y recreadas migraciones para resolver inconsistencias entre la base de datos y los modelos.
+  - Uso de `--fake-initial` para sincronizar el estado de la base de datos con las migraciones de Django cuando las tablas ya existen.
+  - Corrección de referencias a modelos en migraciones (`to="compras.Pedidos"` en vez de `to="compras.pedidos"`).
+
+- **Gestión de dependencias:**
+  - Orden correcto de creación de modelos y relaciones ForeignKey.
+  - Separación de la creación de modelos intermedios (`PedidoLibro`, `CarritoLibro`) en migraciones independientes para evitar errores de dependencia circular.
+
+---
+
+## feat(api): Serialización avanzada de pedidos y carritos
+
+- **Serializers anidados:**
+  - `PedidoLibroSerializer` y `CarritoLibroSerializer` ahora incluyen el objeto libro completo usando `LibroSerializer`.
+  - `PedidosSerializer` expone el historial de compras con detalle de libros y cantidades (`pedidolibro_set`).
+  - Endpoints de carrito devuelven la lista de libros y cantidades en formato estructurado, facilitando la integración con el frontend.
+
+- **Endpoints mejorados:**
+  - `/api/compras/carritos/obtener_libros/`: Devuelve todos los libros del carrito con sus cantidades y detalles completos.
+  - `/api/compras/carritos/pagar/`: Procesa el pago, descuenta saldo y stock, y registra el pedido.
+  - `/api/compras/carritos/historial_pedidos/`: Devuelve el historial de pedidos del usuario autenticado, mostrando libros y cantidades.
+
+---
+
+## fix(admin): Mejoras en la administración de compras
+
+- **Visualización y gestión:**
+  - Mejorada la visualización de libros y cantidades en el admin de Carrito y Pedidos.
+  - Acciones personalizadas para vaciar carritos y gestionar pedidos desde el panel administrativo.
+
+---
+
+## Estado Actual del Sistema
+
+### Funcionalidades Implementadas ✅
+
+- **Compras:**
+  - Carrito funcional con manejo de cantidades por libro.
+  - Pago integrado con verificación de saldo y stock.
+  - Registro detallado de pedidos y su historial.
+  - Serialización avanzada para integración frontend.
+
+- **Finanzas:**
+  - Descuento automático de saldo al comprar.
+  - Validaciones robustas de saldo y stock.
+  - Registro de transacciones en el historial de saldo.
+
+- **Migraciones y administración:**
+  - Migraciones sincronizadas y sin errores.
+  - Panel admin mejorado para gestión de compras y finanzas.
+
+---
+
+## Próximos Pasos 🚧
+
+1. **Optimizar consultas y prefetching en endpoints de historial y carrito.**
+2. **Implementar notificaciones por email tras compras exitosas.**
+3. **Agregar soporte para devoluciones y cancelaciones de pedidos.**
+4. **Mejorar la documentación Swagger/OpenAPI para todos los endpoints de compras y finanzas.**
+5. **Desarrollar pruebas unitarias e integración para el flujo de compra y pago.**
+
+---
+
+## Notas Técnicas
+
+- El uso de modelos intermedios (`CarritoLibro`, `PedidoLibro`) es obligatorio para manejar cantidades por libro.
+- Las migraciones deben recrearse si se cambia el nombre de un modelo o relación.
+- Para sincronizar migraciones con la base de datos existente, usar `python manage.py migrate <app> --fake-initial`.
+- Todos los endpoints devuelven datos estructurados y listos para consumo en frontend React.
+
+
+## [2025-06-04] Implementación del Módulo de Tiendas y API de Ubicaciones
+
+### feat(tiendas): Nuevo módulo para gestión de tiendas físicas
+
+#### Implementación del modelo Tienda
+- **Creado modelo `Tienda`** en `apps.tiendas.models` con los siguientes campos:
+  - `nombre`: Nombre de la tienda (CharField)
+  - `direccion`: Dirección física (CharField)
+  - `latitud`: Coordenada de latitud (DecimalField)
+  - `longitud`: Coordenada de longitud (DecimalField)
+- **Método `__str__`** para mostrar el nombre en el admin y representaciones.
+
+#### Migraciones y configuración de la app
+- **Creada migración inicial** para el modelo Tienda.
+- **Configuración de la app** en `apps.py` con `name = 'apps.tiendas'` para correcto registro en Django.
+
+#### Serialización y API REST
+- **Creado `TiendaSerializer`** para exponer todos los campos del modelo.
+- **Implementado `TiendaViewSet`** usando `ModelViewSet` para CRUD completo de tiendas.
+- **Configurado router y URLs** en `apps/tiendas/urls.py`:
+  - Endpoint principal: `/api/tiendas/tiendas/` (GET, POST, PUT, DELETE)
+
+#### Integración en el proyecto
+- **Registrada la app `tiendas`** en `INSTALLED_APPS` y en el archivo global de URLs.
+- **Endpoint disponible** para que el frontend consuma la lista de tiendas y sus ubicaciones.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Gestión de tiendas físicas**:
+  - CRUD completo de tiendas desde el backend.
+  - Almacenamiento de coordenadas para integración con Google Maps u otros servicios de mapas.
+- **API RESTful**:
+  - Endpoint `/api/tiendas/tiendas/` para listar, crear, editar y eliminar tiendas.
+  - Serialización completa de los datos de cada tienda.
+
+#### Integración con Frontend
+- El frontend puede consumir `/api/tiendas/tiendas/` para mostrar las ubicaciones en un mapa interactivo.
+- Preparado para integración con componentes de Google Maps en React.
+
+---
+
+### Próximos Pasos 🚧
+
+1. **Agregar validaciones adicionales** para coordenadas y direcciones.
+2. **Mejorar la documentación Swagger/OpenAPI** para el módulo de tiendas.
+3. **Implementar filtros y búsqueda** por nombre o ubicación en el endpoint.
+4. **Integrar visualización de tiendas en el frontend** usando Google Maps.
+5. **Agregar soporte para imágenes o información adicional de cada tienda.**
+
+---
+
+### Notas Técnicas
+
+- El modelo `Tienda` es independiente y puede ser extendido fácilmente.
+- El endpoint está protegido por los permisos globales de la API (puede ajustarse según necesidad).
+- La estructura permite escalar a múltiples sucursales y visualización geográfica.
+
+## [2025-06-05] Implementación y Optimización del Sistema de Reservas y Compras
+
+### feat(compras): Sistema completo de reservas y pagos
+
+#### Cambios en modelos (`models.py`)
+- **Implementación del modelo `Reserva`:**
+  - Permite a los usuarios reservar libros con control de stock y expiración automática.
+  - Campos: usuario, libro, cantidad, estado, fecha_reserva, fecha_expiracion.
+  - Métodos:
+    - `reservar_libro`: Valida stock, límites por usuario y crea la reserva.
+    - `cancelar_reserva`: Permite cancelar reservas activas y devuelve stock.
+    - `verificar_expiracion`: Marca reservas como expiradas y devuelve stock si corresponde.
+    - `pagar_reserva`: Permite pagar una reserva, descuenta saldo y crea un pedido.
+- **Mejoras en el modelo `Carrito`:**
+  - Métodos robustos para agregar, quitar y limpiar libros.
+  - Método `pagar` ahora descuenta saldo, valida stock y genera pedidos con detalle de libros y cantidades.
+- **Modelo `Pedidos` y `PedidoLibro`:**
+  - Permiten registrar cada compra con detalle de libros y cantidades.
+  - Métodos para crear pedidos y consultar los libros asociados.
+
+---
+
+### feat(api): Serializers avanzados para reservas y compras (`serializers.py`)
+- **Serializadores para reservas:**
+  - `ReservaSerializer`: Expone todos los campos relevantes, anida información del libro.
+  - `CrearReservaSerializer`: Valida datos de entrada para crear reservas.
+  - `IdReservaSerializer`: Valida la existencia de una reserva por ID.
+- **Serializadores para carritos y pedidos:**
+  - `CarritoLibroSerializer` y `PedidoLibroSerializer`: Incluyen información completa del libro y cantidad.
+  - `PedidosSerializer`: Anida el detalle de libros y cantidades en cada pedido.
+
+---
+
+### feat(api): Endpoints RESTful para reservas y compras (`views.py`, `urls.py`)
+- **ReservaViewSet:**
+  - Endpoint para listar reservas del usuario autenticado.
+  - Acción personalizada `reservar`: Permite crear una reserva validando stock y límites.
+  - Acción `cancelar`: Permite cancelar una reserva activa.
+  - Acción `verificar_expiracion`: Marca como expiradas todas las reservas vencidas del usuario.
+  - Acción `pagar_reserva`: Permite pagar una reserva, descuenta saldo y genera el pedido.
+- **CarritoViewSet:**
+  - Endpoints para agregar, quitar y vaciar libros del carrito.
+  - Acción `pagar`: Procesa el pago del carrito, descuenta saldo y stock, y genera el pedido.
+  - Acción `historial_pedidos`: Devuelve el historial de pedidos del usuario autenticado.
+- **Configuración de rutas (`urls.py`):**
+  - Registro de los ViewSets de carrito y reservas en el router principal.
+
+---
+
+### fix(swagger): Documentación precisa y endpoints claros
+- Uso de `@extend_schema` para documentar cada acción personalizada.
+- Corrección de los parámetros de entrada y salida en la documentación de Swagger/OpenAPI.
+- Eliminación de parámetros innecesarios en endpoints personalizados (como `usuario` y `cantidad` en acciones que no los requieren).
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Reservas:**  
+  - Creación, cancelación, expiración y pago de reservas con control de stock y saldo.
+- **Compras:**  
+  - Carrito funcional, pago integrado, historial de pedidos detallado.
+- **API RESTful:**  
+  - Endpoints claros y documentados para todas las operaciones de reservas y compras.
+- **Serialización avanzada:**  
+  - Respuestas estructuradas y listas para consumo en frontend.
+
+#### Mejoras en la experiencia de usuario
+- Mensajes claros de error y éxito en todas las operaciones.
+- Validaciones robustas para evitar inconsistencias de stock y saldo.
+- Documentación Swagger precisa y sin parámetros innecesarios.
+
+---
+
+### Próximos Pasos 🚧
+1. Implementar notificaciones automáticas para reservas expiradas y pagos exitosos.
+2. Añadir filtros y paginación en el historial de reservas y pedidos.
+3. Mejorar la gestión de devoluciones y cancelaciones de pedidos.
+4. Desarrollar pruebas unitarias e integración para el flujo de reservas y compras.
+5. Optimizar consultas y prefetching en endpoints de historial y carrito.
+
+---
+
+### Notas Técnicas
+- El sistema de reservas y compras es extensible y preparado para integración con módulos de finanzas y notificaciones.
+- La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
+- La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.
+
+
+## [2025-06-06] Implementación de Historial de Compras, Devolución con QR y Optimización de Compras
+
+### feat(compras): Historial de compras y devolución con QR
+
+#### Cambios en modelos (`models.py`)
+- **Nuevo modelo `HistorialDeCompras`:**
+  - Guarda cada compra completada por el usuario, vinculada a un pedido y fecha.
+  - Método `devolucion_compra`:
+    - Genera un código QR en memoria con los datos de la compra.
+    - Envía el QR por correo electrónico al usuario como archivo adjunto.
+    - Valida que la devolución solo sea posible dentro de los 8 días posteriores a la compra.
+  - Método `MostrarHistorialCompras`: permite consultar el historial de compras del usuario.
+- **Actualización en modelo `Pedidos`:**
+  - Al cambiar el estado a `'Entregado'`, se registra automáticamente la compra en el historial (`HistorialDeCompras`).
+  - Métodos para crear, cancelar y mostrar pedidos optimizados.
+- **Integración con reservas y carritos:**
+  - Flujo de pago y registro de pedidos mejorado para reflejar correctamente el historial.
+
+---
+
+### feat(api): Serializers y endpoints para historial de compras (`serializers.py`, `views.py`, `urls.py`)
+- **Serializer `HistorialDeComprasSerializer`:**
+  - Expone los campos `id`, `usuario`, `pedido` y `fecha`.
+  - Anida la información del pedido con libros y cantidades.
+- **ViewSet `HistorialDeComprasViewSet`:**
+  - Endpoint de solo lectura para listar el historial de compras del usuario autenticado.
+  - Acción personalizada `devolver_compra`:
+    - Permite solicitar la devolución de una compra.
+    - Llama al método `devolucion_compra` del modelo y envía el QR por email.
+    - Valida el plazo de devolución y responde con mensajes claros.
+- **Rutas (`urls.py`):**
+  - Registro del ViewSet en el router bajo el prefijo `historial-compras`.
+
+---
+
+### feat(api): Mejoras en endpoints de compras y reservas
+- **ReservaViewSet:**
+  - Endpoints para reservar, cancelar, pagar y verificar expiración de reservas.
+  - Documentación Swagger mejorada para cada acción.
+- **PedidoViewSet y CarritoViewSet:**
+  - Endpoints para gestionar pedidos, cancelar, cambiar estado y ver historial.
+  - Acciones para agregar, quitar y vaciar libros del carrito.
+
+---
+
+### fix(swagger): Documentación precisa y endpoints claros
+- Uso de `@extend_schema` y `request=None` para documentar correctamente los endpoints que no requieren body.
+- Eliminación de parámetros innecesarios en la documentación de acciones personalizadas.
+- Respuestas detalladas para operaciones exitosas y de error.
+
+---
+
+### Estado Actual del Sistema
+
+#### Funcionalidades Implementadas ✅
+- **Historial de compras:**  
+  - Registro automático de compras entregadas.
+  - Consulta del historial por usuario autenticado.
+- **Devolución con QR:**  
+  - Generación y envío de código QR por email para devoluciones dentro del plazo permitido.
+- **Gestión de reservas, carritos y pedidos:**  
+  - Flujo completo de compra, pago y registro en historial.
+- **API RESTful:**  
+  - Endpoints claros y documentados para todas las operaciones de compras, reservas y devoluciones.
+
+#### Mejoras en la experiencia de usuario
+- Mensajes claros de éxito y error en todas las operaciones.
+- Validaciones robustas para devoluciones y registro de compras.
+- Documentación Swagger precisa y sin parámetros innecesarios.
+
+---
+
+### Próximos Pasos 🚧
+1. Permitir descarga del QR desde el historial si el usuario lo solicita.
+2. Añadir notificaciones automáticas para devoluciones y compras exitosas.
+3. Implementar filtros y paginación en el historial de compras.
+4. Desarrollar pruebas unitarias para el flujo de devoluciones y registro de historial.
+5. Optimizar consultas y prefetching en endpoints de historial y pedidos.
+
+---
+
+### Notas Técnicas
+- El QR se genera en memoria y solo se envía por email, no se almacena en la base de datos.
+- El historial de compras es inmutable y se registra automáticamente al entregar un pedido.
+- La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
+- La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.

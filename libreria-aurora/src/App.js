@@ -9,6 +9,7 @@ import SearchBook from './components/SearchBook';
 import Catalogo from './components/catalogo';
 import DetalleLibro from './components/DetalleLibro';
 import Carrito from './components/carrito';
+import Tiendas from './components/Tiendas';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/catalogo" element={<Catalogo/>} />
         <Route path='/:libro' element={<DetalleLibro/>} />
         <Route path= "/carrito" element={<Carrito/>} />
+        <Route path="/tiendas" element={<Tiendas/>} />
       </Routes>
     </HashRouter>
   );

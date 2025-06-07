@@ -10,11 +10,11 @@ import AdminForumMessages from "./profile/adminForumMessages";
 import Pedidos from "./profile/pedidos";
 import Reservas from "./profile/reservas";
 import AdminLibros from "./profile/adminLibros"; // Importar el nuevo componente
+import Pedidos from "./profile/pedidos";
+import Reservas from "./profile/reservas";
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro'];
-  // Agregar opción solo para staff
-  const staffOptions = [...options, 'gestionar libros'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
   const [isStaff, setIsStaff] = useState(false);
   
@@ -60,7 +60,9 @@ function MiPerfil() {
       case 'gestion financiera':
         return <FinancialManagement/>;
       case 'pedidos':
-        return <p className="p-6 text-black text-lg">Aquí verás tus pedidos realizados.</p>;
+        return <Pedidos/>;
+      case 'reservas':
+        return <Reservas/>;
       case 'foro':
         // Mostrar el componente adecuado según el rol del usuario
         return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
