@@ -16,12 +16,6 @@ function Tiendas() {
   const [tiendas, setTiendas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
-    nombre: "",
-    direccion: "",
-    latitud: "",
-    longitud: "",
-  });
 
   const fetchTiendas = async () => {
     try {
@@ -48,41 +42,6 @@ function Tiendas() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No hay token de autenticación");
-        return;
-      }
-
-      const response = await fetch(getApiUrl("/api/tiendas/tiendas/"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data?.detail || "Error al crear la tienda");
-        return;
-      }
-
-      setTiendas((prev) => [...prev, data]);
-      setFormData({ nombre: "", direccion: "", latitud: "", longitud: "" });
-      setError(""); // limpiar errores
-    } catch (err) {
-      console.error(err);
-      setError("Error al enviar la tienda");
-    }
-  };
-
   useEffect(() => {
     fetchTiendas();
   }, []);
@@ -92,81 +51,6 @@ function Tiendas() {
         <NavBar />
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-blue-200 p-[1vw] m-2">
             <h2 className="text-xl font-bold text-black border-b-2 border-yellow-400 pb-1">Tiendas</h2>
-
-            {/* <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md"
-                value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                required
-                />
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Dirección</label>
-                <input
-                type="text"
-                className="mt-1 p-2 w-full border rounded-md"
-                value={formData.direccion}
-                onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
-                required
-                />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                <label className="block text-sm font-medium text-gray-700">Latitud</label>
-                <input
-                    type="text"
-                    className="mt-1 p-2 w-full border rounded-md"
-                    value={formData.latitud}
-                    onChange={(e) => setFormData({ ...formData, latitud: e.target.value })}
-                    required
-                />
-                </div>
-
-                <div>
-                <label className="block text-sm font-medium text-gray-700">Longitud</label>
-                <input
-                    type="text"
-                    className="mt-1 p-2 w-full border rounded-md"
-                    value={formData.longitud}
-                    onChange={(e) => setFormData({ ...formData, longitud: e.target.value })}
-                    required
-                />
-                </div>
-            </div>
-
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Selecciona la ubicación en el mapa</label>
-                <MapContainer
-                center={[4.6, -74.1]}
-                zoom={6}
-                style={{ height: "300px", borderRadius: "0.5rem" }}
-                >
-                <TileLayer
-                    attribution='&copy; OpenStreetMap contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <LocationSelector setFormData={setFormData} />
-                {formData.latitud && formData.longitud && (
-                    <Marker position={[parseFloat(formData.latitud), parseFloat(formData.longitud)]}>
-                    <Popup>Ubicación seleccionada</Popup>
-                    </Marker>
-                )}
-                </MapContainer>
-            </div>
-
-            <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
-            >
-                Registrar Tienda
-            </button>
-            </form> */}
 
             {loading ? (
             <p className="mt-4 text-gray-600">Cargando tiendas...</p>
@@ -224,22 +108,6 @@ function Tiendas() {
         </div>
     </div>
   );
-}
-
-// Componente para capturar clics en el mapa y actualizar lat/lon
-function LocationSelector({ setFormData }) {
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-      setFormData((prev) => ({
-        ...prev,
-        latitud: lat.toFixed(6),
-        longitud: lng.toFixed(6),
-      }));
-    },
-  });
-
-  return null;
 }
 
 export default Tiendas;
