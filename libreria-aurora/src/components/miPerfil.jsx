@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import NavBar from "./navBar";
-import { getApiUrlByKey } from "../api/config";
-
 import EditProfile from "./profile/editProfile";
 import FinancialManagement from "./profile/financialManagement";
 import ChangePassword from "./profile/ChangePassword";
@@ -17,8 +15,7 @@ function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro', 'gestionar libros','gestionar tiendas'];
   const staffOptions = ['editar perfil', 'cambiar contraseña', 'pedidos', 'foro', 'gestionar libros', 'gestionar tiendas'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
-  // Verificar si el usuario es staff
-  const isStaff = useIsStaff();
+  const { isStaff, loading } = useIsStaff();
 
   const renderContent = () => {
     switch (selectedOption) {
@@ -43,6 +40,17 @@ function MiPerfil() {
         return <p className="p-6 text-black text-lg">Selecciona una opción del menú.</p>;
     }
   };
+
+  if (loading) {
+  return (
+    <div className="w-full min-h-screen flex flex-col">
+      <NavBar />
+      <div className="flex-grow flex items-center justify-center bg-[#2B388C] text-white text-lg">
+        Cargando perfil...
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="w-full min-h-screen flex flex-col">

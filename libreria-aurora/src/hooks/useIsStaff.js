@@ -3,6 +3,7 @@ import { getApiUrlByKey } from '../api/config';
 
 export function useIsStaff() {
   const [isStaff, setIsStaff] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkUserRole = async () => {
@@ -11,7 +12,6 @@ export function useIsStaff() {
         if (!token) return;
 
         const perfilUrl = getApiUrlByKey('usuariosPerfil');
-
         const response = await fetch(perfilUrl, {
           method: 'GET',
           headers: {
@@ -22,17 +22,23 @@ export function useIsStaff() {
 
         if (response.ok) {
           const userData = await response.json();
-          if (userData.tipo_usuario === 'ADMIN' || userData.tipo_usuario === 'BIBLIOTECARIO' || userData.is_staff) {
+          if (
+            userData.tipo_usuario === 'ADMIN' ||
+            userData.tipo_usuario === 'BIBLIOTECARIO' ||
+            userData.is_staff
+          ) {
             setIsStaff(true);
           }
         }
       } catch (error) {
         console.error('Error al verificar el rol del usuario:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     checkUserRole();
   }, []);
 
-  return isStaff;
+  return { isStaff, loading };
 }
