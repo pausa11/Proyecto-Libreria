@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getApiUrl } from "../../api/config";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 
 function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
@@ -76,7 +77,6 @@ function Pedidos() {
   };
 
   const devolverCompra = async (historialId) => {
-    console.log("Devolviendo compra con ID:", historialId);
     try {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -96,7 +96,10 @@ function Pedidos() {
         return;
       }
 
-      alert("Devolución realizada con éxito.");
+      toast.success("Devolución procesada exitosamente.Revisa tu correo para más detalles.", {
+        duration: 5000,
+        position: "top-right",
+      });
       fetchHistorialCompras(); // Actualiza el historial
     } catch (error) {
       console.error("Error al procesar la devolución:", error);
@@ -116,6 +119,7 @@ function Pedidos() {
 
     return (
       <div key={pedido.id} className="mb-8 border-t pt-6">
+        <Toaster />
         {pedido.pedidolibro_set.map((item, index) => (
           <div key={index} className="flex gap-4 mb-4">
             <div className="flex-shrink-0">
