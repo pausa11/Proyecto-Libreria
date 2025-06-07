@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
 import NavBar from "./navBar";
 import { useNavigate } from "react-router-dom";
@@ -148,7 +148,7 @@ function CarritoLibro() {
       console.error("Error al procesar la compra:", error);
       toast.error(error.message || "Error inesperado.");
     } finally {
-      setIsProcessing(false); // ⬅️ Siempre apagar bloqueo
+      setIsProcessing(false); 
     }
   };
 
@@ -179,7 +179,7 @@ function CarritoLibro() {
         hoy.getDate() === nacimiento.getDate() &&
         hoy.getMonth() === nacimiento.getMonth()
       ) {
-        descuento = 5000;
+        descuento = 10;
       }
     }
 
@@ -188,6 +188,62 @@ function CarritoLibro() {
   };
 
   const { envio, descuento, total } = calcularTotal();
+
+  const handleIncrease = async (libroId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(getApiUrl("/api/compras/carritos/agregar_libro/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          libro_id: libroId,
+          cantidad: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al aumentar la cantidad.");
+      }
+
+      await getCartData(); // refrescar carrito
+    } catch (error) {
+      console.error("Error al aumentar libro:", error);
+      toast.error("No se pudo aumentar la cantidad.");
+    }
+  };
+
+  const handleDecrease = async (libroId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await fetch(getApiUrl("/api/compras/carritos/quitar_libro/"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          libro_id: libroId,
+          cantidad: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al disminuir la cantidad.");
+      }
+
+      await getCartData(); // refrescar carrito
+    } catch (error) {
+      console.error("Error al disminuir libro:", error);
+      toast.error("No se pudo disminuir la cantidad.");
+    }
+  };
 
   if (carrito.length === 0) {
     return (
@@ -216,7 +272,16 @@ function CarritoLibro() {
               <div className="bg-gray-200 rounded-md p-3 text-sm space-y-1">
                 <p><span className="font-semibold">Descripción:</span> {carrito.libro.descripcion}</p>
                 <p><span className="font-semibold">Categoría:</span> {carrito.libro.categoria_nombre}</p>
-                <p><span className="font-semibold">Cantidad:</span> {carrito.cantidad}</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold">Cantidad:</span>
+                  <button className="px-2 py-1 bg-gray-300 rounded disabled:opacity-50" onClick={() => handleDecrease(carrito.libro.id)} disabled={carrito.cantidad <= 1} >
+                    −
+                  </button>
+                  <span className="px-2">{carrito.cantidad}</span>
+                  <button className="px-2 py-1 bg-gray-300 rounded" onClick={() => handleIncrease(carrito.libro.id)} >
+                    +
+                  </button>
+              </div>
               </div>
             </div>
             <div className="text-right">
@@ -275,15 +340,18 @@ function CarritoLibro() {
           </div>
         )}
 
-        <div className="flex items-center mb-4">
-          <input
-            type="checkbox"
-            checked={recogerEnTienda}
-            onChange={(e) => setRecogerEnTienda(e.target.checked)}
-            className="mr-2"
-          />
-          <label className="text-gray-700">Recoger en tienda</label>
-        </div>
+        {((usarDireccionGuardada && userData?.nacionalidad === "Colombia") ||
+          (!usarDireccionGuardada && userAddress.nacionalidad === "Colombia")) && (
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              checked={recogerEnTienda}
+              onChange={(e) => setRecogerEnTienda(e.target.checked)}
+              className="mr-2"
+            />
+            <label className="text-gray-700">Recoger en tienda</label>
+          </div>
+        )}
 
         {/* Totales */}
         <div className="bg-gray-200 p-4 rounded-md mb-6 text-sm text-gray-700 mt-4">
