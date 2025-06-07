@@ -2470,3 +2470,174 @@ Este tipo de problema es común cuando se añaden campos a modelos y componentes
 - El historial de compras es inmutable y se registra automáticamente al entregar un pedido.
 - La lógica de negocio está centralizada en los modelos, mientras que los mensajes y validaciones de entrada se gestionan en los serializers y views.
 - La documentación OpenAPI está alineada con la implementación real de los endpoints, facilitando el desarrollo frontend y la integración de terceros.
+
+# Documentacion imagenes cloudnary libros, caratulas, portadas
+
+
+InnerKano
+committed
+on Mar 28
+ Implementación del Sistema de Almacenamiento de Imágenes con Cloudinary
+# Documentación de Commit para Registro FRONT Y BACK
+
+## [2025-03-28] Implementación del Sistema de Almacenamiento de Imágenes con Cloudinary
+
+### feat(backend): Integración con Cloudinary para almacenamiento de portadas de libros
+
+#### Detalles del cambio
+- **commit:** Implementación completa de Cloudinary para portadas de libros
+  - **Implementado:** Sistema de almacenamiento en la nube para imágenes de portadas
+  - **Añadido:** Configuración de Cloudinary con variables de entorno
+  - **Actualizado:** Modelo Libro para soportar imágenes en la nube
+  - **Creado:** Campo `portada_url` para acceso optimizado a URLs de imágenes
+  - **Implementado:** Scripts de gestión automatizada de imágenes
+
+#### Cambios específicos realizados
+- **Configuración de Cloudinary:**
+  - Instalación de dependencias: `cloudinary` y `django-cloudinary-storage`
+  - Configuración en `settings.py` usando variables del `.env`
+  - Implementación de `DEFAULT_FILE_STORAGE` para usar Cloudinary
+
+- **Actualización de modelos:**
+  - Actualización del campo `portada` en el modelo `Libro`
+  - Adición de validadores para garantizar formatos correctos
+  - Integración con `validate_image` de Cloudinary
+
+- **Serializer optimizado:**
+  - Implementación de `get_portada_url` para generar URLs completas
+  - Configuración de `portada` como campo write-only
+  - Optimización del serializador para manejo eficiente de imágenes
+
+- **Scripts de automatización:**
+  - Creación de `verify_images.py` para verificar existencia de imágenes
+  - Implementación de `manage_images.py` para gestión de imágenes en fixtures
+  - Normalización automatizada de nombres de archivos basada en títulos
+
+- **Ajuste de fixtures:**
+  - Actualización para incluir referencias a imágenes en Cloudinary
+  - Formato estandarizado para nombres de archivo basados en títulos
+  - Compatibilidad con la estructura de datos existente
+
+### feat(frontend): Integración de imágenes de Cloudinary en los componentes de visualización
+
+#### Detalles del cambio
+- **commit:** Actualización de componentes frontend para visualización de portadas
+  - **Modificado:** Componente `BookCard` para usar URLs de Cloudinary
+  - **Implementado:** Sistema de fallback para libros sin portada
+  - **Añadido:** Soporte para imágenes placeholder por defecto
+  - **Actualizado:** Componentes de home para mostrar portadas correctas
+
+#### Cambios específicos realizados
+- **Componente BookCard:**
+  - Actualización para usar `portada_url` en lugar de referencias locales
+  - Implementación de fallback a imagen placeholder
+  - Optimización de carga y visualización
+
+- **Secciones de Home:**
+  - Ajuste de componentes de libros populares
+  - Actualización de componente de libros destacados
+  - Optimización de componente de libros recientes
+
+- **Manejo de imágenes no disponibles:**
+  - Creación de imagen placeholder `placeholder-book.png`
+  - Implementación de lógica condicional para mostrar placeholder
+  - Mejora de mensajes de error y fallbacks
+
+### Estado Actual del Sistema
+
+#### Sistema de Imágenes ✅
+- **Almacenamiento en la nube:** Completamente funcional
+  - Cloudinary configurado y operativo
+  - Imágenes accesibles mediante URLs optimizadas
+  - Sistema tolerante a fallos (fallbacks implementados)
+
+- **Gestión de Imágenes:** Completamente funcional
+  - Scripts de verificación disponibles
+  - Sistema automatizado de asociación de imágenes
+  - Herramientas para normalización de nombres
+
+- **Integración con Frontend:** Completamente funcional
+  - Componentes actualizados para usar URLs de Cloudinary
+  - Imágenes con fallback configurado
+  - Manejo adecuado de casos sin imagen
+
+#### Convención de Nomenclatura de Imágenes ✅
+- Nombre de archivo: `Título_del_libro.jpg`
+- Ruta en Cloudinary: directorio raíz
+- URLs accesibles mediante propiedad `portada_url` del serializer
+
+
+committed
+on Mar 28
+Pequeños Cambios A Scripts de imagenes de Libros
+Reconocer el formato con el que viene por parte de cloudfire y hacer una normalizacion para encontrar los relevantes.
+Los archivos de origen reemplazan automaticamente los espacios con "_", por lo que debia ser considerado por el script.
+Algunos archivos con ":" no eran reconocidos, asi que se agrego el patron.
+
+## Commit: Implementar sistema automatizado de carga de imágenes de portada para gestión de libros
+
+### **Qué**: Sistema automatizado de carga y gestión de imágenes de portada para libros  
+**Por qué**: Reemplazar el flujo de trabajo manual basado en scripts por una automatización integrada en la interfaz de administración  
+**Dónde**: Aplicación backend libros y componente frontend AdminLibros  
+**Cómo**: Integración de CloudinaryField con nombrado automático de archivos y carga en tiempo real
+
+---
+
+### **Cambios en Backend**
+
+**backend/apps/libros/models.py**
+- Corregida la configuración de CloudinaryField (eliminado parámetro inválido `upload_to`)
+- Añadido método `normalize_title_for_filename()` para convención de nombres consistente
+- Implementada renombrado automático de imágenes en el método `save()` usando la API de rename de Cloudinary
+- Actualizado validador de año_publicacion a 2025
+
+**backend/apps/libros/views.py**
+- Añadida importación faltante de decorador `@action`
+- Mejorados métodos `create()` y `update()` con renombrado automático de portada
+- Corregido CategoriaViewSet con permisos adecuados
+- Mantenidas parser classes para soporte de datos multipart form
+
+**backend/apps/libros/serializers.py**
+- Mejorado método `get_portada_url()` para correcta generación de URL de CloudinaryField
+- Añadida validación integral de campos (unicidad de ISBN, precios positivos, años válidos)
+- Mejorado manejo de errores al obtener URL de imagen
+- Añadido decorador `@extend_schema_field` para documentación de API
+
+**backend/apps/libros/admin.py**
+- Añadido método `portada_preview()` para previsualización de portada en el admin de Django
+- Actualizados fieldsets para incluir previsualización de imagen
+- Mejorada interfaz de administración con manejo adecuado de CloudinaryField
+
+**backend/apps/libros/scripts/upload_images.py**
+- Actualizado script para funcionar con la estructura de CloudinaryField
+- Modificado para asignar public_id directamente al campo portada
+- Mantenida compatibilidad con el flujo de trabajo existente
+
+### **Cambios en Frontend**
+
+**libreria-aurora/src/components/profile/adminLibros.jsx**
+- Implementado manejo de FormData para carga de archivos al seleccionar imagen de portada
+- Añadida carga automática de imagen al enviar el formulario (sin scripts manuales)
+- Mejorada interfaz de carga de portada con previsualización de imagen actual/nueva
+- Añadido feedback en tiempo real para selección y estado de carga de imagen
+- Integrado flujo automático de carga a Cloudinary
+- Eliminadas instrucciones de scripts manuales en favor del proceso automatizado
+
+### **Características Clave Implementadas**
+
+1. **Carga Automática de Archivos**: Las imágenes se suben directamente a Cloudinary al guardar el libro
+2. **Nombrado Inteligente**: Los archivos se renombran automáticamente según el título del libro (ej: "El_Principito.jpg")
+3. **Previsualización en Tiempo Real**: Muestra portada actual y nueva lado a lado
+4. **Integración Transparente**: No se requieren scripts manuales, todo es automático
+5. **Manejo de Errores**: Validación adecuada y feedback al usuario durante todo el proceso
+6. **Compatibilidad Retroactiva**: Imágenes y scripts existentes siguen funcionando
+
+### **Flujo de Trabajo Tras los Cambios**
+
+1. El administrador selecciona "Editar libro" o crea uno nuevo
+2. Opcionalmente selecciona un nuevo archivo de portada
+3. Al guardar, la imagen se sube automáticamente a Cloudinary con nombre normalizado
+4. El campo portada_url se actualiza y muestra la nueva imagen de inmediato
+5. No se requiere intervención manual ni ejecución de scripts
+
+**Resultado**: El flujo de trabajo manual y dependiente de scripts se transforma en una interfaz de administración automatizada, ahorrando tiempo y reduciendo errores, manteniendo las convenciones de nombres y la integración con Cloudinary.
