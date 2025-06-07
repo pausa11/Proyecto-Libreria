@@ -10,6 +10,14 @@ import AdminForumMessages from "./profile/adminForumMessages";
 
 function MiPerfil() {
   const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
+import Pedidos from "./profile/pedidos";
+import Reservas from "./profile/reservas";
+import AdminLibros from "./profile/adminLibros"; // Importar el nuevo componente
+
+function MiPerfil() {
+  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera','reservas', 'pedidos', 'foro'];
+  // Agregar opción solo para staff
+  const staffOptions = [...options, 'gestionar libros'];
   const [selectedOption, setSelectedOption] = useState('editar perfil');
   const [isStaff, setIsStaff] = useState(false);
   
@@ -59,6 +67,8 @@ function MiPerfil() {
       case 'foro':
         // Mostrar el componente adecuado según el rol del usuario
         return isStaff ? <AdminForumMessages/> : <ForumMessages/>;
+      case 'gestionar libros':
+        return isStaff ? <AdminLibros/> : <p className="p-6 text-black text-lg">Acceso restringido.</p>;
       default:
         return <p className="p-6 text-black text-lg">Selecciona una opción del menú.</p>;
     }
@@ -73,7 +83,7 @@ function MiPerfil() {
         <div className="w-full lg:w-[25%] lg:mr-6 mb-4 lg:mb-0">
           <div className="bg-white rounded-lg p-4 sticky top-4">
             <div className="flex flex-row lg:flex-col gap-2 lg:gap-4 overflow-x-auto lg:overflow-visible">
-              {options.map((option, index) => (
+              {(isStaff ? staffOptions : options).map((option, index) => (
                 <button 
                   key={index} 
                   onClick={() => setSelectedOption(option)} 
