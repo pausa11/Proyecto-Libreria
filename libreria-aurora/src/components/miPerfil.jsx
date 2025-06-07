@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import NavBar from "./navBar";
 import { getApiUrlByKey } from "../api/config";
 
@@ -7,9 +7,6 @@ import FinancialManagement from "./profile/financialManagement";
 import ChangePassword from "./profile/ChangePassword";
 import ForumMessages from "./profile/forumMessages";
 import AdminForumMessages from "./profile/adminForumMessages";
-
-function MiPerfil() {
-  const options = ['editar perfil', 'cambiar contraseña', 'gestion financiera', 'pedidos', 'foro'];
 import Pedidos from "./profile/pedidos";
 import Reservas from "./profile/reservas";
 import AdminLibros from "./profile/adminLibros"; // Importar el nuevo componente
