@@ -25,17 +25,10 @@ function Tiendas() {
 
   const fetchTiendas = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No hay token de autenticación");
-        setLoading(false);
-        return;
-      }
 
       const response = await fetch(getApiUrl("/api/tiendas/tiendas/"), {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
       });
 
