@@ -6,6 +6,7 @@ from cloudinary.models import CloudinaryField
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True, help_text="Descripción de la categoría")
     
     def __str__(self):
         return self.nombre
@@ -14,7 +15,7 @@ class Libro(models.Model):
     titulo = models.CharField(max_length=200)
     autor = models.CharField(max_length=200)
     isbn = models.CharField(max_length=13, unique=True)
-    categoria = models.CharField(max_length=100, default='General', help_text="Categoría del libro")
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True, help_text="Categoría del libro")
     editorial = models.CharField(max_length=100, default='Sin editorial', help_text="Editorial del libro")
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0, validators=[MinValueValidator(0)])

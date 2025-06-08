@@ -3152,3 +3152,136 @@ data['is_staff'] = bool(fresh_instance.is_staff)  # Debería ser True, llega Fal
 ```
 
 Este registro documenta claramente el segundo intento fallido y proporciona un análisis técnico detallado del problema persistente para futuras referencias o para que otro desarrollador pueda continuar la investigación.Este registro documenta claramente el segundo intento fallido y proporciona un análisis técnico detallado del problema persistente para futuras referencias o para que otro desarrollador pueda continuar la investigación.
+
+
+Basándome en el archivo si.md que documenta todo el proceso de resolución del problema, aquí está la documentación de los cambios en formato commit:
+
+## Commit 1: Add descripcion field to Categoria model
+
+**Why (Por qué):**
+- El comando `python manage.py loaddata libros_prueba.json` fallaba con error `FieldDoesNotExist: Categoria has no field named 'descripcion'`
+- Los fixtures contenían datos con campo `descripcion` para categorías, pero el modelo no lo tenía definido
+- Una librería necesita descripciones para las categorías para mejor UX
+
+**Where (Dónde):**
+- models.py - Modelo Categoria
+
+**What (Qué):**
+```python
+# Agregado al modelo Categoria
+descripcion = models.TextField(blank=True, null=True, help_text="Descripción detallada de la categoría")
+```
+
+**For what (Para qué):**
+- Permitir que las categorías tengan descripciones detalladas
+- Hacer compatible el modelo con los fixtures de prueba
+- Mejorar la información disponible para los usuarios sobre cada categoría
+
+---
+
+## Commit 2: Create migration for Categoria descripcion field
+
+**Why (Por qué):**
+- Django requiere migraciones para aplicar cambios en la base de datos
+- Sin migración, el nuevo campo no existe en la DB
+
+**Where (Dónde):**
+- migrations - Nueva migración
+
+**What (Qué):**
+```bash
+python manage.py makemigrations libros
+python manage.py migrate
+```
+
+**For what (Para qué):**
+- Crear la estructura de DB necesaria para el nuevo campo
+- Sincronizar el modelo con la base de datos
+
+---
+
+## Commit 3: Change Libro.categoria from CharField to ForeignKey
+
+**Why (Por qué):**
+- Segundo error después de resolver el primero: las señales en `noticias/signals.py` intentaban acceder a `instance.categoria.nombre`
+- El campo `categoria` era CharField pero se usaba como si fuera una relación ForeignKey
+- Los fixtures usaban IDs numéricos (1, 2, 3) que corresponden a ForeignKeys, no a strings
+
+**Where (Dónde):**
+- models.py - Modelo Libro
+
+**What (Qué):**
+```python
+# Cambio de:
+categoria = models.CharField(max_length=100)
+# A:
+categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='libros')
+```
+
+**For what (Para qué):**
+- Establecer relación correcta entre Libro y Categoria
+- Permitir acceso a propiedades de Categoria desde Libro (`libro.categoria.nombre`)
+- Hacer compatible con las señales existentes en el módulo de noticias
+- Permitir integridad referencial en la base de datos
+
+---
+
+## Commit 4: Create migration for Libro.categoria ForeignKey relationship
+
+**Why (Por qué):**
+- Cambio de tipo de campo requiere migración de datos
+- Django necesita instrucciones sobre cómo convertir CharField a ForeignKey
+
+**Where (Dónde):**
+- migrations - Nueva migración
+
+**What (Qué):**
+```bash
+python manage.py makemigrations libros
+python manage.py migrate
+```
+
+**For what (Para qué):**
+- Aplicar cambio de estructura en la base de datos
+- Convertir datos existentes al nuevo formato de relación
+
+---
+
+## Commit 5: Successfully load test fixtures
+
+**Why (Por qué):**
+- Verificar que todos los cambios funcionan correctamente
+- Poblar la base de datos con datos de prueba para desarrollo
+
+**Where (Dónde):**
+- libros_prueba.json
+
+**What (Qué):**
+```bash
+python manage.py loaddata libros_prueba.json
+```
+
+**For what (Para qué):**
+- Cargar 27 libros y 3 categorías de prueba
+- Validar que la estructura de modelos es correcta
+- Proporcionar datos para testing y desarrollo
+
+---
+
+## Resumen del Impact
+
+**Problemas resueltos:**
+1. ❌ `FieldDoesNotExist: Categoria has no field named 'descripcion'`
+2. ❌ Error en señales por acceso incorrecto a relación de categoria
+3. ✅ Fixtures cargados exitosamente
+
+**Mejoras arquitecturales:**
+- Relación correcta entre modelos Libro ↔ Categoria
+- Estructura de datos más robusta y normalizada
+- Compatibilidad con sistema de señales para noticias automáticas
+- Base de datos poblada con datos de prueba realistas
+
+**Files affected:**
+- models.py (2 cambios)
+- migrations (2 nuevas migraciones)
+- Database schema (nuevos campos y relaciones)
